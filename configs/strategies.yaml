@@ -1,0 +1,9 @@
+direct: {}
+cot: {}
+got:
+  max_nodes: 6
+  aggregate_top_k: 2
+tot:
+  branches: 3
+  depth: 2
+  eval_top_k: 2

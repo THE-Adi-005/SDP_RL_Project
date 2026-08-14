@@ -1,0 +1,5 @@
+Solve the following question step by step, showing your reasoning, then give the final answer on the last line in the exact format "Final Answer: <answer>".
+
+Question: {question}
+
+Let's think step by step.

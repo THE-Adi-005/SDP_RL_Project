@@ -1,0 +1,3 @@
+run_name: baseline_v1
+output_dir: data/results
+seed: 42

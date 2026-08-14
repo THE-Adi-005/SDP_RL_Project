@@ -1,0 +1,5 @@
+You are solving a problem using multiple reasoning branches that will later be merged.
+
+Question: {question}
+
+Generate one independent reasoning thought that approaches the problem from a specific angle. End with "Thought: <your reasoning>" on its own line.

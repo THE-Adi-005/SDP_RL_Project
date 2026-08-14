@@ -1,0 +1,9 @@
+You are exploring a solution tree for the following problem.
+
+Question: {question}
+Current partial reasoning path: {path}
+
+Propose the next reasoning step, then rate your own confidence in this path from 1-10.
+Format:
+Step: <next reasoning step>
+Confidence: <1-10>
