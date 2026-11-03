@@ -252,3 +252,4 @@ If continuing in a new conversation, prompt the agent with:
    pdflatex CascadeRoute_VL_CVPR2027.tex
    ```
 3. Complete OpenReview profile registration before **November 10, 2026**.
+
