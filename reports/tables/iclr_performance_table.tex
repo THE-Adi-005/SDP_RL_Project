@@ -1,0 +1,16 @@
+\begin{table}
+\caption{Performance Metrics by Action Type}
+\label{tab:performance_metrics}
+\begin{tabular}{lcccc}
+\toprule
+Strategy / Model & Count & Accuracy & AvgTokens & MedianLatency \\
+\midrule
+3b_direct & 742 & 79.0\% & 208 & 1.35s \\
+7b_direct & 1037 & 85.6\% & 219 & 0.56s \\
+7b_cot & 651 & 93.2\% & 736 & 7.46s \\
+3b_cot & 622 & 71.5\% & 883 & 7.76s \\
+7b_got & 302 & 84.4\% & 3450 & 17.41s \\
+7b_tot & 358 & 67.9\% & 7892 & 26.51s \\
+\bottomrule
+\end{tabular}
+\end{table}

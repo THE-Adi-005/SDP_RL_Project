@@ -1,0 +1,4 @@
+Action Space Configuration,Accuracy (%),Avg Tokens,Token Reduction vs Static 7B (%)
+Full 3D Space (Model × Strategy × Resolution: 8 arms),71.57,772.5,1.0
+"2D Space (Model × Strategy: 4 arms, No Resolution)",63.86,410.4,47.4
+"1D Space (Model Only: 2 arms, RouteLLM-Style)",63.86,468.7,39.9

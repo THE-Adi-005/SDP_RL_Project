@@ -1,0 +1,6 @@
+Method,In-Domain Accuracy (%),OOD Accuracy (%),OOD Degradation (Δ%),Adaptation Recovery
+Static Always-7B-VCoT,78.5,75.0,-3.5,~49 queries
+Offline Feature Router,100.0,50.5,-49.5,Static (Never)
+ARMS-Style Router,100.0,55.0,-45.0,Static (Never)
+LinUCB Pure Online (Cold-Start),78.5,70.0,-8.5,~49 queries
+CascadeRoute-VL (Warm-Started Online),78.5,75.0,-3.5,~49 queries

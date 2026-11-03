@@ -10,6 +10,9 @@ class EpsilonGreedyBandit:
         self.q_values = {}  # action -> running average reward (context-free fallback)
         self.weights = None  # linear model per action, set on first update
 
+    def get_name(self) -> str:
+        return "EpsilonGreedy"
+
     def _init_weights(self, dim):
         self.weights = np.zeros((self.n_actions, dim))
 

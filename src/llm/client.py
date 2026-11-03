@@ -15,6 +15,13 @@ class LLMResponse:
     error: str = ""
 
 class LLMClient:
+    """
+    [SDP: FACADE / FACTORY ABSTRACTION]
+    This class abstracts the complex initialization of the OpenAI client.
+    By reading configurations at runtime, it acts as a simple Factory for 
+    different underlying LLM models (e.g., Qwen 7b vs 3b, or OpenAI API) 
+    without requiring the core reasoning system to understand connection mechanics.
+    """
     def __init__(self, base_url=None, api_key=None, model=None,
                  temperature=0.2, max_tokens=512, timeout=60):
         self.client = OpenAI(

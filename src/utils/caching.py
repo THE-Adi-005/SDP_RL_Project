@@ -2,7 +2,16 @@ import hashlib
 import json
 import os
 
+"""
+[SDP: PROXY / DECORATOR PATTERN]
+This caching module acts as a Proxy for the actual LLM Client.
+By intercepting requests before they reach the expensive LLM API, it
+enforces cost control and latency reduction. The caller (Strategy) is completely
+unaware if the response came from the real LLM or the Proxy cache.
+"""
+
 CACHE_DIR = ".cache"
+
 
 def _cache_key(model: str, prompt: str, params: dict) -> str:
     payload = json.dumps({"model": model, "prompt": prompt, "params": params}, sort_keys=True)

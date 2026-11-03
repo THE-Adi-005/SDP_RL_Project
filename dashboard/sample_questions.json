@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "domain": "math",
+    "difficulty": "simple",
+    "question": "What is 15 + 27?",
+    "expected_answer": "42",
+    "explanation": "15 + 27 = 42."
+  },
+  {
+    "id": 2,
+    "domain": "math",
+    "difficulty": "medium",
+    "question": "A train travels at 60 mph for 2 hours and then at 80 mph for 1.5 hours. What is the total distance traveled in miles?",
+    "expected_answer": "240",
+    "explanation": "Distance = (60 * 2) + (80 * 1.5) = 120 + 120 = 240 miles."
+  },
+  {
+    "id": 3,
+    "domain": "math",
+    "difficulty": "hard",
+    "question": "If a principal of $1,000 is invested at a compound annual interest rate of 10% compounded annually, what will be the total value in dollars after 3 years?",
+    "expected_answer": "1331",
+    "explanation": "Total = 1000 * (1 + 0.10)^3 = 1000 * 1.331 = $1,331."
+  },
+  {
+    "id": 4,
+    "domain": "logic",
+    "difficulty": "simple",
+    "question": "All humans are mortal. Socrates is a human. Is Socrates mortal? Answer with Yes or No.",
+    "expected_answer": "Yes",
+    "explanation": "By categorical syllogism, Socrates belongs to the set of humans, all of whom are mortal."
+  },
+  {
+    "id": 5,
+    "domain": "logic",
+    "difficulty": "medium",
+    "question": "Five people (A, B, C, D, E) sit in a row from left to right. A is in seat 1, B is in seat 2, C is in seat 3, D is in seat 4, and E is in seat 5. Who is sitting in the middle position (3rd seat)?",
+    "expected_answer": "C",
+    "explanation": "The order left to right is A, B, C, D, E. The 3rd seat (middle) is C."
+  },
+  {
+    "id": 6,
+    "domain": "logic",
+    "difficulty": "hard",
+    "question": "In a group of 30 people, 18 speak French, 15 speak Spanish, and 5 speak neither language. How many people speak both French and Spanish?",
+    "expected_answer": "8",
+    "explanation": "People speaking at least one language = 30 - 5 = 25. French + Spanish = 18 + 15 = 33. Both = 33 - 25 = 8."
+  },
+  {
+    "id": 7,
+    "domain": "commonsense",
+    "difficulty": "simple",
+    "question": "If you leave an ice cube on a hot sunny outdoor table, what state of matter does it turn into first?",
+    "expected_answer": "Liquid",
+    "explanation": "Ice melts from solid ice to liquid water when heated."
+  },
+  {
+    "id": 8,
+    "domain": "commonsense",
+    "difficulty": "medium",
+    "question": "John put his chocolate bar inside a hot car trunk on a summer afternoon. When he opened it two hours later, why was the chocolate messy to eat?",
+    "expected_answer": "It melted",
+    "explanation": "High temperatures inside a car trunk exceed the melting point of cocoa butter."
+  },
+  {
+    "id": 9,
+    "domain": "commonsense",
+    "difficulty": "hard",
+    "question": "A farmer must take a wolf, a goat, and a cabbage across a river in a boat that can only carry the farmer and one item. If left alone, the wolf eats the goat, and the goat eats the cabbage. Which item must the farmer take across FIRST?",
+    "expected_answer": "Goat",
+    "explanation": "Taking the goat first leaves the wolf and cabbage together, and wolves do not eat cabbages."
+  }
+]

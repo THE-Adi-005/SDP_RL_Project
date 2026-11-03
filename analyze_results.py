@@ -12,7 +12,8 @@ def main():
     os.makedirs("reports/figures", exist_ok=True)
     os.makedirs("reports/tables", exist_ok=True)
 
-    summary = df.groupby("strategy").agg(
+    group_col = "final_action" if "final_action" in df.columns else "strategy"
+    summary = df.groupby(group_col).agg(
         accuracy=("correct", "mean"),
         avg_tokens=("total_tokens", "mean"),
         median_latency=("latency", "median"),
@@ -21,7 +22,7 @@ def main():
     summary.to_csv("reports/tables/summary.csv")
 
     fig, ax = plt.subplots()
-    summary["accuracy"].plot(kind="bar", ax=ax, title="Accuracy by Strategy")
+    summary["accuracy"].plot(kind="bar", ax=ax, title=f"Accuracy by {group_col.capitalize()}")
     plt.tight_layout()
     plt.savefig("reports/figures/accuracy_by_strategy.png")
 

@@ -1,9 +1,27 @@
+# Virtual Environments & Python cache
 venv/
+.venv/
+env/
 __pycache__/
 *.pyc
+*.pyo
+.pytest_cache/
+.cache/
+*.ipynb_checkpoints
 .env
+
+# Large Raw Datasets (Downloadable via scripts/download_vlrouterbench.py)
+data/vl_routerbench/
 data/raw/
 data/processed/
 data/results/
-.cache/
-*.ipynb_checkpoints
+*.tar.gz
+*.tsv
+
+# Large Uncompressed Feature Matrices (>100MB; use X_multimodal_904_f16.npz instead)
+data/vl_routerbench_processed/matrices/X_multimodal_904.npy
+data/vl_routerbench_processed/matrices/X_multimodal_904.npz
+
+# Temporary / Scratch files
+scratch/
+tmp/

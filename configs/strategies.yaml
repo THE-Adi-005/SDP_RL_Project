@@ -1,9 +1,9 @@
 direct: {}
 cot: {}
 got:
-  max_nodes: 6
+  max_nodes: 4
   aggregate_top_k: 2
 tot:
-  branches: 3
+  branches: 2
   depth: 2
   eval_top_k: 2

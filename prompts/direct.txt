@@ -1,4 +1,4 @@
-Answer the following question directly with only the final answer, no explanation.
+Answer the question directly. Provide ONLY the concise final answer (e.g. a single number or word). Do NOT include any explanation, steps, or formulas.
 
 Question: {question}
 
