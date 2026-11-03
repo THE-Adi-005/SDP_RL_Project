@@ -125,10 +125,19 @@
 - **Master Evaluation Script Built:**
   - Implemented `scripts/adapt_real_vlrouterbench.py` evaluating all 16 algorithms across the real 30,540 samples.
 
+### [2026-11-03 11:18 IST] Repository Cleanup, Master Methodology & GitHub Push
+- Cleaned root repository according to strict CVPR submission & git standards:
+  - Moved legacy coursework, old reports, old slide decks, and redundant text files to `unwanted/` (locally preserved, strictly excluded from git via `.gitignore`).
+  - Saved compressed feature matrix `data/vl_routerbench_processed/matrices/X_multimodal_904_f16.npz` (48.3 MB) safely within GitHub's file limits (<50MB).
+  - Authored comprehensive master specification `CASCADE_ROUTE_VL_MASTER_METHODOLOGY.md` (22KB) detailing the mathematical formulations, theorems, empirical proofs, architecture, and rebuttal defensibility.
+  - Successfully committed and pushed clean tree (`commit 860cb04`) to GitHub: `https://github.com/THE-Adi-005/SDP_RL_Project`.
+  - Ran full test suite: 42/42 tests passing in 9.84s.
+
 ---
 
-## 📌 Checkpoint State for Tomorrow
-1. **Processed Benchmark Ready:** `F:\ADI\SDP\data\vl_routerbench_processed\` containing `Y.npz`, `C.npz`, `meta.parquet`, and `X_multimodal_904.npy`.
-2. **Evaluation Harness Ready:** `F:\ADI\SDP\scripts\adapt_real_vlrouterbench.py`.
-3. **Immediate Step Tomorrow:** Run `python scripts/adapt_real_vlrouterbench.py` to generate the final real `real_table1_main_benchmark.csv` through `real_table5_ips_counterfactual.csv` and inject the numbers into `cvpr2027/CascadeRoute_VL_CVPR2027.tex`.
+## 📌 Checkpoint State & Ready-to-Run Instructions
+1. **GitHub Repository:** Fully synchronized at `https://github.com/THE-Adi-005/SDP_RL_Project` (clean, ready to clone on lab workstation).
+2. **Processed Benchmark Ready:** `F:\ADI\SDP\data\vl_routerbench_processed\` containing `Y.npz`, `C.npz`, `meta.parquet`, and `X_multimodal_904_f16.npz`.
+3. **Evaluation Harness Ready:** `F:\ADI\SDP\scripts\adapt_real_vlrouterbench.py`.
+4. **Immediate Next Step:** Run `$env:PYTHONIOENCODING="utf-8"; python scripts/adapt_real_vlrouterbench.py` to produce final real experimental tables `real_table1` through `real_table5`, inject them into `cvpr2027/CascadeRoute_VL_CVPR2027.tex`, and compile the final camera-ready paper PDF.
 
