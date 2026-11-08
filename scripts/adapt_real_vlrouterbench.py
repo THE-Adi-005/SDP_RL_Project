@@ -362,7 +362,7 @@ def evaluate_all_routers_on_real_data(
     # Warm-start ridge regression matrices from offline training data
     warm_states = offline_X_train[:5000]
     warm_actions = offline_labels[:5000]
-    warm_rewards = [float(offline_Y_train[k, warm_actions[k]]) for k in range(len(warm_actions))]
+    warm_rewards = np.array([float(offline_Y_train[k, warm_actions[k]]) for k in range(len(warm_actions))], dtype=np.float64)
     cascaderoute_linucb.warm_start(warm_states, warm_actions, warm_rewards)
     
     # --- EVALUATION RUN ON TEST SPLIT (6,108 SAMPLES) ---

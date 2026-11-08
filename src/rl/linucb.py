@@ -108,6 +108,8 @@ class LinUCB:
         """
         N, d = states.shape
         self._initialize(d)
+        actions = np.asarray(actions)
+        rewards = np.asarray(rewards, dtype=np.float64)
 
         for a in range(self.n_actions):
             self.A[a] = np.eye(d, dtype=np.float64) * regularization
