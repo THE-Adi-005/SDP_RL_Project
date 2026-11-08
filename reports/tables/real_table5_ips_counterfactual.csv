@@ -1,0 +1,4 @@
+Estimator,Expected Value,95% CI Lower,95% CI Upper,Unbiased?
+Direct Empirical Mean,0.7356,0.0,1.0,Biased by logging policy
+Inverse Propensity Scoring (IPS),11.8798,11.7026,12.0703,Provably Unbiased
+Self-Normalized IPS (SNIPS),0.8026,0.7936,0.8122,Consistent / Minimal Variance

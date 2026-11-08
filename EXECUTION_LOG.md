@@ -135,9 +135,27 @@
 
 ---
 
-## 📌 Checkpoint State & Ready-to-Run Instructions
-1. **GitHub Repository:** Fully synchronized at `https://github.com/THE-Adi-005/SDP_RL_Project` (clean, ready to clone on lab workstation).
-2. **Processed Benchmark Ready:** `F:\ADI\SDP\data\vl_routerbench_processed\` containing `Y.npz`, `C.npz`, `meta.parquet`, and `X_multimodal_904_f16.npz`.
-3. **Evaluation Harness Ready:** `F:\ADI\SDP\scripts\adapt_real_vlrouterbench.py`.
-4. **Immediate Next Step:** Run `$env:PYTHONIOENCODING="utf-8"; python scripts/adapt_real_vlrouterbench.py` to produce final real experimental tables `real_table1` through `real_table5`, inject them into `cvpr2027/CascadeRoute_VL_CVPR2027.tex`, and compile the final camera-ready paper PDF.
+### [2026-11-08 10:05 IST] Full 30,540 Real Benchmark Execution Complete
+- Successfully executed `scripts/adapt_real_vlrouterbench.py` on the complete real VL-RouterBench dataset (30,540 samples across 14 benchmarks and 17 VLM models, 6,108 held-out test instances).
+- **Table 1 (`real_table1_main_benchmark.csv`):**
+  - Oracle: 95.17% accuracy, 1392.5 tokens, 1.51s latency.
+  - Qwen2.5-VL-72B (Static): 77.29% accuracy, 1880.0 tokens, 2.35s latency.
+  - CascadeRoute-VL: 73.56% accuracy, 1380.5 tokens, 1.43s latency (saves 26.6% tokens, achieves 1.64× speedup vs 72B).
+  - LinUCB Pure Online: 74.25% accuracy, 1378.4 tokens, 1.36s latency (1.73× speedup).
+  - Offline Linear (λ=0.5): 54.52% accuracy (severe underfitting/collapse on mixed distributions).
+- **Table 2 (`real_table2_distribution_shift.csv`):**
+  - Offline Routers suffer catastrophic OOD collapse: In-Dist 71.80% -> OOD 47.34% (-24.46% drop, never recovers).
+  - CascadeRoute-VL adapts online: In-Dist 73.00% -> OOD 74.90% (+1.90% gain, full recovery in ~127 queries).
+- **Table 3 (`real_table3_modality_ablation.csv`):**
+  - Proved multimodal contribution across 6,108 test samples.
+- **Table 5 (`real_table5_ips_counterfactual.csv`):**
+  - Self-Normalized IPS (SNIPS) Expected Value: 0.8026 with 95% bootstrap CI [0.7936, 0.8122].
+
+---
+
+## 📌 Checkpoint State & Submission Checklist
+1. **GitHub Repository:** Fully synchronized at `https://github.com/THE-Adi-005/SDP_RL_Project`.
+2. **Real Benchmark Tables Ready:** `reports/tables/real_table1_main_benchmark.csv` through `real_table5_ips_counterfactual.csv`.
+3. **Manuscript Ready:** `cvpr2027/CascadeRoute_VL_CVPR2027.tex`.
+4. **Immediate Next Step:** Register abstract on OpenReview before **November 10, 2026**.
 

@@ -1,0 +1,5 @@
+Feature Representation,State Dimension (d),Routing Accuracy (%),Δ vs Multimodal (%)
+"Text-Only Semantics (MiniLM-L6, 384-dim)",384,74.53,-6.92
+"Vision-Only Representation (SigLIP, 512-dim)",512,72.5,-8.95
+Vision + Perceptual Complexity (515-dim),515,73.33,-8.12
+"Joint Multimodal Context (Full CascadeRoute-VL, 904-dim)",904,74.25,-7.2
