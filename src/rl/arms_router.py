@@ -39,7 +39,7 @@ class ARMSRouter:
         }
         self.alpha_l2 = alpha_l2
         self.scaler = StandardScaler()
-        self.model = LogisticRegression(C=1.0 / alpha_l2, max_iter=1000, random_state=42)
+        self.model = LogisticRegression(C=1.0 / alpha_l2, max_iter=150, random_state=42)
         self.is_fitted = False
         self.n_classes_ = n_actions
 

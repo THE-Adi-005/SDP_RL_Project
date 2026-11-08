@@ -21,7 +21,8 @@ class ThompsonSamplingLinear:
     """Thompson Sampling with linear payoffs — Bayesian exploration."""
 
     def __init__(self, n_actions: int = 4, v_squared: float = 1.0,
-                 lambda_reg: float = 1.0, feature_dim: int = None):
+                 lambda_reg: float = 1.0, feature_dim: int = None,
+                 n_arms: int = None, d: int = None, v: float = None, **kwargs):
         """
         Args:
             n_actions: Number of arms (strategies).
@@ -30,6 +31,13 @@ class ThompsonSamplingLinear:
             lambda_reg: Regularization parameter for ridge regression prior.
             feature_dim: Dimension of context features. Lazily initialized if None.
         """
+        if n_arms is not None:
+            n_actions = n_arms
+        if d is not None:
+            feature_dim = d
+        if v is not None:
+            v_squared = v ** 2
+
         self.n_actions = n_actions
         self.v_squared = v_squared
         self.lambda_reg = lambda_reg

@@ -75,7 +75,7 @@ class DQNAgent:
                  lr: float = 1e-3, epsilon: float = 0.3,
                  epsilon_decay: float = 0.995, epsilon_min: float = 0.05,
                  batch_size: int = 32, buffer_capacity: int = 10000,
-                 tau: float = 0.01):
+                 tau: float = 0.01, n_arms: int = None, **kwargs):
         """
         Args:
             n_actions: Number of arms (strategies).
@@ -91,6 +91,8 @@ class DQNAgent:
         if not TORCH_AVAILABLE:
             raise ImportError("PyTorch is required for DQN. Install with: pip install torch")
 
+        if n_arms is not None:
+            n_actions = n_arms
         self.n_actions = n_actions
         self.feature_dim = feature_dim
         self.lr = lr
@@ -135,7 +137,7 @@ class DQNAgent:
             q_values = self.q_network(state_tensor)
             return int(q_values.argmax(dim=1).item())
 
-    def update(self, state: np.ndarray, action: int, reward: float):
+    def update(self, state: np.ndarray, action: int, reward: float, *args, **kwargs):
         """Store transition and train on a mini-batch from replay buffer."""
         if not self._initialized:
             self._initialize(len(state))

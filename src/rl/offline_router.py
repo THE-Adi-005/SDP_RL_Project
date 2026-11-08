@@ -31,7 +31,7 @@ class OfflineCostAwareRouter:
         self.C_reg = float(C_reg)
         self.clf = LogisticRegression(
             C=self.C_reg,
-            max_iter=1000,
+            max_iter=150,
             solver="lbfgs",
             random_state=42
         )

@@ -340,7 +340,7 @@ def evaluate_all_routers_on_real_data(
     arms_router.fit(offline_X_train, offline_labels)
     
     # 8. MHR-Router (Retrieval dual-buffer)
-    mhr_router = MHRRouter(n_arms=n_models, k=5, state_dim=d)
+    mhr_router = MHRRouter(n_actions=n_models, k=5, state_dim=d)
     # Seed MHR memory with a subset of train data for speed
     for i_idx in train_indices[:2000]:
         st = X[i_idx]
@@ -351,14 +351,14 @@ def evaluate_all_routers_on_real_data(
     frugalgpt = FrugalGPTCascade(n_actions=n_models)
     
     # 10. Classic Online Bandits
-    eps_bandit = EpsilonGreedyBandit(n_arms=n_models, epsilon=0.1)
-    ucb1_bandit = UCB1(n_arms=n_models)
-    linucb_pure = LinUCB(n_arms=n_models, d=d, alpha=0.5)
-    ts_linear = ThompsonSamplingLinear(n_arms=n_models, d=d, v=0.5)
-    dqn_agent = DQNAgent(n_arms=n_models, feature_dim=d, lr=1e-3)
+    eps_bandit = EpsilonGreedyBandit(n_actions=n_models, epsilon=0.1)
+    ucb1_bandit = UCB1(n_actions=n_models)
+    linucb_pure = LinUCB(n_actions=n_models, feature_dim=d, alpha=0.5)
+    ts_linear = ThompsonSamplingLinear(n_actions=n_models, feature_dim=d, v_squared=0.25)
+    dqn_agent = DQNAgent(n_actions=n_models, feature_dim=d, lr=1e-3)
     
     # 11. CascadeRoute-VL (Warm-Started LinUCB + Budget Annealing + Confidence Gate)
-    cascaderoute_linucb = LinUCB(n_arms=n_models, d=d, alpha=0.8, alpha_anneal=True)
+    cascaderoute_linucb = LinUCB(n_actions=n_models, feature_dim=d, alpha=0.8, alpha_anneal=True)
     # Warm-start ridge regression matrices from offline training data
     warm_states = offline_X_train[:5000]
     warm_actions = offline_labels[:5000]
@@ -467,20 +467,20 @@ def evaluate_all_routers_on_real_data(
         
         # 7. Online Bandits
         # Epsilon-Greedy
-        a_eps = eps_bandit.select_action()
+        a_eps = eps_bandit.select_action(st)
         eval_results["Epsilon-Greedy"]["correct"].append(outcomes[a_eps])
         eval_results["Epsilon-Greedy"]["tokens"].append(tokens_per_query[a_eps])
         eval_results["Epsilon-Greedy"]["latency"].append(latencies_per_query[a_eps])
         eval_results["Epsilon-Greedy"]["cost"].append(costs_per_query[a_eps])
-        eps_bandit.update(a_eps, float(outcomes[a_eps]))
+        eps_bandit.update(st, a_eps, float(outcomes[a_eps]))
         
         # UCB1
-        a_ucb = ucb1_bandit.select_action()
+        a_ucb = ucb1_bandit.select_action(st)
         eval_results["UCB1"]["correct"].append(outcomes[a_ucb])
         eval_results["UCB1"]["tokens"].append(tokens_per_query[a_ucb])
         eval_results["UCB1"]["latency"].append(latencies_per_query[a_ucb])
         eval_results["UCB1"]["cost"].append(costs_per_query[a_ucb])
-        ucb1_bandit.update(a_ucb, float(outcomes[a_ucb]))
+        ucb1_bandit.update(st, a_ucb, float(outcomes[a_ucb]))
         
         # LinUCB (Pure Online)
         a_plin = linucb_pure.select_action(st)
@@ -508,7 +508,7 @@ def evaluate_all_routers_on_real_data(
         
         # 8. CascadeRoute-VL (Warm-Started LinUCB + Budget Annealing + Confidence Gate)
         budget_frac = max(0.0, 1.0 - (step_num / len(test_indices)))
-        a_primary = cascaderoute_linucb.select_action(st, budget_remaining=budget_frac)
+        a_primary = cascaderoute_linucb.select_action(st, budget_fraction=budget_frac)
         
         # Visual Confidence Gate: Check visual complexity and instability
         if a_primary in [tiny_idx, qianfan_idx]:
@@ -616,7 +616,7 @@ def evaluate_distribution_shift_real(
     acc_qwen_ood = float(Y_ood[:, qwen_idx].mean()) * 100
     
     # Online LinUCB starting from zero on OOD
-    online_linucb = LinUCB(n_arms=len(models), d=X.shape[1], alpha=0.5)
+    online_linucb = LinUCB(n_actions=len(models), feature_dim=X.shape[1], alpha=0.5)
     online_preds = []
     for k in range(len(ood_indices)):
         act = online_linucb.select_action(X_ood[k])
@@ -625,7 +625,7 @@ def evaluate_distribution_shift_real(
     acc_online_ood = float(np.mean(online_preds)) * 100
     
     # CascadeRoute-VL (Warm-started from In-Dist, adapting online on OOD)
-    cascade_ood = LinUCB(n_arms=len(models), d=X.shape[1], alpha=0.8, alpha_anneal=True)
+    cascade_ood = LinUCB(n_actions=len(models), feature_dim=X.shape[1], alpha=0.8, alpha_anneal=True)
     cascade_ood.warm_start(X_in[:4000], [offline_in.select_action(X_in[j]) for j in range(4000)], [float(Y_in[j].max()) for j in range(4000)])
     
     cascade_preds = []
@@ -743,7 +743,7 @@ def evaluate_modality_ablation_real(
         ("Vision + Perceptual Complexity (515-dim)", X_vis_perc),
         ("Joint Multimodal Context (Full CascadeRoute-VL, 904-dim)", X_full)
     ]:
-        bandit = LinUCB(n_arms=Y.shape[1], d=feat_mat.shape[1], alpha=0.5)
+        bandit = LinUCB(n_actions=Y.shape[1], feature_dim=feat_mat.shape[1], alpha=0.5)
         correct_list = []
         for i in test_indices:
             act = bandit.select_action(feat_mat[i])

@@ -34,7 +34,10 @@ class LinUCB:
         n_actions: int = 4,
         alpha: float = 1.0,
         feature_dim: Optional[int] = None,
-        alpha_anneal: bool = False
+        alpha_anneal: bool = False,
+        n_arms: Optional[int] = None,
+        d: Optional[int] = None,
+        **kwargs
     ):
         """
         Args:
@@ -45,6 +48,11 @@ class LinUCB:
                          If None, initialized on first call.
             alpha_anneal: If True, scales alpha by remaining budget fraction b_t.
         """
+        if n_arms is not None:
+            n_actions = n_arms
+        if d is not None:
+            feature_dim = d
+
         self.n_actions = n_actions
         self.alpha_0 = float(alpha)
         self.alpha = float(alpha)
@@ -120,7 +128,8 @@ class LinUCB:
     def select_action(
         self,
         state: np.ndarray,
-        budget_fraction: Optional[float] = None
+        budget_fraction: Optional[float] = None,
+        budget_remaining: Optional[float] = None
     ) -> int:
         """Select action using LinUCB policy with optional budget-aware exploration.
 
@@ -130,6 +139,9 @@ class LinUCB:
           pₐ = θ̂ₐᵀx + α_t * sqrt(xᵀ Aₐ⁻¹ x)
         Return argmax(pₐ)
         """
+        if budget_fraction is None and budget_remaining is not None:
+            budget_fraction = budget_remaining
+
         if not self._initialized:
             self._initialize(len(state))
 
