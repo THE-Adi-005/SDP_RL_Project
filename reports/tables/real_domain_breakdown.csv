@@ -1,0 +1,5 @@
+Domain,Test N,Qwen2.5-72B Acc (%),Kimi-Thinking Acc (%),Qianfan-8B Acc (%),MLP-Router Acc (%),MLP Cost / 1k ($),CascadeRoute-VL Acc (%),CR Cost / 1k ($),CR Avg OutTok
+STEM,1631,67.08,70.39,54.75,77.07,0.2855,74.62,0.2176,259.6
+General_VQA,892,73.21,69.84,66.48,77.13,0.3504,73.77,0.2176,102.7
+Charts_OCR,3400,83.56,75.0,78.29,82.44,0.0948,81.91,0.1136,4.9
+Hallucination,185,71.89,69.73,64.86,69.73,0.1716,72.43,0.1766,90.1

@@ -1,0 +1,18 @@
+Model,Selected Count,Selection (%),STEM (%),Charts_OCR (%)
+GPT4o,0,0.0,0.0,0.0
+GeminiFlash2-5,678,11.1,10.97,12.06
+Gemma3-27B,18,0.29,0.67,0.06
+InternVL2_5-78B,297,4.86,4.9,2.59
+Janus-Pro-1B,0,0.0,0.0,0.0
+Janus-Pro-7B,0,0.0,0.0,0.0
+Kimi-VL-A3B-Thinking-2506,1189,19.47,36.79,8.47
+MiMo-VL-7B-RL,548,8.97,26.36,0.09
+Phi-3.5-Vision,10,0.16,0.37,0.06
+Pixtral-12B,0,0.0,0.0,0.0
+Qianfan-VL-8B,1057,17.31,4.66,26.03
+Qwen2.5-VL-32B-Instruct,343,5.62,6.01,5.35
+Qwen2.5-VL-72B-Instruct,1192,19.52,6.99,26.09
+SmolVLM2,23,0.38,0.0,0.56
+deepseek_vl2,603,9.87,2.21,14.62
+deepseek_vl2_tiny,150,2.46,0.06,4.03
+llava_next_vicuna_7b,0,0.0,0.0,0.0

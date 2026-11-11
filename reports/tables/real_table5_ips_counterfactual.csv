@@ -1,4 +1,7 @@
-Estimator,Expected Value,95% CI Lower,95% CI Upper,Unbiased?
-Direct Empirical Mean,0.7356,0.0,1.0,Biased by logging policy
-Inverse Propensity Scoring (IPS),11.8798,11.7026,12.0703,Provably Unbiased
-Self-Normalized IPS (SNIPS),0.8026,0.7936,0.8122,Consistent / Minimal Variance
+Policy,True On-Policy Acc,IPS,IPS 95% CI,SNIPS,SNIPS 95% CI,Doubly Robust (DR),DR 95% CI,ESS
+Always-deepseek_vl2_tiny,0.6257,0.6309,"[0.5198, 0.7404]",0.5922,"[0.5264, 0.6625]",0.5758,"[0.5161, 0.6432]",206.0
+Always-Qianfan-VL-8B,0.6988,0.7292,"[0.6145, 0.8450]",0.6784,"[0.6156, 0.7415]",0.696,"[0.6313, 0.7587]",211.9
+Always-Qwen2.5-VL-72B,0.7729,0.8442,"[0.7215, 0.9714]",0.8558,"[0.8097, 0.9031]",0.8212,"[0.7775, 0.8655]",204.7
+Offline-Linear Router,0.7883,0.7821,"[0.7589, 0.8053]",0.7842,"[0.7704, 0.7983]",0.7849,"[0.7705, 0.7989]",3225.0
+MLP-Router (VL-Bench),0.7985,0.7604,"[0.6652, 0.8619]",0.7796,"[0.7293, 0.8268]",0.7741,"[0.7239, 0.8202]",268.0
+CascadeRoute-VL (Target Policy),0.7878,0.8356,"[0.7332, 0.9367]",0.7919,"[0.7461, 0.8386]",0.7833,"[0.7395, 0.8281]",306.4

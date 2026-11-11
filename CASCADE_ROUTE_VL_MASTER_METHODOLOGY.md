@@ -1,255 +1,115 @@
-# CascadeRoute-VL: Master Methodology & Technical Research Report
+# CascadeRoute-VL: Master Methodology & Technical Reference
 ## Taming the Reasoning Tax in Vision-Language Models via Online Contextual Bandit Routing
 
-> **Conference Target:** CVPR 2027 (IEEE / CVF Computer Vision and Pattern Recognition)  
-> **Key Submission Deadlines:**  
-> - **Abstract Registration (OpenReview):** November 10, 2026  
-> - **Full Paper Submission:** November 16, 2026  
-> - **Supplementary Material:** November 23, 2026  
-> **Repository:** `https://github.com/THE-Adi-005/SDP_RL_Project` (Branch: `main`)  
+> **Target Venue:** CVPR 2027 (IEEE / CVF Computer Vision and Pattern Recognition)  
+> **Registered Title:** *CascadeRoute-VL: Taming the Reasoning Tax in Vision-Language Models via Online Contextual Bandit Routing*  
+> **Keywords:** Vision-Language Models, Model Routing, Contextual Bandits, Multimodal Reasoning, Test-Time Compute Scaling, Efficient Inference  
+> **Repository:** `https://github.com/THE-Adi-005/SDP_RL_Project` (`main`)  
 > **Author:** Adithya R (`adithyakrs2408@gmail.com`)  
-> **Document Purpose:** Complete, self-contained reference on the proposed method, mathematical formulations, theoretical proofs, empirical findings, and codebase navigation for any future chat, collaborator, or peer reviewer.
 
 ---
 
-## 1. Executive Summary & Research Motivation
+## 1. Scientific Foundation: The Multimodal Reasoning Tax
 
-### 1.1 The Context Pivot (From Text LLMs to Multimodal VLMs)
-Earlier iterations of this codebase explored text-only large language model (LLM) routing across classic linguistic reasoning benchmarks (GSM8K, LogiQA, CommonsenseQA). While academically sound for text venues, modern vision conferences like **CVPR** require fundamental contributions in **computer vision and multimodal representation**. 
+We analyze the complete ground-truth outcome matrix $Y \in \{0,1\}^{30{,}540 \times 17}$ reconstructed from all **238 VLMEvalKit inference transcripts** across **14 benchmarks** and **17 contemporary VLMs** in **VL-RouterBench** (519,180 query-model cells, $>99.9\%$ exact cell coverage), using exact `cl100k_base` tokenization ($+256$ visual tokens per query), benchmark token pricing schedules ($c_{90} = \$0.000329$), and deterministic TTFT + decode throughput latency profiling:
 
-To compete for a **Best Paper Award / Oral Presentation at CVPR 2027**, we engineered a major technical leap: **CascadeRoute-VL**. This framework pivots entirely to Vision-Language Models (VLMs), ingesting 30,540 real multimodal query outcomes across 17 contemporary VLMs and 14 vision benchmarks (from Hugging Face's official `VL-RouterBench` suite).
-
-### 1.2 The Core Problem: The "Reasoning Tax" in Vision-Language Models
-In contemporary computer vision, a prevailing assumption is that heavier reasoning paradigms—such as Visual Chain-of-Thought (VCoT), Graph-of-Thought (GoT), Tree-of-Thought (ToT), or scaling up to massive 72B–78B frontier models—are universally beneficial.
-
-**We discover that this assumption is fundamentally flawed.**
-
-Across 30,540 real benchmark samples, we identify and formalize the **VLM Reasoning Tax**:
-> **Definition (The VLM Reasoning Tax):** The empirical phenomenon where deploying multi-step reasoning prompts or oversized parameter architectures onto perceptual, OCR, or grounded visual tasks causes an *absolute degradation* in accuracy compared to direct, lightweight perception.
-
-#### Why does the Reasoning Tax occur?
-1. **Linguistic Priors Overriding Visual Evidence:** When an oversized VLM generates extensive chain-of-thought tokens, intermediate self-generated text drifts into generic linguistic priors, overriding subtle visual cues in the pixel tensor.
-2. **Perceptual Hallucination Accumulation:** On hallucination benchmarks (e.g., POPE), each step in a reasoning tree introduces a compounding probability of hallucinating non-existent objects.
-3. **Severe Resource Waste:** The user pays an exponential tax in tokens ($10\times$ to $25\times$) and latency ($5\times$ to $10\times$) for an answer that is *worse* than direct inspection by a 2B model.
-
-#### The 79.1% Rescue Phenomenon (Real Data Proof)
-Evaluating the official 30,540 samples across 17 models reveals:
-- Static Frontier Model (`Qwen2.5-VL-72B-Instruct`): **78.21%** accuracy.
-- Oracle Router Upper Bound: **95.45%** accuracy (**+17.24% routing opportunity gap**).
-- **Out of 6,655 queries where the 72B frontier model failed, lightweight models (1B to 8B) correctly solved 5,266 of them (79.1%)!**
-  - `Kimi-VL-A3B-Thinking` solved 2,324 of 72B's failures.
-  - `deepseek_vl2_tiny` (2B) solved 1,689 of 72B's failures.
-  - `SmolVLM2` (2B) solved 1,392 of 72B's failures.
-  - `Janus-Pro-1B` (1B) solved 1,018 of 72B's failures.
-
-CascadeRoute-VL is designed to exploit this gap by routing queries dynamically to the Pareto-optimal model, reasoning strategy, and visual resolution.
+- **Strongest Monolithic Frontier VLM (`Qwen2.5-VL-72B-Instruct`):** `78.21%` accuracy across all `30,540` queries (`$0.2626 / 1k Q`), failing on `6,655` queries (`77.29%` on `6,108` held-out Test @ `$0.2605 / 1k Q`, `1.959s` latency).
+- **17-VLM Oracle Upper Bound:** `95.45%` overall (`95.17%` on Test), revealing a **+17.24% routing opportunity gap** and rescuing `5,266 / 6,655` (`79.1%`) frontier failures.
+- **Compact Model Rescue Phenomenon ($\le 8\text{B}$):** Compact VLM architectures solve **4,557 of those 6,655 failures (68.5%)**—led by `Kimi-VL-A3B-Thinking` (`2,324`), `Qianfan-VL-8B` (`1,789`), and `DeepSeek-VL2-Tiny` (`1,689`).
+- **Two Opposing Regimes (Reasoning Gain vs. Perceptual Inversion):**
+  - *STEM & Diagrammatic Reasoning:* Thinking specialist `Kimi-VL-A3B-Thinking` attains `79.60%` on `MathVista_MINI` and `47.04%` on `MathVision_MINI`, outperforming `Qwen2.5-VL-72B` (`73.90%` / `38.82%`).
+  - *Charts & Dense OCR:* Perception specialist `Qianfan-VL-8B` delivers `86.48%` on `ChartQA_TEST` (`1.2` mean output tokens), `87.42%` on `DocVQA_VAL` (`2.7` tok), and `85.70%` on `OCRBench` (`4.6` tok) at $\sim 5\times$ lower dollar cost and $\sim 8.8\times$ lower latency than `72B`. Meanwhile, unconstrained `<think>` chains in `MiMo-VL-7B-RL` (emitting `<think>` on `100%` of queries, averaging `237.4` output tokens, up to `1,401.7` on `MathVision`) degrade OCR fidelity or disrupt downstream answer parsing (`0.0%` extracted accuracy across `ChartQA`, `DocVQA`, `InfoVQA`, and `TextVQA`).
 
 ---
 
-## 2. Mathematical Formulation & Architecture
+## 2. Architecture & Mathematical Formulation
 
-```
-                               ┌────────────────────────────────────────┐
-                               │ Multimodal Query (Image I_t, Text q_t) │
-                               └───────────────────┬────────────────────┘
-                                                   │
-                        ┌──────────────────────────┴──────────────────────────┐
-                        ▼                                                     ▼
-           ┌───────────────────────────────┐               ┌─────────────────────────────────────┐
-           │ 904-dim Joint Context State   │               │ Visual Perturbation Confidence Gate │
-           │ - SigLIP Visual (512-dim)     │               │ - Mild Gaussian / Crop perturbation │
-           │ - MiniLM Semantic (384-dim)   │               │ - Overthinking Score: S_OT          │
-           │ - Perceptual Entropy & Edges  │               │ - Chain-of-Responsibility Escalation│
-           └────────────┬──────────────────┘               └──────────────────┬──────────────────┘
-                        │                                                     │
-                        ▼                                                     ▼
-           ┌─────────────────────────────────────────────────────────────────────────────────────┐
-           │                      Online Contextual Bandit Engine (LinUCB)                       │
-           │  - Ridge Regression with O(d^2) Sherman-Morrison rank-1 recursive inverse           │
-           │  - Dynamic Budget-Annealing Exploration: α_t = α_0 · b_t                            │
-           │  - Hybrid Warm-Start from Offline Logs: Zero Cold-Start Regret                      │
-           └──────────────────────────────────────────┬──────────────────────────────────────────┘
-                                                      │
-                                                      ▼
-                        ┌───────────────────────────────────────────────────────────┐
-                        │ 8-Arm Multimodal Action Space (Scale × Strategy × Res)    │
-                        │ - 2B Direct Low-Res       - 7B Direct High-Res            │
-                        │ - 2B Direct High-Res      - 7B VCoT High-Res              │
-                        │ - 2B VCoT High-Res        - 7B Graph-of-Thought (GoT)     │
-                        │ - 7B Direct Low-Res       - 7B Tree-of-Thought (ToT)      │
-                        └───────────────────────────────────────────────────────────┘
-```
+### 2.1 Strictly Zero-Leakage 904-d Multimodal Context State ($s_t \in \mathbb{R}^{904}$)
+Implemented in [`src/features/multimodal_extractor.py`](src/features/multimodal_extractor.py) and cached for `30,540` queries via [`scripts/extract_real_multimodal_features.py`](scripts/extract_real_multimodal_features.py). **Dataset IDs, task tags, and domain one-hots are strictly forbidden.**
+$$s_t = \left[\, w_q \hat{q}_t \;\|\; w_v \hat{v}_t \;\|\; w_p p_t \,\right] \in \mathbb{R}^{904}, \qquad (w_q, w_v, w_p) = (0.50, 0.55, 0.235).$$
 
-### 2.1 Multimodal State Space $\mathcal{S} \subset \mathbb{R}^{904}$
-For query $t$, context vector $s_t \in \mathbb{R}^{904}$ fuses visual, semantic, perceptual, and structural dimensions:
-$$s_t = \left[ e_{\text{vis}}^\top, \; e_{\text{text}}^\top, \; \phi_{\text{perc}}^\top, \; \phi_{\text{struct}}^\top, \; \phi_{\text{dom}}^\top \right]^\top$$
+1. **Linguistic Semantics ($\hat{q}_t \in \mathbb{R}^{384}$):** $L_2$-normalized `all-MiniLM-L6-v2` prompt embedding (`||\hat{q}_t||_2 = 1`).
+2. **Dual-Scale Vision ($\hat{v}_t \in \mathbb{R}^{512}$):** $L_2$-normalized concatenation of frozen `DINOv2-ViT-S/14` `[CLS]` (`384-d`) + fixed orthogonal Johnson-Lindenstrauss projection (`2048 -> 128`) of `ResNet-50` global average pooled texture/layout features (`||\hat{v}_t||_2 = 1`).
+3. **Unsupervised Perceptual & Syntactic Cues ($p_t \in [0, 1]^8$):**
+   - Luminance Shannon entropy $H(I_t)/8$ (`MathVerse` `2.00` bits vs. `TextVQA` `7.10` bits)
+   - Sobel spatial edge gradient density $\nabla(I_t)$ (`InfoVQA` `0.281` vs. `ChartQA` `0.095`)
+   - Logarithmic aspect ratio $\frac{1}{\pi}\arctan(\ln(W/H)) + 0.5$
+   - Clipped log pixel area $\text{clip}(\log_{10}(WH)/7, 0, 1)$
+   - Bright white background pixel fraction ($L > 235/255$; `MathVerse` `0.887` vs. `RealWorldQA` `0.005`)
+   - Clipped prompt word ratio $\min(w, 128)/128$
+   - Unsupervised symbolic / digit / MCQ cue density $\psi_{\text{math}}(Q_t)$
+   - Sentence count ratio $\min(s, 16)/16$
 
-1. **Visual Representation $e_{\text{vis}} \in \mathbb{R}^{512}$:** Extracted via SigLIP / OpenCLIP ViT-B/32 image encoder.
-2. **Linguistic Semantics $e_{\text{text}} \in \mathbb{R}^{384}$:** Extracted via `sentence-transformers/all-MiniLM-L6-v2`.
-3. **Perceptual Complexity $\phi_{\text{perc}} \in \mathbb{R}^3$:**
-   - **Shannon Entropy:** $H(I) = -\sum_{i=0}^{255} p_i \log_2(p_i + \epsilon)$, capturing visual information density.
-   - **Sobel Spatial Edge Density:** $\mathcal{E}(I) = \frac{1}{WH} \sum_{u,v} \sqrt{(\nabla_x I)^2 + (\nabla_y I)^2} / 255$, diagnosing fine-grained typography/lines in charts and OCR documents.
-   - **Aspect Ratio:** $\mathcal{A}(I) = W / H$, separating panoramic or document layouts from standard photographic frames.
-4. **Structural Syntax $\phi_{\text{struct}} \in \mathbb{R}^2$:** Word count and sentence count of query $q_t$.
-5. **Domain Categorization $\phi_{\text{dom}} \in \mathbb{R}^3$:** One-hot indicator for `STEM`, `General_VQA`, or `Charts_OCR`.
+**Norm Guarantee (Lemma 1):**
+$$\|s_t\|_2^2 = w_q^2 + w_v^2 + w_p^2 \|p_t\|_2^2 \le 0.50^2 + 0.55^2 + 8(0.235^2) = 0.9943 \implies \|s_t\|_2 \le 0.9972 < 1.$$
+Across all `30,540` encoded queries: $\min_t \|s_t\|_2 = 0.7611$, $\text{mean}_t \|s_t\|_2 = 0.8116$, $\max_t \|s_t\|_2 = 0.8943 < 1.0$.
 
-### 2.2 3D Action Space $\mathcal{A} = \mathcal{M} \times \mathcal{S} \times \mathcal{R}$
-Prior routing literature treats models as flat categorical choices. In VLMs, cost and reasoning are governed by three orthogonal choices:
-1. **Model Scale ($\mathcal{M}$):** Lightweight ($\sim$1B–3B), Standard ($\sim$7B–8B), Frontier ($\sim$32B–78B).
-2. **Reasoning Strategy ($\mathcal{S}$):** Direct Perception, Visual CoT, Graph-of-Thought (GoT), Tree-of-Thought (ToT).
-3. **Visual Resolution ($\mathcal{R}$):** Low-Res ($336 \times 336$), High-Res ($672 \times 672$ / dynamic patching).
+### 2.2 Cost-Aware Scalar Reward & Warm-Started Disjoint LinUCB
+Implemented in [`src/rl/linucb.py`](src/rl/linucb.py) with PyTorch GPU acceleration + CPU fallback:
+$$r_{t,a} = y_{t,a} - \gamma \tilde{c}_{t,a}, \qquad \tilde{c}_{t,a} = \text{clip}\!\left(\frac{c_{t,a}}{c_{90}},\, 0,\, 2.5\right) \in [0, 2.5], \qquad c_{90} = \$0.000329.$$
 
-In the canonical 8-arm archetype mapping:
-- **Arm 0 (`2b_direct_lowres`):** Ultra-cheap direct inspection (e.g. `Janus-Pro-1B` / `deepseek_vl2_tiny`).
-- **Arm 1 (`2b_direct_highres`):** High-resolution perceptual grounding (`SmolVLM2`).
-- **Arm 2 (`2b_vcot_highres`):** Lightweight visual chain-of-thought (`Kimi-VL-A3B-Thinking`).
-- **Arm 3 (`7b_direct_lowres`):** Standard capacity direct QA (`llava_next_vicuna_7b`).
-- **Arm 4 (`7b_direct_highres`):** Fine-grained visual grounding (`Phi-3.5-Vision` / `Janus-Pro-7B`).
-- **Arm 5 (`7b_vcot_highres`):** Multi-step visual chain-of-thought (`MiMo-VL-7B-RL` / `Qianfan-VL-8B`).
-- **Arm 6 (`7b_got_highres`):** Spatial graph exploration (`deepseek_vl2` / `Qwen2.5-VL-32B`).
-- **Arm 7 (`7b_tot_highres`):** Deep tree-of-thought search (`Qwen2.5-VL-72B` / `InternVL2_5-78B`).
+- **Offline Warm-Start Prior ($\lambda = 4.0$, $w_0 = 0.20$ for i.i.d., $w_0 = 0.05$ for OOD shift):**
+  $$A_a^{(0)} = \lambda I_d + w_0 \sum_{i:\,a_i=a} s_i s_i^\top, \qquad b_a^{(0)} = w_0 \sum_{i:\,a_i=a} r_i s_i, \qquad \hat{\theta}_a = A_a^{-1} b_a.$$
+- **Online $O(d^2)$ Sherman-Morrison Covariance Update:**
+  $$A_a^{-1} \leftarrow A_a^{-1} - \frac{(A_a^{-1} s_t)(A_a^{-1} s_t)^\top}{1 + s_t^\top A_a^{-1} s_t}, \qquad b_a \leftarrow b_a + r_{t,a} s_t.$$
 
-### 2.3 Online Contextual Bandit Engine (Upgraded LinUCB)
-For each arm $a \in \mathcal{A}$, the expected reward is modeled as a linear function of state $s_t$:
-$$\mathbb{E}[r_{t,a} \mid s_t] = s_t^\top \theta_a^*$$
-
-#### 1. Sherman-Morrison $\mathcal{O}(d^2)$ Recursive Inverse
-Instead of solving an $\mathcal{O}(d^3)$ linear system at every query step, we maintain the exact inverse covariance matrix $A_a^{-1}$ recursively:
-$$A_a \leftarrow A_a + s_t s_t^\top, \quad A_a^{-1} \leftarrow A_a^{-1} - \frac{A_a^{-1} s_t s_t^\top A_a^{-1}}{1 + s_t^\top A_a^{-1} s_t}$$
-
-#### 2. Hybrid Warm-Start Protocol (Zero Cold-Start Regret)
-To combine the immediate Day-1 accuracy of offline supervised models with the non-stationary plasticity of online bandits, we initialize $A_a$ and $b_a$ directly from historical offline logs $\mathcal{D}_{\text{off}} = \{(s_i, a_i, r_i)\}_{i=1}^{N_0}$:
-$$A_a^{(0)} = I_d + \sum_{i: a_i = a} s_i s_i^\top, \quad b_a^{(0)} = \sum_{i: a_i = a} r_i s_i, \quad \hat{\theta}_a^{(0)} = \left(A_a^{(0)}\right)^{-1} b_a^{(0)}$$
-
-#### 3. Dynamic Budget-Annealing Exploration
-Under a hard remaining budget fraction $b_t = \max\left(0, 1 - \frac{\text{Cost}_{1:t-1}}{B}\right)$, we dynamically modulate the exploration parameter $\alpha_t$:
-$$\alpha_t = \alpha_0 \cdot \text{clamp}(b_t, 0, 1)$$
-Action selection follows:
-$$a_t = \arg\max_{a \in \mathcal{A}} \left[ s_t^\top \hat{\theta}_a + \alpha_t \sqrt{s_t^\top A_a^{-1} s_t} - \lambda \cdot \frac{C_a}{C_{\max}} \right]$$
-As the budget depletes ($b_t \to 0$), $\alpha_t \to 0$, forcing the policy into pure cost-effective exploitation and mathematically preventing budget overruns.
-
-### 2.4 Visual Perturbation Confidence Gate
-To detect when a model is "overthinking" or hallucinating, we implement an invariant perturbation test:
-1. Apply a mild input perturbation $\mathcal{T}(I_t)$ (Gaussian noise $\sigma=0.01$ or $90\%$ center crop).
-2. Query the selected arm on both $I_t$ and $\mathcal{T}(I_t)$, obtaining answers $A_1, A_2$.
-3. Compute the Overthinking Score:
-   $$S_{OT} = 1 - \text{JaccardSim}(A_1, A_2)$$
-4. If $S_{OT} > \tau_{\text{thresh}}$, the gate rejects the hallucinated answer and triggers **Chain-of-Responsibility escalation** to an alternative visual resolution or anchor model.
+### 2.3 Budget-Aware Exploration Annealing & Confidence Escalation Gate
+Implemented in [`src/cascaderoute/confidence_gate.py`](src/cascaderoute/confidence_gate.py) and [`src/cascaderoute/budget_tracker.py`](src/cascaderoute/budget_tracker.py):
+- **Budget Fraction & Exploration Annealing:** Given remaining USD reserve fraction $b_t = \text{clip}((B_{\max} - C_{t-1})/B_{\max}, 0, 1)$, exploration scales linearly as $\alpha_t = \alpha_0 b_t$ ($\alpha_0 = 0.10$):
+  $$a_0 = \arg\max_{a \in \mathcal{A}} \left(\hat{\theta}_a^\top s_t + \alpha_t \sqrt{s_t^\top A_a^{-1} s_t}\right).$$
+- **Zero-Oracle Escalation Gate:** Activated only when primary selection $a_0 \in \mathcal{A}_{\text{compact}}$ ($\le 8\text{B}$ direct tier) and remaining budget satisfies $b_t > b_{\min} = 0.15$. Recovering quality estimates $\hat{\mu}_a = \hat{\theta}_a^\top s_t + \gamma \bar{c}_a$, it selects candidate fallback $a^* \in \mathcal{F} = \{\text{Kimi-3B-Think}, \text{Qwen2.5-72B}, \text{InternVL2.5-78B}, \text{GeminiFlash2.5}\}$ maximizing $\hat{\mu}_a - \kappa \gamma \bar{c}_a$ ($\kappa = 0.22$). With effective utility gain $\Delta_{\text{eff}} = (\hat{\mu}_{a^*} - \hat{\mu}_{a_0}) - \kappa \gamma \max(0, \bar{c}_{a^*} - \bar{c}_{a_0})$, the gate escalates iff $\hat{\mu}_{a_0} < 0.78$, $\Delta_{\text{eff}} \ge 0.025$, and:
+  $$\rho_t = \Delta_{\text{eff}} + 0.25\,\sigma_{a_0}(s_t) + 0.06\,\nabla(I_t) + 0.06\,\psi_{\text{math}}(Q_t) + 0.05\,\mathbb{I}[o_{t,a_0} > 15] \ge 0.12.$$
+  All primary + escalated tokens and latencies are truthfully billed and both executed arms updated online via Sherman-Morrison. *(In live inference mode, `ConfidenceGate` also exposes image-perturbation consistency $S_{\text{OT}} = 1 - \text{Jaccard}(A_1, A_2)$.)*
 
 ---
 
-## 3. Formal Mathematical Proofs (Appendix)
+## 3. Theoretical Guarantees (`cvpr2027/Supplementary.tex` Sec. S1)
 
-### Theorem 1 (Regret Bound of CascadeRoute-VL)
-**Statement:** Let $\mathcal{A}$ be an action set of $|\mathcal{A}| = K$ arms, context vectors $\|s_t\|_2 \le 1$, and parameters $\|\theta_a^*\|_2 \le 1$. For any sequence of $T$ queries, the cumulative regret of CascadeRoute-VL satisfies:
-$$R(T) = \sum_{t=1}^T \left( \max_{a \in \mathcal{A}} s_t^\top \theta_a^* - s_t^\top \theta_{a_t}^* \right) \le 2 \alpha_0 \sqrt{2 d T \ln\left(1 + \frac{T}{d \lambda_0}\right)} = \mathcal{O}(d \sqrt{T \ln T})$$
-*Proof Summary:* The confidence ellipsoid radius $\beta_t = \alpha_0 \sqrt{d \ln(1 + t/(d\lambda_0))}$ guarantees that $\theta_a^* \in \mathcal{C}_{t,a}$ with probability at least $1 - \delta$. By standard Azuma-Hoeffding inequalities over the self-normalized martingales and bounding the sum of predictive variances $\sum_{t=1}^T s_t^\top A_{a_t}^{-1} s_t \le 2 d \ln(1 + T/(d\lambda_0))$, the regret is strictly sublinear, guaranteeing asymptotic convergence to the Oracle policy. $\blacksquare$
-
-### Theorem 2 (Budget Feasibility Under Exploration Annealing)
-**Statement:** Let budget $B > 0$. If exploration is annealed as $\alpha_t = \alpha_0 \cdot \max(0, 1 - \frac{\text{Spent}_t}{B})$, the probability of exceeding budget $B$ by more than a single query cost $C_{\max}$ is bounded by:
-$$\mathbb{P}\left(\sum_{t=1}^T C_{a_t} > B + C_{\max}\right) \le \exp\left( - \frac{2 B^2}{T \cdot C_{\max}^2} \right)$$
-*Proof Summary:* As $\text{Spent}_t \to B$, $b_t \to 0 \implies \alpha_t \to 0$. The objective reduces to pure greedy cost-weighted exploitation. If the expected cost of the greedy choice satisfies $\mathbb{E}[C_{a_t}] \le B/T$, McDiarmid's concentration inequality bounds the upper tail probability, guaranteeing budget feasibility with high probability. $\blacksquare$
+- **Lemma 1 (Bounded Context Space):** $\|s_t\|_2 \le 0.9972 < 1$ analytically ($\le 0.8943$ across all `30,540` queries).
+- **Lemma 2 (Sub-Gaussian Reward Noise):** Bounded $r_{t,a} \in [-2.5\gamma, 1]$ yields conditionally $\nu$-sub-Gaussian noise with $\nu = (1 + 2.5\gamma)/2$ ($\nu = 0.60$ at $\gamma = 0.08$).
+- **Theorem 1 (Disjoint Multimodal Regret Bound & OOD Prior Decay):** Self-normalized martingale bounds (Abbasi-Yadkori et al., 2011) + Cauchy-Schwarz across $K$ disjoint arm counts $\sum_{a=1}^K \sqrt{T_a} \le \sqrt{KT}$ + Determinant-Trace Elliptical Potential yield high-probability cumulative regret:
+  $$R_T \le 2\alpha_0 \sqrt{2 d K T \ln\!\left(1 + \frac{T}{d\lambda}\right)} + \mathcal{O}(K) = \tilde{\mathcal{O}}(d\sqrt{KT}).$$
+  Furthermore, under domain shift $\theta_a^{\text{src}} \to \theta_a^{\text{ood}}$, frozen supervised routers suffer linear regret $\Omega(\Delta_{\text{shift}} T)$, whereas warm-started ridge prior bias decays as $\mathcal{O}\!\left(\frac{w_0 \|\theta_a^{\text{src}} - \theta_a^{\text{ood}}\|}{\lambda + n_{t,a}}\right)$ under live online Sherman-Morrison updates.
+- **Theorem 2 (Asymptotic Budget Feasibility):** Under $b_t \to 0^+$, $b_t \le 0.15$ unconditionally disables escalation and $\alpha_t = \alpha_0 b_t \to 0$ collapses decisions onto pure cost-penalized ridge exploitation $\arg\max_a \hat{\theta}_a^\top s_t$.
 
 ---
 
-## 4. Pre-emptive Rebuttal Proofing (The 5 Reviewer Objections)
+## 4. Verified Experimental Results (`N=6,108` Held-Out Test & `N=17,601` OOD, 5 Seeds)
 
-| Reviewer Objection | Pre-emptive Proof & Defense in Paper | Where Proven in Code & Paper |
-|---|---|---|
-| **Objection 1:** *"Offline routing is simpler and standard; why do online?"* | **Proved distribution collapse:** Offline routers suffer a fatal **-49.5% collapse** when shifted to OOD Charts/OCR with 0% recovery. CascadeRoute-VL recovers within $\sim 49$ queries. We provide a full 3-mode comparison (Pure Offline vs Pure Online vs Warm-Started Online). | `table2_distribution_shift.csv`, Section 5.2 |
-| **Objection 2:** *"Compare against newer algorithms (not just classic bandits)."* | Implemented and benchmarked **ARMS-Router** (arXiv Jun 2026), **MHR-Router** (dual-buffer retrieval, Oct 2026), **FrugalGPT** (cascade, 2023), **RouteLLM** (ICLR 2025), and **Offline Soft-Label** ($\lambda \in \{0, 0.5, 1\}$). | `src/rl/mhr_router.py`, `src/rl/arms_router.py`, Table 1 |
-| **Objection 3:** *"There is a simulation-to-reality gap in offline benchmark replay."* | Eliminated bias using **Counterfactual Off-Policy Evaluation (OPE)** with Inverse Propensity Scoring (IPS) and Self-Normalized IPS (SNIPS) with 95% bootstrap confidence intervals, mathematically proving real-world unbiasedness. | `table5_ips_counterfactual_evaluation.csv`, Section 5.5 |
-| **Objection 4:** *"What is the computer vision contribution? This feels like an ML paper."* | 1. 3D action space ablation (+7.71% from visual resolution).<br>2. Perceptual complexity signals (entropy, edge density).<br>3. Visual Perturbation Gate ($S_{OT}$).<br>4. Reasoning Tax Heatmap across 14 vision benchmarks. | `table3_action_space_ablation.csv`, `fig1_reasoning_tax_heatmap.png` |
-| **Objection 5:** *"Why not just do pure offline or pure online?"* | The **Warm-Started Online Hybrid** dominates both: it has 0 cold-start regret (matches offline Day 1) while retaining full online plasticity to adapt to distribution drift. | Section 4.3, Table 1 & Table 2 |
+### 4.1 Main Benchmark (`reports/tables/real_table1_main_benchmark.csv`)
 
----
+| Method | Category | Acc (%) | Avg Tok | Out Tok | Latency (s) | Cost / 1k ($) | USD Saved | Cum. Regret |
+|---|---|---|---|---|---|---|---|---|
+| `Qwen2.5-VL-72B` | Static VLM | 77.29 | 309.8 | 31.7 | 1.959 | \$0.2605 | 0.0% | 1092.0 |
+| `InternVL2.5-78B` | Static VLM | 76.20 | 293.5 | 15.4 | 1.328 | \$0.3012 | -15.6% | 1159.0 |
+| `Kimi-VL-3B-Think` | Static VLM | 72.86 | 335.3 | 57.1 | 0.741 | \$0.0699 | 73.2% | 1363.0 |
+| `Qianfan-VL-8B` | Static VLM | 69.88 | 282.2 | 4.1 | 0.228 | \$0.0511 | 80.4% | 1545.0 |
+| `DeepSeek-VL2-Tiny` | Static VLM | 62.57 | 285.5 | 7.3 | 0.144 | \$0.0143 | 94.5% | 1991.0 |
+| `Offline-Linear` | Offline Router | 78.21 | 384.3 | 106.2 | 1.721 | \$0.1777 | 31.8% | 1036.0 |
+| `KNN-Router` ($k=15$) | Offline Router | 78.31 | 361.8 | 83.7 | 1.444 | \$0.1306 | 49.9% | 1030.0 |
+| `ARMS-Router` | Offline Router | 78.80 | 369.0 | 90.8 | 1.306 | \$0.2190 | 16.0% | 1000.0 |
+| `MLP-Router` (GPU) | Offline Router | **79.85** | 400.4 | 122.2 | 1.844 | \$0.1854 | 28.8% | **936.0** |
+| `FrugalGPT-Cascade` | Seq. Cascade | 73.23 | 725.8 | 69.7 | 1.719 | \$0.1704 | 34.6% | 1340.0 |
+| `MHR-Router` | Retrieval Bandit | 71.48 ± 0.51 | 346.4 | 68.2 | 1.333 | \$0.1247 | 52.1% | 1446.8 |
+| `DQN-Router` | Online Bandit | 72.96 ± 1.02 | 335.5 | 57.3 | 1.421 | \$0.1845 | 29.2% | 1356.4 |
+| `LinUCB (Cold Online)` | Online Bandit | 72.68 ± 1.71 | 363.0 | 84.9 | 1.535 | \$0.3220 | -23.6% | 1373.8 |
+| **`CascadeRoute-VL (Frugal γ=0.30)`** | **Proposed** | 76.13 ± 0.21 | **360.5** | **51.1** | **0.824** | **\$0.0876** | **66.4%** | 1162.8 |
+| **`CascadeRoute-VL (Full, γ=0.08)`** | **Proposed** | **78.59 ± 0.12** | 370.8 | 91.9 | 1.550 | \$0.1598 | 38.7% | **1013.0** |
+| `Oracle (Hindsight 17-Arm)` | Upper Bound | 95.17 | 296.5 | 18.3 | 0.339 | \$0.0348 | 86.6% | 0.0 |
 
-## 5. Summary of Experimental Results
+### 4.2 Zero-Leakage OOD Distribution Shift (`General+STEM` -> Unseen `Charts+OCR+Hall`, `N=17,601`, 5 Seeds)
 
-### Table 1: Master Comparative Benchmark (30,540 Samples, 17 Models)
-*Across the full 30,540 samples, CascadeRoute-VL achieves 83.7% accuracy while cutting tokens by 41.3% and latency by 63.7% compared to static frontier model deployment.*
-
-| Method | Accuracy (%) | Tokens / Query | Latency (s) | Cost / 1k Queries ($) | Speedup vs 72B |
-|---|---|---|---|---|---|
-| Single Best Frontier (`Qwen2.5-VL-72B`) | 78.21% | 1,880.0 | 2.35s | \$3.196 | 1.00× |
-| Frontier Open-Weights (`InternVL2_5-78B`) | 76.63% | 1,950.0 | 2.40s | \$3.315 | 0.98× |
-| Standard 8B (`Qianfan-VL-8B`) | 70.61% | 890.0 | 0.72s | \$0.178 | 3.26× |
-| Lightweight 2B (`deepseek_vl2_tiny`) | 63.23% | 520.0 | 0.35s | \$0.042 | 6.71× |
-| Lightweight 1B (`Janus-Pro-1B`) | 28.84% | 320.0 | 0.22s | \$0.013 | 10.68× |
-| **FrugalGPT Cascade** (2023) | 79.10% | 1,420.0 | 1.85s | \$2.210 | 1.27× |
-| **Offline Linear Router** ($\lambda=0.5$) | 79.80% | 1,180.0 | 1.15s | \$1.650 | 2.04× |
-| **ARMS Router** (Jun 2026) | 80.45% | 1,140.0 | 1.10s | \$1.580 | 2.14× |
-| **MHR-Router** (Oct 2026) | 81.10% | 1,190.0 | 1.22s | \$1.680 | 1.93× |
-| Pure Online LinUCB (Cold-Start) | 81.45% | 1,120.0 | 0.98s | \$1.510 | 2.40× |
-| **CascadeRoute-VL (Ours, Warm-Start)** | **83.72%** | **1,095.0** | **0.86s** | **\$1.420** | **2.73×** |
-| **Oracle Upper Bound** | **95.45%** | **980.0** | **0.78s** | **\$1.210** | **3.01×** |
-
-### Table 2: Distribution Shift Resilience (General/STEM $\to$ OOD Charts/OCR)
-*Proving the fatal failure mode of offline routers under real-world visual drift.*
-
-| Method | In-Domain Acc (%) | OOD Acc (%) | OOD Degradation | Recovery Time |
+| Method | In-Dist Test (`N=2,523`) | Unseen OOD (`N=17,601`) | Shift $\Delta$ | Exceeds Static MLP |
 |---|---|---|---|---|
-| Qwen2.5-VL-72B (Static) | 79.10% | 76.80% | -2.30% | Never (Static) |
-| Offline Linear Router ($\lambda=0.5$) | 80.20% | 50.50% | **-29.70%** | **Never (Static)** |
-| ARMS Profile Router | 80.80% | 52.10% | **-28.70%** | **Never (Static)** |
-| Pure Online LinUCB | 76.50% | 75.80% | -0.70% | ~140 queries |
-| **CascadeRoute-VL (Ours)** | **82.40%** | **79.90%** | **-2.50%** | **~49 queries** |
-| Oracle Upper Bound | 95.80% | 94.90% | -0.90% | Instant |
+| `Qwen2.5-VL-72B` (Static) | 69.24% | 83.81% | +14.56% | Ref. |
+| `Offline-Linear` | 73.64% | 65.41% | -8.24% | Never |
+| `ARMS-Router` | 76.06% | 66.58% | -9.48% | Never |
+| `MLP-Router` | 72.77% | 56.97% | **-15.80%** | Baseline |
+| `LinUCB (Cold Online)` | 74.44% | 75.72% | +1.28% | $\sim 191$ queries |
+| **`CascadeRoute-VL (Ours)`** | **75.98%** | **80.68%** | **+4.70%** | **$\sim 51$ queries** |
+| `Oracle` (Upper Bound) | 95.48% | 95.36% | -0.12% | Instant |
 
----
-
-## 6. Clean Codebase Layout & Verification
-
-Following the cleanup, the workspace contains only active, necessary files:
-
-```
-SDP_RL_Project/
-├── cvpr2027/                           # CVPR 2027 LaTeX Manuscript & Style
-│   ├── CascadeRoute_VL_CVPR2027.tex    # Full 8-page draft with formal proofs
-│   └── cvpr.sty                        # CVPR official LaTeX style
-├── data/
-│   ├── vl_routerbench_processed/       # Compiled 30,540 sample benchmarks
-│   │   ├── BENCHMARKS/                 # JSONL task prompts (ocr_qa, vqa_mc, etc.)
-│   │   ├── ORACLE/score/               # 14 Parquet files (519,180 ground-truth scores)
-│   │   ├── SPLITS/                     # train.jsonl (21k), dev (3k), test (6.1k)
-│   │   ├── registry/                   # meta.parquet, sample & model indices
-│   │   └── matrices/                   # Y.npz, C.npz, X_multimodal_904_f16.npz (48MB)
-│   └── vl_routerbench_README.md
-├── reports/
-│   ├── tables/                         # CSV benchmark tables (Table 1 through 5)
-│   └── figures/                        # High-resolution rendered PNG figures
-├── scripts/
-│   ├── adapt_real_vlrouterbench.py     # Live 30,540 benchmark evaluation runner
-│   ├── run_vl_cascade_suite.py         # Simulation & ablation suite runner
-│   ├── generate_cvpr_visuals.py        # Heatmap & Pareto frontier generator
-│   └── download_vlrouterbench.py       # Raw HF dataset downloader (if needed)
-├── src/
-│   ├── cascaderoute/                   # ConfidenceGate & perturbation logic
-│   ├── features/                       # 904-dim Multimodal feature extractor
-│   ├── rl/                             # LinUCB, MHR, ARMS, FrugalGPT, Thompson, DQN
-│   ├── evaluation/                     # Regret, statistical tests, IPS OPE
-│   └── llm/                            # VLM client handlers
-├── tests/                              # 42 Passing unit tests
-├── unwanted/                           # Excluded legacy coursework & raw 15GB files
-├── CASCADE_ROUTE_VL_MASTER_METHODOLOGY.md # THIS MASTER DOCUMENT
-├── EXECUTION_LOG.md                    # Chronological engineering log
-├── README.md                           # Lab deployment & execution guide
-└── requirements.txt                    # Python dependencies
-```
-
----
-
-## 7. How to Resume Work in a New Chat or Session
-
-If continuing in a new conversation, prompt the agent with:
-> *"I am working on the CascadeRoute-VL paper for CVPR 2027 located in `F:\ADI\SDP`. Please read `CASCADE_ROUTE_VL_MASTER_METHODOLOGY.md` and `EXECUTION_LOG.md` to get full context on the framework, 30k benchmark data, and pre-emptive rebuttal experiments."*
-
-### Immediate Next Tasks:
-1. Run `python scripts/adapt_real_vlrouterbench.py` on the high-RAM lab machine to finalize all CSV numbers directly from the real 30,540 dataset.
-2. Compile the paper:
-   ```bash
-   cd cvpr2027
-   pdflatex CascadeRoute_VL_CVPR2027.tex
-   ```
-3. Complete OpenReview profile registration before **November 10, 2026**.
-
+### 4.3 Counterfactual OPE (`real_table5_ips_counterfactual.csv`, `1,000` Bootstraps) & Ablations
+- **OPE on Warm-Start Target Policy (`True = 0.7878`):** IPS = `0.8356 [0.7332, 0.9367]`, SNIPS = **`0.7919 [0.7461, 0.8386]`**, Doubly Robust = **`0.7833 [0.7395, 0.8281]`** (`ESS = 306.4`).
+- **Component & Modality Gains:** Adding offline warm-start lifts cold online LinUCB from `72.68%` (`\$0.3220`) to `78.58%` (`\$0.1590`); adding the 8 unsupervised perceptual cues boosts cold online `Text+Vision` from `68.82%` to `72.68%` (`+3.86%`).
+- **Zero-Label Emergent Specialization:** `63.2%` thinking picks on `STEM` (`259.6` out tok; `74.62%` acc vs `67.08%` for 72B) vs `0.09% MiMo-VL-RL` and `44.7% Qianfan-8B/DeepSeek-VL2` on `Charts_OCR` (`4.9` out tok) = **53× dynamic compute scaling**.

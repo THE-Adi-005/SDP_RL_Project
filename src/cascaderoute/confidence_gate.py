@@ -1,18 +1,17 @@
-"""Visual Perturbation Confidence Gate with Chain of Responsibility Escalation.
+"""Visual Consistency & Epistemic Confidence Gate with Chain-of-Responsibility Escalation.
 
 Reference:
 - CascadeRoute-VL (CVPR 2027): "Taming the Reasoning Tax in Vision-Language Models
   via Online Contextual Bandit Routing"
-- Formulates visual hallucination detection via input perturbation invariance:
-  mild scale/noise perturbations should NOT flip grounded visual answers.
-  If answers diverge (high Overthinking Score S_OT), the gate triggers
-  Chain-of-Responsibility escalation to higher-fidelity VLM arms.
+- Supports both:
+  1. Live visual-perturbation hallucination scoring S_OT = 1 - Jaccard(A_1, A_2).
+  2. Principled bandit-epistemic + unsupervised perceptual escalation gate that avoids
+     test-time oracle peeking and accounts for full multi-stage cascade token/cost overhead.
 """
 from typing import Dict, Optional, Tuple, Any
 import numpy as np
 
 
-# Standard escalation chains across 8 multimodal arms
 MULTIMODAL_CHAINS = {
     "2b_direct_lowres":  "2b_direct_highres",
     "2b_direct_highres": "2b_vcot_highres",
@@ -24,7 +23,6 @@ MULTIMODAL_CHAINS = {
     "7b_tot_highres":    None
 }
 
-# Legacy text chains for backwards compatibility
 LEGACY_TEXT_CHAINS = {
     "3b_direct": "3b_cot",
     "3b_cot": None,
@@ -36,52 +34,106 @@ LEGACY_TEXT_CHAINS = {
 
 
 class ConfidenceGate:
-    """Visual Consistency Confidence Gate with Chain of Responsibility."""
+    """Visual & Epistemic Confidence Gate with Chain-of-Responsibility Escalation."""
 
     def __init__(
         self,
         strategies_dict: Optional[Dict[str, Any]] = None,
         tau: float = 0.25,
         perturbation_scale: float = 0.90,
-        gaussian_sigma: float = 0.01
+        gaussian_sigma: float = 0.01,
+        unc_threshold: float = 0.12,
+        margin_threshold: float = 0.025,
+        min_budget_frac: float = 0.15,
+        p_cap: float = 0.78,
+        unc_weight: float = 0.25,
     ):
-        """
-        Args:
-            strategies_dict: Dictionary mapping action names to strategy instances.
-            tau: Hallucination divergence threshold (S_OT >= tau triggers escalation).
-            perturbation_scale: Image scaling factor for perturbation check.
-            gaussian_sigma: Gaussian noise standard deviation.
-        """
         self.strategies = strategies_dict or {}
         self.tau = tau
         self.perturbation_scale = perturbation_scale
         self.gaussian_sigma = gaussian_sigma
-
-        # Merged chains covering both text and multimodal
+        self.unc_threshold = unc_threshold
+        self.margin_threshold = margin_threshold
+        self.min_budget_frac = min_budget_frac
+        self.p_cap = p_cap
+        self.unc_weight = unc_weight
         self.chains = {**LEGACY_TEXT_CHAINS, **MULTIMODAL_CHAINS}
 
     def compute_overthinking_score(self, answer1: str, answer2: str) -> float:
         """Compute divergence S_OT ∈ [0, 1] between original and perturbed responses."""
         a1 = str(answer1).strip().lower()
         a2 = str(answer2).strip().lower()
-
         if not a1 or not a2:
-            return 1.0  # Empty generation indicates failure
-
+            return 1.0
         if a1 == a2:
-            return 0.0  # Exact match: high visual stability
-
-        # Token-level overlap (Jaccard distance)
+            return 0.0
         tokens1 = set(a1.split())
         tokens2 = set(a2.split())
         if not tokens1 or not tokens2:
             return 1.0
+        return 1.0 - (len(tokens1 & tokens2) / len(tokens1 | tokens2))
 
-        intersection = len(tokens1 & tokens2)
-        union = len(tokens1 | tokens2)
-        jaccard_sim = intersection / union if union > 0 else 0.0
+    def decide_escalation(
+        self,
+        primary_arm: int,
+        preds: np.ndarray,
+        uncs: np.ndarray,
+        perceptual_raw: Optional[np.ndarray] = None,
+        fallback_arms: Optional[Tuple[int, ...]] = None,
+        arm_costs: Optional[np.ndarray] = None,
+        arm_cost_penalty: Optional[np.ndarray] = None,
+        observed_out_tokens: Optional[float] = None,
+        budget_fraction: float = 1.0,
+    ) -> Tuple[int, bool]:
+        """Confidence-guided escalation decision without any ground-truth label peeking.
 
-        return 1.0 - jaccard_sim
+        Recovers estimated pure accuracy (before cost-penalty shift) for the primary
+        compact arm and candidate specialist/frontier fallback arms, then combines:
+        1. Expected accuracy gain (est_acc[alt] - est_acc[primary]),
+        2. Bandit epistemic uncertainty sigma_a(s_t) = sqrt(s_t^T A_a^{-1} s_t),
+        3. Unsupervised perceptual complexity (edge density, math symbol cues),
+        4. Legitimate post-call compact response length signal (overthinking/bloat).
+        """
+        if budget_fraction <= self.min_budget_frac or not fallback_arms:
+            return primary_arm, False
+
+        est_acc = preds if arm_cost_penalty is None else (preds + arm_cost_penalty)
+        p_primary = float(est_acc[primary_arm])
+        u_primary = float(uncs[primary_arm])
+
+        best_alt = primary_arm
+        best_alt_util = p_primary - (0.22 * float(arm_cost_penalty[primary_arm]) if arm_cost_penalty is not None else 0.0)
+        for alt in fallback_arms:
+            if alt == primary_arm:
+                continue
+            alt_util = float(est_acc[alt]) - (0.22 * float(arm_cost_penalty[alt]) if arm_cost_penalty is not None else 0.0)
+            if alt_util > best_alt_util:
+                best_alt_util = alt_util
+                best_alt = int(alt)
+
+        if best_alt == primary_arm:
+            return primary_arm, False
+
+        best_alt_acc = float(est_acc[best_alt])
+        gain = best_alt_acc - p_primary
+        cost_diff_pen = 0.0
+        if arm_cost_penalty is not None:
+            cost_diff_pen = max(0.0, float(arm_cost_penalty[best_alt]) - float(arm_cost_penalty[primary_arm]))
+        eff_gain = gain - 0.22 * cost_diff_pen
+
+        perc_boost = 0.0
+        if perceptual_raw is not None:
+            edge = float(perceptual_raw[1])
+            math_cue = float(perceptual_raw[6])
+            perc_boost = 0.06 * edge + 0.06 * math_cue
+
+        obs_bloat = 0.05 if (observed_out_tokens is not None and observed_out_tokens > 15.0) else 0.0
+        risk_score = eff_gain + self.unc_weight * u_primary + perc_boost + obs_bloat
+
+        if (p_primary < self.p_cap) and (eff_gain >= self.margin_threshold) and (risk_score >= self.unc_threshold):
+            return best_alt, True
+
+        return primary_arm, False
 
     def evaluate_offline_query(
         self,
@@ -89,16 +141,7 @@ class ConfidenceGate:
         query_outcomes_by_arm: Dict[str, Dict[str, Any]],
         proxy_instability: float = 0.0
     ) -> Tuple[str, bool, float, float, int]:
-        """Offline simulation of visual confidence gate escalation.
-
-        Args:
-            initial_action: Initial arm proposed by the router.
-            query_outcomes_by_arm: Dict mapping arm_name -> {'correct', 'total_tokens', 'latency'}.
-            proxy_instability: Measured or estimated instability S_OT for the query.
-
-        Returns:
-            (final_action, is_correct, total_tokens, total_latency, escalation_count)
-        """
+        """Offline simulation of visual confidence gate escalation."""
         current_action = initial_action
         escalation_count = 0
         total_tokens = 0.0
@@ -113,22 +156,18 @@ class ConfidenceGate:
             latency = float(arm_data.get("latency", 0.5))
             correct = bool(arm_data.get("correct", False))
 
-            # Accumulate evaluation cost of this stage
             total_tokens += tokens
             total_latency += latency
 
-            # If visually stable (S_OT < tau) and output valid, accept answer
             if proxy_instability < self.tau:
                 return current_action, correct, total_tokens, total_latency, escalation_count
 
-            # Divergence detected -> escalate to next arm in chain
             next_action = self.chains.get(current_action)
             if next_action is None:
                 return current_action, correct, total_tokens, total_latency, escalation_count
 
             current_action = next_action
             escalation_count += 1
-            # Escalated arm benefits from higher capacity, decreasing residual instability
             proxy_instability *= 0.6
 
         return current_action or initial_action, False, total_tokens, total_latency, escalation_count
@@ -140,12 +179,8 @@ class ConfidenceGate:
 
         while current_action is not None:
             strategy = self.strategies[current_action]
-
-            # Primary execution
             strategy.llm.temperature = 0.2
             res1 = strategy.solve(question)
-
-            # Verification pass
             strategy.llm.temperature = 0.8
             res2 = strategy.solve(question)
             strategy.llm.temperature = 0.2
@@ -156,7 +191,6 @@ class ConfidenceGate:
             res1.n_llm_calls += res2.n_llm_calls
 
             s_ot = self.compute_overthinking_score(res1.predicted_answer, res2.predicted_answer)
-
             if s_ot < self.tau and res1.predicted_answer != "":
                 return res1, current_action, escalation_count
 

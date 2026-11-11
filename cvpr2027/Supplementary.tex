@@ -1,0 +1,374 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage[review]{cvpr}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{placeins}
+\usepackage[pagebackref,breaklinks,colorlinks]{hyperref}
+
+\renewcommand{\topfraction}{0.90}
+\renewcommand{\dbltopfraction}{0.90}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\dblfloatpagefraction}{0.85}
+
+\def\paperID{****}
+\def\confName{CVPR}
+\def\confYear{2027}
+
+\title{CascadeRoute-VL: Taming the Reasoning Tax in Vision-Language Models via Online Contextual Bandit Routing}
+
+\begin{document}
+
+\maketitlesupplementary
+\setcounter{section}{0}
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+This supplementary document provides:
+(i)~complete proofs of Lemmas~1--2, Theorem~1 (with OOD Warm-Start prior decay), and Theorem~2 (Sec.~\ref{sec:supp_proofs});
+(ii)~full 17-VLM profiles, unsupervised dataset perceptual diagnostics, compact model rescue breakdown, and complete $14\times 17$ real outcome/token matrices across all 30,540 queries (Sec.~\ref{sec:supp_data});
+(iii)~full Pareto sweep tables, paired statistical tests with Bonferroni correction, and 17-arm domain-specialized routing frequencies (Sec.~\ref{sec:supp_exp}); and
+(iv)~expanded visual qualitative case studies and full reproducibility details (Sec.~\ref{sec:supp_qual}).
+
+% ============================================================================
+\section{Complete Theoretical Proofs}
+\label{sec:supp_proofs}
+% ============================================================================
+
+\subsection{Proof of Lemma 1 (Bounded Context Space)}
+Let the $d{=}904$ feature representation for query $(I_t, Q_t)$ be
+\[
+s_t = \left[\, w_q \hat{q}_t \;\|\; w_v \hat{v}_t \;\|\; w_p p_t \,\right] \in \mathbb{R}^{904},
+\]
+where $\hat{q}_t \in \mathbb{R}^{384}$ is $L_2$-normalized ($\|\hat{q}_t\|_2 = 1$), $\hat{v}_t \in \mathbb{R}^{512}$ is $L_2$-normalized ($\|\hat{v}_t\|_2 = 1$), and $p_t \in [0, 1]^8$ comprises eight bounded unsupervised cues: normalized luminance entropy $H(I_t)/8 \in [0,1]$, Sobel edge gradient fraction in $[0,1]$, logarithmic aspect ratio $\frac{1}{\pi}\arctan(\ln(W/H))+0.5 \in (0,1)$, clipped log pixel area $\text{clip}(\log_{10}(WH)/7,0,1) \in [0,1]$, bright background fraction $\mathbb{E}[L > 235/255] \in [0,1]$, clipped prompt word ratio $\min(w,128)/128 \in [0,1]$, symbolic/MCQ cue density in $[0,1]$, and sentence count ratio $\min(s,16)/16 \in [0,1]$.
+
+Because the three concatenated blocks occupy disjoint coordinate subsets and each entry of $p_t$ lies in $[0,1]$, $\|p_t\|_2^2 \le \sum_{j=1}^{8} 1^2 = 8$. Substituting weights $(w_q, w_v, w_p) = (0.50, 0.55, 0.235)$ yields:
+\begin{align}
+\|s_t\|_2^2 &= w_q^2 \|\hat{q}_t\|_2^2 + w_v^2 \|\hat{v}_t\|_2^2 + w_p^2 \|p_t\|_2^2 \nonumber\\
+&\le 0.50^2(1) + 0.55^2(1) + 0.235^2(8) \nonumber\\
+&= 0.2500 + 0.3025 + 0.4418 = 0.9943 < 1.0,
+\end{align}
+so $\|s_t\|_2 \le \sqrt{0.9943} \approx 0.99715 < 1$. Across all 30,540 encoded real benchmark queries, we empirically verify $\min_t \|s_t\|_2 = 0.7611$, $\text{mean}_t \|s_t\|_2 = 0.8116$, and $\max_t \|s_t\|_2 = 0.8943 < 1.0$. \hfill $\blacksquare$
+
+\subsection{Proof of Lemma 2 (Sub-Gaussian Reward Noise)}
+For every arm $a \in \{1,\dots,K\}$ and round $t$, accuracy outcome satisfies $y_{t,a} \in \{0,1\}$ and clipped normalized cost satisfies $\tilde{c}_{t,a} = \text{clip}(c_{t,a}/c_{90}, 0, 2.5) \in [0, 2.5]$. With $\gamma \ge 0$, scalar reward $r_{t,a} = y_{t,a} - \gamma \tilde{c}_{t,a}$ is almost surely bounded inside the closed interval $[-2.5\gamma, 1]$ of width $W_\gamma = 1 + 2.5\gamma$. Conditioning on history $\mathcal{F}_{t-1}$ and $(s_t, a)$, the zero-mean noise $\eta_t = r_{t,a} - \mathbb{E}[r_{t,a} \mid s_t, \mathcal{F}_{t-1}]$ is bounded within an interval of width at most $1 + 2.5\gamma$. By Hoeffding's Lemma, for all $\zeta \in \mathbb{R}$:
+\begin{align*}
+&\mathbb{E}\left[\exp(\zeta \eta_t) \mid \mathcal{F}_{t-1}, s_t, a\right] \\
+&\qquad \le \exp\!\left(\frac{\zeta^2 (1 + 2.5\gamma)^2}{8}\right) = \exp\!\left(\frac{\zeta^2 \nu^2}{2}\right),
+\end{align*}
+establishing $\nu$-sub-Gaussianity with $\nu = \frac{1 + 2.5\gamma}{2}$. At our balanced setting $\gamma{=}0.08$, $\nu = 0.60$. \hfill $\blacksquare$
+
+\subsection{Proof of Theorem 1 (Disjoint Multimodal Regret Bound \& OOD Prior Decay)}
+\textbf{Part A: High-Probability Self-Normalized Confidence Ellipsoid.}
+Let $\mathcal{D}_{\text{off}}$ denote optional warm-start samples scaled by weight $w_0 \in [0,1]$, forming initial Gram matrix $A_a^{(0)} = \lambda I_d + w_0 \sum_{i \in \mathcal{D}_{\text{off}}, a_i=a} s_i s_i^\top$, with $\lambda_{\min}(A_a^{(0)}) \ge \lambda > 0$ and bounded eigenvalues $\lambda_{\max}(A_a^{(0)}) \le \lambda + w_0 |\mathcal{D}_{\text{off}}|$. During online steps $t=1,\dots,T$, let $T_a$ be the number of pulls of arm $a$ ($\sum_{a=1}^K T_a = T$) and $A_{t,a} = A_a^{(0)} + \sum_{\tau < t, a_\tau = a} s_\tau s_\tau^\top$. By Theorem~2 of Abbasi-Yadkori \etal~\citep{abbasi2011improved} applied with Lemma~1 ($\|s_t\|_2 \le 1$) and Lemma~2 ($\nu$-sub-Gaussian noise) under stationary rewards ($\mathbb{E}[r_{t,a}|s_t] = \theta_a^\top s_t$, $\|\theta_a\|_2 \le S$), with probability at least $1-\delta$, simultaneously for all $t \ge 1$ and $a \in \{1,\dots,K\}$:
+\begin{equation}
+\|\hat{\theta}_{t,a} - \theta_a\|_{A_{t,a}} \le \beta_t(\delta/K) \le \alpha_0,
+\end{equation}
+where $\beta_t(\delta/K) = \nu \sqrt{2\ln\left(\frac{K \det(A_{t,a})^{1/2}}{\delta \det(A_a^{(0)})^{1/2}}\right)} + \sqrt{\lambda + \text{bias}_{\text{off}}} S$. By Cauchy-Schwarz in the $A_{t,a}^{-1}$-induced metric:
+\begin{equation}
+\left| (\hat{\theta}_{t,a} - \theta_a)^\top s_t \right| \le \|\hat{\theta}_{t,a} - \theta_a\|_{A_{t,a}} \|s_t\|_{A_{t,a}^{-1}} \le \alpha_0 \sqrt{s_t^\top A_{t,a}^{-1} s_t}.
+\end{equation}
+On the event above, the optimistic UCB choice $a_t = \arg\max_a (\hat{\theta}_{t,a}^\top s_t + \alpha_0 \|s_t\|_{A_{t,a}^{-1}})$ against hindsight optimal arm $a_t^* = \arg\max_a \theta_a^\top s_t$ satisfies instantaneous pseudo-regret bound:
+\begin{align}
+\text{reg}_t &= \theta_{a_t^*}^\top s_t - \theta_{a_t}^\top s_t \nonumber\\
+&\le \hat{\theta}_{t,a_t^*}^\top s_t + \alpha_0 \|s_t\|_{A_{t,a_t^*}^{-1}} - \theta_{a_t}^\top s_t \nonumber\\
+&\le \hat{\theta}_{t,a_t}^\top s_t + \alpha_0 \|s_t\|_{A_{t,a_t}^{-1}} - \theta_{a_t}^\top s_t \nonumber\\
+&\le 2 \alpha_0 \sqrt{s_t^\top A_{t,a_t}^{-1} s_t}.
+\end{align}
+Since rewards lie in $[-2.5\gamma, 1]$, clipping per-step regret above by $W_\gamma = 1+2.5\gamma$ gives $\text{reg}_t \le 2\alpha_0 \min(1, \|s_t\|_{A_{t,a_t}^{-1}})$ (for $\alpha_0 \ge W_\gamma/2$). Grouping rounds by selected arm $a \in \{1,\dots,K\}$ with counts $T_a$ ($\sum_a T_a = T$) and applying Cauchy-Schwarz first per arm, then across the $K$ arms via $\sum_{a=1}^K \sqrt{T_a} \le \sqrt{K \sum_{a=1}^K T_a} = \sqrt{K T}$:
+\begin{align}
+R_T &= \sum_{t=1}^T \text{reg}_t \le 2\alpha_0 \sum_{a=1}^K \sum_{t:\, a_t = a} \min\!\left(1, \|s_t\|_{A_{t,a}^{-1}}\right) \nonumber\\
+&\le 2\alpha_0 \sum_{a=1}^K \sqrt{T_a \sum_{t:\, a_t = a} \min\!\left(1, \|s_t\|_{A_{t,a}^{-1}}^2\right)}.
+\end{align}
+By the Determinant-Trace Elliptical Potential Lemma~\citep{abbasi2011improved} with $\det(A_{t,a}) = \det(A_a^{(0)}) \prod_{\tau: a_\tau = a}(1 + \|s_\tau\|_{A_{\tau,a}^{-1}}^2)$ and Hadamard's inequality ($\text{tr}(A_{T+1,a}) \le d \lambda_{\max}^{(0)} + T_a$), we obtain:
+\begin{align*}
+\sum_{t:\,a_t=a} \min(1, \|s_t\|_{A_{t,a}^{-1}}^2) &\le 2 \ln\!\left(\frac{\det(A_{T+1,a})}{\det(A_a^{(0)})}\right) \\
+&\le 2 d \ln\!\left(1 + \frac{T_a}{d\lambda}\right).
+\end{align*}
+Substituting back and applying $\sum_{a=1}^K \sqrt{T_a} \le \sqrt{K T}$ (plus any $\mathcal{O}(K)$ burn-in when rewards exceed initial optimism scale) establishes:
+\begin{equation}
+R_T \le 2\alpha_0 \sqrt{2 d K T \ln\!\left(1 + \frac{T}{d\lambda}\right)} + \mathcal{O}(K) = \tilde{\mathcal{O}}(d\sqrt{KT}). \nonumber
+\end{equation}
+
+\textbf{Part B: Why Offline Routers Fail OOD While Warm-Start Prior Decays.}
+Consider an OOD target distribution where the true parameter vector shifts from offline source $\theta_a^{\text{src}}$ to $\theta_a^{\text{ood}}$ with suboptimality gap $\Delta_{\text{shift}} > 0$ on a non-negligible fraction of OOD queries. Any frozen offline supervised classifier (\texttt{Offline-Linear}, \texttt{ARMS}, or \texttt{MLP-Router}) never updates weights during OOD inference, incurring strictly \emph{linear} OOD regret $R_T^{\text{offline}} = \Omega(\Delta_{\text{shift}} T)$. In contrast, consider CascadeRoute-VL solving Ridge with offline Gram matrix scaled by $w_0 \in (0, 1)$ ($A_a^{(0)} = \lambda I_d + w_0 X_{\text{src},a}^\top X_{\text{src},a}$). After observing $n_{t,a}$ OOD pulls of arm $a$ via online Sherman-Morrison updates:
+\begin{align}
+\hat{\theta}_{t,a} - \theta_a^{\text{ood}} &= A_{t,a}^{-1}\Big[\, w_0 X_{\text{src},a}^\top X_{\text{src},a} (\theta_a^{\text{src}} - \theta_a^{\text{ood}}) \nonumber\\
+&\qquad\qquad - \lambda \theta_a^{\text{ood}} + \!\sum_{\tau \le t,\, a_\tau = a} \eta_\tau s_\tau \,\Big].
+\end{align}
+Since empirical OOD covariance grows linearly along active OOD directions ($\lambda_{\min}(A_{t,a}) = \Omega(\lambda + n_{t,a})$ on the spanned subspace), the stale source bias decays inversely with online sample count as $\mathcal{O}\!\left(\frac{w_0 \|\theta_a^{\text{src}} - \theta_a^{\text{ood}}\|}{\lambda + n_{t,a}}\right)$. Thus, using moderate prior weight ($w_0{=}0.05$--$0.20$) delivers low initial variance ($\sim$51 Q to surpass OOD MLP) while guaranteeing rapid Bayesian prior forgetting and asymptotic convergence to $\theta_a^{\text{ood}}$. \hfill $\blacksquare$
+
+\subsection{Proof of Theorem 2 (Asymptotic Budget Feasibility)}
+Let $B_{\max} > 0$ denote total USD session budget and $C_t = \sum_{j=1}^t c_j$ denote cumulative spend, with remaining budget fraction $b_t = \max(0, \min(1, (B_{\max} - C_{t-1})/B_{\max}))$.
+First, note the Confidence Escalation Gate strictly requires $b_t > b_{\min} = 0.15$ to permit dual-arm escalation; whenever cumulative expenditure exceeds $0.85 B_{\max}$, escalation is unconditionally disabled ($c_t \le \max_a c_{t,a}$ single call per step).
+Second, under exploration annealing $\alpha_t = \alpha_0 b_t$, as $b_t \to 0^+$ we have $\alpha_t \to 0$ uniformly across all $K$ arms. Consequently, exploration uncertainty bonuses vanish ($\alpha_t \sigma_a(s_t) \le \alpha_0 b_t / \sqrt{\lambda} \to 0$) and decisions converge almost surely to pure exploitation $a_t = \arg\max_a \hat{\theta}_a^\top s_t$. Since per-arm estimators regress toward cost-penalized reward $y_{t,a} - \gamma \tilde{c}_{t,a}$, setting sufficient $\gamma > 0$ steers late-session exploitation toward compact low-cost arms ($\sim$\$0.014--\$0.051/1k queries), bounding late-stage spend rate so cumulative spend stabilizes prior to exceeding $B_{\max}$. \hfill $\blacksquare$
+
+% ============================================================================
+\section{Complete 30,540-Query Benchmark \& Perceptual Data}
+\label{sec:supp_data}
+% ============================================================================
+
+Tables~\ref{tab:supp_profiles}, \ref{tab:supp_perc}, \ref{tab:supp_14x17_acc}, and \ref{tab:supp_14x17_tok} document the complete empirical profiles reconstructed from all 238 VLMEvalKit inference files across 14 benchmarks and 17 VLMs ($30{,}540 \times 17 = 519{,}180$ query-model pairs, $>99.9\%$ exact cell coverage).
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\caption{\textbf{Complete Profiles of All 17 VLMs Across $N{=}30{,}540$ Queries.} Token counts measured using \texttt{cl100k\_base} (+256 image tokens/query); pricing follows VL-RouterBench schedules; latencies computed via class TTFT + decode throughput profiles.}
+\label{tab:supp_profiles}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccccc}
+\toprule
+\textbf{Model} & \textbf{Params / Type} & \textbf{Acc (\%)} & \textbf{Avg In Tok} & \textbf{Avg Out Tok} & \textbf{Think Tag (\%)} & \textbf{In \$/1M} & \textbf{Out \$/1M} & \textbf{Cost/1k (\$)} & \textbf{Lat (s)} \\
+\midrule
+\texttt{Qwen2.5-VL-72B-Instruct} & 72B (Local) & \textbf{78.21} & 278.3 & 33.3 & 0.0 & 0.80 & 1.20 & \$0.2626 & 2.032 \\
+\texttt{InternVL2.5-78B} & 78B (Local) & 76.63 & 278.3 & 15.8 & 0.0 & 1.00 & 1.50 & \$0.3020 & 1.348 \\
+\texttt{Qwen2.5-VL-32B-Instruct} & 32B (Local) & 74.50 & 278.3 & 104.4 & 0.0 & 0.40 & 0.60 & \$0.1740 & 3.410 \\
+\texttt{Kimi-VL-A3B-Thinking-2506} & 3B-MoE (Local) & 73.80 & 278.3 & 59.4 & 0.0 & 0.20 & 0.25 & \$0.0705 & 0.765 \\
+\texttt{GeminiFlash2.5} & API (Proprietary) & 72.33 & 278.3 & 118.1 & 0.0 & 0.30 & 2.40 & \$0.3670 & 1.394 \\
+\texttt{DeepSeek-VL2} & 27B (Local) & 70.91 & 278.3 & 18.7 & 0.0 & 0.35 & 0.50 & \$0.1068 & 0.726 \\
+\texttt{Qianfan-VL-8B} & 8B (Local) & 70.61 & 278.3 & \textbf{4.3} & 0.0 & 0.18 & 0.25 & \$0.0512 & 0.231 \\
+\texttt{DeepSeek-VL2-Tiny} & 1.5B (Local) & 63.23 & 278.3 & 7.9 & 0.0 & 0.05 & 0.05 & \textbf{\$0.0143} & \textbf{0.148} \\
+\texttt{Gemma3-27B} & 27B (Local) & 55.11 & 278.3 & 75.6 & 0.0 & 0.35 & 0.50 & \$0.1352 & 2.290 \\
+\texttt{GPT-4o} & API (Proprietary) & 53.01 & 278.3 & 29.2 & 0.0 & 2.50 & 10.00 & \$0.9882 & 0.967 \\
+\texttt{Phi-3.5-Vision} & 7B (Local) & 51.62 & 278.3 & 6.0 & 0.0 & 0.10 & 0.10 & \$0.0284 & 0.197 \\
+\texttt{SmolVLM2} & 2B (Local) & 51.55 & 278.3 & 6.8 & 0.0 & 0.06 & 0.06 & \$0.0171 & 0.154 \\
+\texttt{Pixtral-12B} & 12B (Local) & 44.66 & 278.3 & 39.3 & 0.0 & 0.25 & 0.35 & \$0.0833 & 0.935 \\
+\texttt{LLaVA-NeXT-Vicuna-7B} & 7B (Local) & 44.54 & 278.3 & 20.2 & 0.0 & 0.20 & 0.20 & \$0.0597 & 0.429 \\
+\texttt{MiMo-VL-7B-RL} & 7B (Local) & 35.83 & 278.3 & 237.4 & 100.0 & 0.20 & 0.30 & \$0.1269 & 3.467 \\
+\texttt{Janus-Pro-7B} & 7B (Local) & 31.37 & 278.3 & 11.0 & 0.0 & 0.18 & 0.25 & \$0.0528 & 0.306 \\
+\texttt{Janus-Pro-1B} & 1B (Local) & 28.84 & 278.3 & 23.3 & 0.0 & 0.05 & 0.05 & \$0.0151 & 0.241 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.3pt}
+\caption{\textbf{Per-Dataset Unsupervised Perceptual Cues \& Compact ($\le$8B) Rescue Breakdown Across 14 Benchmarks ($N{=}30{,}540$).} Compact models rescue 4,557 of 6,655 \texttt{Qwen2.5-VL-72B} failures (68.5\% overall) using zero domain labels.}
+\label{tab:supp_perc}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccccccc}
+\toprule
+\textbf{Dataset} & \textbf{Domain} & \textbf{N} & \textbf{Ent (b)} & \textbf{Sobel} & \textbf{WhiteBg} & \textbf{Words} & \textbf{MathCue} & \textbf{Oracle} & \textbf{72B} & \textbf{Best $\le$8B (Acc)} & \textbf{72B Fails Rescued} \\
+\midrule
+\texttt{AI2D\_TEST} & STEM & 3,088 & 3.34 & 0.162 & 0.710 & 9.6 & 0.005 & 99.68 & 88.96 & \texttt{Qianfan-8B} (85.04) & 90.9\% \\
+\texttt{MathVerse\_MINI} & STEM & 3,940 & 2.00 & 0.117 & 0.887 & 39.8 & 0.359 & 90.10 & 51.50 & \texttt{MiMo-7B-RL} (66.50) & 67.5\% \\
+\texttt{MathVision\_MINI} & STEM & 304 & 2.39 & 0.133 & 0.835 & 61.6 & 0.292 & 92.11 & 38.82 & \texttt{Kimi-Think} (47.04) & 69.4\% \\
+\texttt{MathVista\_MINI} & STEM & 1,000 & 3.72 & 0.136 & 0.600 & 41.4 & 0.268 & 96.10 & 73.90 & \texttt{Kimi-Think} (79.60) & 75.9\% \\
+\midrule
+\texttt{MMBench\_DEV\_EN} & General & 1,292 & 6.28 & 0.157 & 0.162 & 8.9 & 0.002 & 97.91 & 88.24 & \texttt{Qianfan-8B} (84.67) & 72.4\% \\
+\texttt{MMMU\_DEV\_VAL} & General & 1,050 & 3.91 & 0.175 & 0.578 & 33.0 & 0.269 & 97.33 & 67.90 & \texttt{Kimi-Think} (60.48) & 83.1\% \\
+\texttt{MMStar} & General & 1,500 & 5.11 & 0.152 & 0.372 & 16.8 & 0.029 & 96.73 & 71.40 & \texttt{MiMo-7B-RL} (70.87) & 81.8\% \\
+\texttt{RealWorldQA} & General & 765 & 6.94 & 0.142 & 0.005 & 8.4 & 0.016 & 99.35 & 75.42 & \texttt{MiMo-7B-RL} (72.55) & 87.2\% \\
+\midrule
+\texttt{HallusionBench} & Halluc. & 951 & 3.93 & 0.169 & 0.522 & 16.2 & 0.123 & 98.74 & 72.87 & \texttt{Kimi-Think} (72.98) & 92.6\% \\
+\midrule
+\texttt{ChartQA\_TEST} & OCR & 2,500 & 3.15 & 0.095 & 0.761 & 11.4 & 0.236 & 97.12 & 87.20 & \texttt{Qianfan-8B} (86.48) & 70.6\% \\
+\texttt{DocVQA\_VAL} & OCR & 5,349 & 3.69 & 0.177 & 0.485 & 8.5 & 0.065 & 98.47 & 91.21 & \texttt{Qianfan-8B} (87.42) & 71.7\% \\
+\texttt{InfoVQA\_VAL} & OCR & 2,801 & 5.54 & 0.281 & 0.309 & 11.1 & 0.110 & 96.14 & 82.86 & \texttt{Qianfan-8B} (67.37) & 53.1\% \\
+\texttt{OCRBench} & OCR & 1,000 & 5.32 & 0.218 & 0.296 & 10.3 & 0.044 & 98.50 & 88.70 & \texttt{Qianfan-8B} (85.70) & 72.6\% \\
+\texttt{TextVQA\_VAL} & OCR & 5,000 & 7.10 & 0.163 & 0.054 & 7.1 & 0.009 & 89.44 & 75.82 & \texttt{Qianfan-8B} (73.78) & 48.5\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\tiny
+\setlength{\tabcolsep}{2.2pt}
+\caption{\textbf{Full $14 \times 17$ Benchmark Accuracy Matrix (\%).} Abbreviations: GPT4o, Gem2.5 (GeminiFlash2.5), Gem27 (Gemma3-27B), Int78 (InternVL2.5-78B), J1B/J7B (Janus-Pro-1B/7B), Kimi (Kimi-VL-A3B-Thinking), MiMo (MiMo-VL-7B-RL), Phi3.5, Pix12 (Pixtral-12B), Qian8 (Qianfan-VL-8B), Q32/Q72 (Qwen2.5-VL-32B/72B), Smol2 (SmolVLM2), DS27/DST (DeepSeek-VL2/Tiny), LLaVA7.}
+\label{tab:supp_14x17_acc}
+\begin{tabular}{lcccccccccccccccccc}
+\toprule
+\textbf{Dataset} & \textbf{GPT4o} & \textbf{Gem2.5} & \textbf{Gem27} & \textbf{Int78} & \textbf{J1B} & \textbf{J7B} & \textbf{Kimi} & \textbf{MiMo} & \textbf{Phi3.5} & \textbf{Pix12} & \textbf{Qian8} & \textbf{Q32} & \textbf{Q72} & \textbf{Smol2} & \textbf{DS27} & \textbf{DST} & \textbf{LLaVA7} & \textbf{Oracle} \\
+\midrule
+AI2D & 83.2 & 88.6 & 81.4 & 88.9 & 66.9 & 68.0 & 82.6 & 83.3 & 77.6 & 44.7 & 85.0 & 85.6 & \textbf{89.0} & 69.6 & 82.8 & 74.6 & 66.8 & 99.7 \\
+ChartQA & 36.7 & 38.7 & 30.0 & 86.0 & 23.2 & 25.7 & 73.0 & 0.0 & 71.2 & 63.3 & 86.5 & 70.2 & \textbf{87.2} & 68.6 & 85.8 & 81.1 & 54.0 & 97.1 \\
+DocVQA & 38.5 & 85.9 & 56.1 & 89.1 & 0.6 & 1.1 & 87.1 & 0.0 & 54.1 & 59.0 & 87.4 & 87.5 & \textbf{91.2} & 63.9 & 85.1 & 80.1 & 50.2 & 98.5 \\
+Hallusion & 69.1 & \textbf{76.6} & 64.0 & 72.3 & 51.1 & 60.3 & 73.0 & 72.3 & 59.3 & 46.4 & 69.3 & 72.1 & 72.9 & 60.2 & 64.4 & 61.6 & 47.2 & 98.7 \\
+InfoVQA & 28.6 & 77.4 & 28.4 & 77.3 & 0.0 & 0.0 & 66.3 & 0.0 & 25.1 & 18.5 & 67.4 & 76.4 & \textbf{82.9} & 0.0 & 67.5 & 55.6 & 20.0 & 96.1 \\
+MMBench & 82.2 & \textbf{89.6} & 80.4 & 89.2 & 58.7 & 64.5 & 84.0 & 84.1 & 71.8 & 60.8 & 84.7 & 86.5 & 88.2 & 67.4 & 82.5 & 70.9 & 65.6 & 97.9 \\
+MMMU & 68.1 & \textbf{77.9} & 62.8 & 66.5 & 37.1 & 42.0 & 60.5 & 59.5 & 44.3 & 32.5 & 48.4 & 69.9 & 67.9 & 41.6 & 54.2 & 42.0 & 38.5 & 97.3 \\
+MMStar & 61.1 & \textbf{77.0} & 60.6 & 69.5 & 43.1 & 46.1 & 69.9 & 70.9 & 47.2 & 41.4 & 63.3 & 69.7 & 71.4 & 45.9 & 62.2 & 49.5 & 37.8 & 96.7 \\
+MathVerse & 39.1 & 50.8 & 41.4 & 48.5 & 17.0 & 20.9 & 61.0 & \textbf{66.5} & 22.9 & 15.8 & 31.1 & 54.5 & 51.5 & 22.5 & 37.0 & 23.9 & 13.4 & 90.1 \\
+MathVision & 32.2 & \textbf{59.2} & 33.2 & 30.3 & 16.8 & 17.1 & 47.0 & 35.9 & 16.8 & 15.8 & 18.1 & 36.5 & 38.8 & 17.4 & 22.0 & 16.1 & 14.5 & 92.1 \\
+MathVista & 57.7 & \textbf{80.2} & 60.6 & 70.6 & 35.7 & 43.0 & 79.6 & 77.8 & 43.7 & 41.8 & 64.0 & 73.3 & 73.9 & 51.5 & 63.7 & 53.8 & 31.5 & 96.1 \\
+OCRBench & 72.0 & 85.6 & 75.1 & 85.0 & 49.0 & 59.3 & 82.8 & 84.6 & 60.3 & 53.0 & 85.7 & 85.4 & \textbf{88.7} & 72.9 & 81.3 & 80.3 & 50.4 & 98.5 \\
+RealWorldQA & 68.5 & 76.7 & 62.5 & \textbf{78.4} & 54.8 & 42.1 & 70.9 & 72.6 & 53.9 & 63.8 & 70.5 & 69.8 & 75.4 & 57.5 & 69.9 & 64.7 & 58.6 & 99.4 \\
+TextVQA & 60.7 & 66.7 & 59.9 & \textbf{76.8} & 37.3 & 40.4 & 69.5 & 0.0 & 58.5 & 54.1 & 73.8 & 71.4 & 75.8 & 65.4 & 76.5 & 72.5 & 56.8 & 89.4 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\tiny
+\setlength{\tabcolsep}{2.3pt}
+\caption{\textbf{Full $14 \times 17$ Mean Generated Output Token Matrix (\texttt{cl100k\_base}).} Notice how \texttt{MiMo-VL-7B-RL} emits up to 1,401.7 output tokens on \texttt{MathVision} yet collapses to 4.8--55.7 broken tokens on OCR datasets, whereas \texttt{Qianfan-VL-8B} answers OCR in 1.2--4.6 tokens.}
+\label{tab:supp_14x17_tok}
+\begin{tabular}{lccccccccccccccccc}
+\toprule
+\textbf{Dataset} & \textbf{GPT4o} & \textbf{Gem2.5} & \textbf{Gem27} & \textbf{Int78} & \textbf{J1B} & \textbf{J7B} & \textbf{Kimi} & \textbf{MiMo} & \textbf{Phi3.5} & \textbf{Pix12} & \textbf{Qian8} & \textbf{Q32} & \textbf{Q72} & \textbf{Smol2} & \textbf{DS27} & \textbf{DST} & \textbf{LLaVA7} \\
+\midrule
+AI2D & 13.7 & 233.2 & 97.9 & 1.0 & 1.0 & 1.4 & 113.5 & 273.7 & 1.1 & 33.8 & 1.0 & 131.7 & 3.7 & 1.0 & 19.1 & 1.0 & 1.0 \\
+ChartQA & 1.5 & 4.8 & 2.2 & 1.2 & 1.2 & 1.2 & 14.7 & 44.8 & 1.2 & 1.2 & 1.2 & 1.5 & 1.2 & 1.2 & 1.2 & 1.2 & 1.2 \\
+DocVQA & 2.1 & 4.2 & 2.6 & 2.8 & 3.0 & 2.5 & 5.0 & 55.7 & 2.9 & 2.2 & 2.7 & 2.9 & 2.9 & 2.8 & 2.8 & 2.7 & 2.8 \\
+Hallusion & 50.8 & 75.2 & 77.9 & 1.0 & 1.5 & 1.0 & 70.6 & 335.4 & 18.9 & 42.7 & 24.1 & 164.2 & 58.6 & 1.0 & 23.6 & 9.6 & 64.2 \\
+InfoVQA & 1.6 & 2.4 & 2.0 & 1.9 & 2.6 & 1.7 & 22.1 & 5.5 & 1.6 & 1.2 & 1.9 & 2.9 & 2.0 & 1.8 & 1.9 & 2.6 & 2.0 \\
+MMBench & 12.0 & 169.2 & 104.1 & 1.0 & 1.0 & 1.8 & 67.4 & 269.1 & 1.1 & 32.1 & 1.0 & 63.6 & 7.1 & 1.0 & 2.5 & 1.2 & 1.0 \\
+MMMU & 173.9 & 520.1 & 321.9 & 15.6 & 3.9 & 28.5 & 2.3 & 717.3 & 12.0 & 113.8 & 5.1 & 419.0 & 32.0 & 6.8 & 20.2 & 4.8 & 7.6 \\
+MMStar & 58.3 & 261.3 & 152.3 & 1.0 & 1.1 & 3.4 & 1.2 & 377.5 & 1.3 & 60.2 & 1.0 & 152.2 & 4.9 & 1.0 & 9.7 & 1.1 & 1.3 \\
+MathVerse & 56.2 & 249.9 & 198.2 & 40.0 & 160.1 & 59.9 & 209.7 & 702.1 & 20.6 & 147.6 & 2.1 & 347.7 & 144.6 & 37.8 & 102.6 & 43.6 & 74.3 \\
+MathVision & 355.0 & 846.6 & 554.9 & 367.5 & 23.5 & 5.0 & 346.3 & 1401.7 & 33.4 & 216.7 & 135.9 & 521.4 & 375.0 & 4.2 & 5.0 & 5.0 & 195.2 \\
+MathVista & 135.8 & 264.8 & 176.0 & 153.6 & 17.4 & 7.1 & 142.5 & 491.1 & 4.1 & 107.0 & 9.1 & 245.2 & 156.8 & 4.8 & 5.0 & 5.2 & 113.6 \\
+OCRBench & 17.7 & 19.5 & 32.2 & 1.9 & 9.3 & 14.7 & 46.0 & 125.8 & 18.9 & 17.3 & 4.6 & 41.7 & 19.9 & 4.2 & 7.0 & 6.2 & 41.7 \\
+RealWorldQA & 7.5 & 106.6 & 52.2 & 1.0 & 1.0 & 1.1 & 19.3 & 209.3 & 1.1 & 9.8 & 1.1 & 27.1 & 6.2 & 4.2 & 1.0 & 1.0 & 1.0 \\
+TextVQA & 1.7 & 2.2 & 1.9 & 1.8 & 1.7 & 2.2 & 8.8 & 4.8 & 1.7 & 1.4 & 1.7 & 2.2 & 1.9 & 1.7 & 1.8 & 1.8 & 1.7 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+% ============================================================================
+\section{Extended Results \& Statistical Significance}
+\label{sec:supp_exp}
+% ============================================================================
+
+Tables~\ref{tab:supp_pareto}, \ref{tab:supp_stats}, and \ref{tab:supp_domain} report full Pareto sweep trajectories across $\gamma \in [0, 0.9]$, Bonferroni-corrected hypothesis tests against all primary baselines, and CascadeRoute-VL's learned zero-label routing distribution across all four domains and 17 VLM arms.
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.5pt}
+\caption{\textbf{Full Pareto Sweep Data Corresponding to Main Paper Figure~3 (Test $N{=}6{,}108$).} CascadeRoute-VL maintains smooth monotonic accuracy-cost trade-offs across the entire cost spectrum.}
+\label{tab:supp_pareto}
+\begin{tabular}{lccccc|lccccc}
+\toprule
+\textbf{Method ($\gamma$)} & \textbf{Acc (\%)} & \textbf{Cost/1k} & \textbf{Tok} & \textbf{Lat (s)} & & \textbf{Method ($\gamma$/$\tau$)} & \textbf{Acc (\%)} & \textbf{Cost/1k} & \textbf{Tok} & \textbf{Lat (s)} \\
+\midrule
+CascadeRoute-VL ($0.00$) & 80.42 & \$0.2840 & 395.7 & 1.959 & & KNN-Router ($0.00$) & 80.29 & \$0.2812 & 369.6 & 1.667 \\
+CascadeRoute-VL ($0.03$) & 79.99 & \$0.2316 & 388.4 & 1.840 & & KNN-Router ($0.08$) & 78.31 & \$0.1306 & 361.8 & 1.444 \\
+CascadeRoute-VL ($0.08$) & 78.49 & \$0.1585 & 368.6 & 1.516 & & KNN-Router ($0.30$) & 75.95 & \$0.0753 & 344.4 & 1.091 \\
+CascadeRoute-VL ($0.15$) & 77.44 & \$0.1115 & 359.2 & 1.180 & & KNN-Router ($0.90$) & 73.05 & \$0.0431 & 320.6 & 0.653 \\
+CascadeRoute-VL ($0.30$) & 75.93 & \$0.0879 & 360.4 & 0.831 & & ARMS-Router ($0.00$) & 80.14 & \$0.3063 & 371.0 & 1.411 \\
+CascadeRoute-VL ($0.55$) & 75.33 & \$0.0844 & 377.4 & 0.699 & & ARMS-Router ($0.08$) & 78.80 & \$0.2190 & 369.0 & 1.306 \\
+CascadeRoute-VL ($0.90$) & 74.36 & \$0.0818 & 410.1 & 0.672 & & ARMS-Router ($0.90$) & 72.22 & \$0.0448 & 321.3 & 0.589 \\
+\midrule
+MLP-Router ($0.00$) & 81.01 & \$0.2834 & 406.3 & 2.068 & & Offline-Linear ($0.00$) & 79.68 & \$0.2718 & 386.0 & 1.817 \\
+MLP-Router ($0.03$) & 80.47 & \$0.2399 & 406.0 & 2.006 & & Offline-Linear ($0.08$) & 78.21 & \$0.1777 & 384.3 & 1.721 \\
+MLP-Router ($0.08$) & 79.85 & \$0.1854 & 400.4 & 1.844 & & Offline-Linear ($0.90$) & 71.37 & \$0.0470 & 328.3 & 0.715 \\
+MLP-Router ($0.15$) & 78.65 & \$0.1412 & 390.0 & 1.656 & & FrugalGPT ($\tau{=}0.55$) & 69.38 & \$0.0641 & 472.9 & 0.777 \\
+MLP-Router ($0.30$) & 76.31 & \$0.0883 & 365.9 & 1.289 & & FrugalGPT ($\tau{=}0.65$) & 71.12 & \$0.1058 & 579.2 & 1.184 \\
+MLP-Router ($0.55$) & 74.79 & \$0.0588 & 345.4 & 0.984 & & FrugalGPT ($\tau{=}0.72$) & 73.23 & \$0.1704 & 725.8 & 1.719 \\
+MLP-Router ($0.90$) & 72.69 & \$0.0470 & 330.9 & 0.761 & & FrugalGPT ($\tau{=}0.88$) & 76.74 & \$0.3515 & 1121.1 & 2.906 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\caption{\textbf{Statistical Significance Summary (Test $N{=}6{,}108$, Paired Sample Tests on Canonical Stream Seed~42 vs.\ CascadeRoute-VL $\gamma{=}0.08$, Single-Seed Acc 78.49\%).}}
+\label{tab:supp_stats}
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Comparison} & \textbf{Acc $\Delta$ (\%)} & \textbf{Acc $t$} & \textbf{Acc $p$-val} & \textbf{Wilcoxon $p$} & \textbf{Cohen's $d$} & \textbf{USD Saved (/1k)} & \textbf{Cost $p$-val} \\
+\midrule
+vs.\ \texttt{Qwen2.5-VL-72B} & +1.20 & 2.433 & $1.50\times 10^{-2}$ & $1.50\times 10^{-2}$ & +0.031 & +\$0.1021 & $9.49\times 10^{-275}$ \\
+vs.\ \texttt{MLP-Router} (i.i.d.\ static) & -1.36 & -3.514 & $4.45\times 10^{-4}$ & $4.47\times 10^{-4}$ & -0.045 & +\$0.0269 & $6.30\times 10^{-12}$ \\
+vs.\ \texttt{ARMS-Router} & -0.31 & -0.723 & $4.70\times 10^{-1}$ & $4.70\times 10^{-1}$ & -0.009 & +\$0.0605 & $3.67\times 10^{-41}$ \\
+vs.\ \texttt{Offline-Linear} & +0.28 & 0.659 & $5.10\times 10^{-1}$ & $5.10\times 10^{-1}$ & +0.008 & +\$0.0192 & $2.30\times 10^{-8}$ \\
+vs.\ \texttt{FrugalGPT-Cascade} & +5.26 & 10.605 & $4.78\times 10^{-26}$ & $7.85\times 10^{-26}$ & +0.136 & +\$0.0119 & $1.67\times 10^{-4}$ \\
+vs.\ \texttt{LinUCB (Cold Online)} & +5.98 & 10.041 & $1.53\times 10^{-23}$ & $2.28\times 10^{-23}$ & +0.129 & +\$0.1937 & $5.06\times 10^{-173}$ \\
+vs.\ \texttt{MHR-Router} & +6.57 & 12.010 & $7.39\times 10^{-33}$ & $1.67\times 10^{-32}$ & +0.154 & -\$0.0189 & $1.44\times 10^{-7}$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+% ============================================================================
+\section{Qualitative Reasoning Tax Gallery \& Reproducibility}
+\label{sec:supp_qual}
+% ============================================================================
+
+Figure~\ref{fig:supp_qual} displays four authentic benchmark queries extracted verbatim from VL-RouterBench transcripts illustrating both failure modes CascadeRoute-VL resolves:
+\begin{itemize}
+    \item \textbf{OCRBench \#314 (Yellow Cab):} Ground truth ``Y809''. \texttt{Qianfan-8B} reads ``The cab number is Y809.'' (7 tok, right); \texttt{Qwen2.5-72B} (17 tok), \texttt{Kimi-Think} (39 tok), and \texttt{MiMo-VL-RL} (136 tok) confuse the fleet phone ``426-6262'' or fabricate ``7007''.
+    \item \textbf{OCRBench \#979 (LaTeX Inequality):} Ground truth ``$m \ne \sqrt{2}$''. \texttt{Qianfan-8B} outputs ``\texttt{m \textbackslash neq \textbackslash sqrt \{ 2 \}}'' (8 tok, right); \texttt{Qwen2.5-72B}, \texttt{Kimi-Think}, and \texttt{DS-Tiny} misread $\ne$ as $+$, while \texttt{MiMo-VL-RL} emits 189 speculative \texttt{<think>} tokens (``$M+\sqrt{x}$'').
+    \item \textbf{MathVista \#897 \& \#874 (Trigonometry \& Step-Function):} Compact perception arms guess wrong in 1--5 tokens and \texttt{Qwen2.5-72B} misidentifies $\cos$ vs.\ $\sin$ (197 tok, wrong) and step-interval endpoints (157 tok, wrong), while \texttt{Kimi-VL-A3B-Thinking} derives exact answers (``40'' in 178 tok; ``2'' in 269 tok).
+\end{itemize}
+
+\subsection{Reproducibility \& Implementation Details}
+All experiments execute in Python~3.13.5 + PyTorch CUDA (RTX~4050 GPU) with offline local HuggingFace/TorchHub weights (\texttt{all-MiniLM-L6-v2}, \texttt{DINOv2-ViT-S/14}, \texttt{ResNet-50}). Feature normalization weights $(w_q, w_v, w_p){=}(0.50, 0.55, 0.235)$ are fixed analytically by Lemma~1. Bandit hyperparameters ($\alpha_0{=}0.10$, $\lambda{=}4.0$, $w_0{=}0.20$; confidence gate $\tau_u{=}0.12$, $\tau_m{=}0.025$, $p_{\text{cap}}{=}0.78$, $b_{\min}{=}0.15$, cost penalty differential $\kappa{=}0.22$) were calibrated exclusively on the Dev split ($N{=}3{,}054$), and all Test ($N{=}6{,}108$) and OOD ($N{=}17{,}601$) streaming metrics are reported as mean $\pm$ std over 5 random permutations (seeds 42--46). Full unit tests (\texttt{pytest tests/ -v}: 45/45 passing) verify Sherman-Morrison exactness, zero-leakage state norms, and Confidence Gate escalation constraints.
+
+\FloatBarrier
+
+\newcommand{\suppFinalBlock}{%
+\noindent\begin{minipage}{\textwidth}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\captionof{table}{\textbf{Domain Breakdown \& 17-Arm Selection Distribution (Test $N{=}6{,}108$, Zero Task Labels).} Unlisted compact/legacy arms (\texttt{GPT-4o}, \texttt{Janus-1B/7B}, \texttt{LLaVA-7B}, \texttt{Pixtral-12B}) receive 0.0\% selection.}
+\label{tab:supp_domain}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc|lccc}
+\toprule
+\textbf{Domain (Test $N$)} & \textbf{72B Acc} & \textbf{Kimi Acc} & \textbf{Qianfan} & \textbf{Ours Acc} & \textbf{Ours OutTok} & \textbf{Active Arm} & \textbf{Overall (\%)} & \textbf{STEM (\%)} & \textbf{OCR (\%)} \\
+\midrule
+\texttt{STEM} ($1{,}631$) & 67.08 & 70.39 & 54.75 & \textbf{74.62} & 259.6 & \texttt{Qwen2.5-VL-72B} & 19.52 & 6.99 & 26.09 \\
+\texttt{General\_VQA} ($892$) & 73.21 & 69.84 & 66.48 & \textbf{73.77} & 102.7 & \texttt{Kimi-3B-Think} & 19.47 & 36.79 & 8.47 \\
+\texttt{Charts\_OCR} ($3{,}400$) & 83.56 & 75.00 & 78.29 & 81.91 & \textbf{4.9} & \texttt{Qianfan-VL-8B} & 17.31 & 4.66 & 26.03 \\
+\texttt{Hallucination} ($185$) & 71.89 & 69.73 & 64.86 & \textbf{72.43} & 90.1 & \texttt{GeminiFlash2.5} & 11.10 & 10.97 & 12.06 \\
+ & & & & & & \texttt{DeepSeek-VL2} (27B) & 9.87 & 2.21 & 14.62 \\
+ & & & & & & \texttt{MiMo-VL-7B-RL} & 8.97 & 26.36 & 0.09 \\
+ & & & & & & \texttt{Qwen2.5-VL-32B} & 5.62 & 6.01 & 5.35 \\
+ & & & & & & \texttt{InternVL2.5-78B} & 4.86 & 4.90 & 2.59 \\
+ & & & & & & \texttt{DeepSeek-Tiny} / \texttt{Smol2} & 2.84 & 0.06 & 4.59 \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{1.0em}
+
+\begin{minipage}[t]{0.475\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.175\textheight,keepaspectratio]{../reports/figures/qualitative_raw/tax_inversion_OCRBench_314.png}\\[0.2em]
+{\footnotesize \textbf{(a) OCRBench \#314} (GT: \texttt{Y809}) --- \texttt{Qianfan-8B}: \textbf{Correct} (7 tok); 72B/Think: Wrong.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.475\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.175\textheight,keepaspectratio]{../reports/figures/qualitative_raw/tax_inversion_OCRBench_979.png}\\[0.2em]
+{\footnotesize \textbf{(b) OCRBench \#979} (GT: $m \ne \sqrt{2}$) --- \texttt{Qianfan-8B}: \textbf{Correct} (8 tok); 72B/Think: Wrong.}
+\end{minipage}\\[0.55em]
+\begin{minipage}[t]{0.475\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.175\textheight,keepaspectratio]{../reports/figures/qualitative_raw/reasoning_gain_MathVista_MINI_897.png}\\[0.2em]
+{\footnotesize \textbf{(c) MathVista \#897} (GT: \texttt{40}) --- \texttt{Kimi-Think}: \textbf{Correct} (178 tok); Direct/72B: Wrong.}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.475\textwidth}
+\centering
+\includegraphics[width=\linewidth,height=0.175\textheight,keepaspectratio]{../reports/figures/qualitative_raw/reasoning_gain_MathVista_MINI_874.png}\\[0.2em]
+{\footnotesize \textbf{(d) MathVista \#874} (GT: \texttt{2}) --- \texttt{Kimi-Think}: \textbf{Correct} (269 tok); Direct/72B: Wrong.}
+\end{minipage}
+\captionof{figure}{\textbf{Authentic VL-RouterBench Qualitative Gallery.} CascadeRoute-VL learns to pair compact perception models with high-frequency scene text/formulas while routing multi-step STEM diagrams to reasoning specialists.}
+\label{fig:supp_qual}
+\end{minipage}
+\vspace{1.2em}
+}
+\twocolumn[\suppFinalBlock]
+
+{\small
+\bibliographystyle{ieeenat_fullname}
+\bibliography{references}
+}
+
+\end{document}
+

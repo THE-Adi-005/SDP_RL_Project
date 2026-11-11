@@ -1,7 +1,8 @@
-Method,In-Dist Acc (%),OOD Acc (%),OOD Degradation (%),Adaptation Mode,Recovery Time
-Qwen2.5-VL-72B (Static),70.59,83.81,13.21,Static,Never (N/A)
-Offline Linear Router (λ=0.5),71.8,47.34,-24.46,Pure Offline,Never (Static)
-ARMS Profile Router,71.8,47.34,-24.46,Profile Augmentation,Never (Static)
-Pure Online LinUCB (Cold-Start),66.4,77.78,11.38,Online Zero-Prior,~140 queries
-CascadeRoute-VL (Warm-Started),73.0,74.9,1.9,Hybrid Warm-Start Online,~127 queries
-Oracle (Upper Bound),95.58,95.36,-0.22,Cheating / Upper Bound,Instant (N/A)
+Method,In-Dist Acc (%),OOD Acc (%),Shift Delta (%),Adaptation Mode,Exceeds OOD MLP
+Qwen2.5-VL-72B (Static),69.24,83.81,14.56,Static Frontier,Ref.
+Offline-Linear,73.64,65.41,-8.24,Pure Offline,Never
+ARMS-Router (arXiv'26),76.06,66.58,-9.48,Pure Offline,Never
+MLP-Router (VL-Bench),72.77,56.97,-15.8,Pure Offline,Baseline
+LinUCB (Cold Online),74.44,75.72,1.28,Online Zero-Prior,~191 Q
+CascadeRoute-VL (Ours),75.98,80.68,4.7,Hybrid Warm-Start + Online,~51 Q
+Oracle (Upper Bound),95.48,95.36,-0.12,Hindsight Bound,Instant

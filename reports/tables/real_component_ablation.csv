@@ -1,0 +1,5 @@
+Configuration,Accuracy (%),Acc Std,Cost / 1k Q ($),Avg Total Tokens
+1. Pure Online LinUCB (Cold Start),72.68,1.71,0.322,363.0
+2. + Offline Warm-Start Prior,78.58,0.11,0.159,370.2
+3. + Budget Annealing (alpha_t = alpha_0 b_t),78.59,0.14,0.1591,370.0
+4. + Confidence Escalation Gate (Full),78.59,0.12,0.1598,370.8

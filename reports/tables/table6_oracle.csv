@@ -1,2 +1,0 @@
-Agent,Accuracy (%),Avg Tokens,Median Latency (s),Strategy Distribution
-oracle (upper bound),96.04,246.4,0.1,direct: 67%; cot: 30%; got: 2%; tot: 1%

@@ -1,8 +1,0 @@
-agent,commonsense,logic,math
-always_direct,83.62,88.91,22.06
-always_cot,88.37,93.86,88.48
-always_got,88.86,93.6,88.63
-always_tot,89.68,93.69,86.81
-random,88.04,91.98,69.29
-rule_based,89.43,94.28,89.16
-epsilon_greedy,87.8,93.0,72.55

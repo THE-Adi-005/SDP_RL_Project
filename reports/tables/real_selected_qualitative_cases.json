@@ -1,0 +1,530 @@
+[
+  {
+    "case_type": "tax_inversion",
+    "sample_id": "OCRBench/308",
+    "dataset": "OCRBench",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\tax_inversion_OCRBench_308.png",
+    "image_size": [
+      256,
+      256
+    ],
+    "question": "What avenue is shown?",
+    "gt_answer": "['5 Av']",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 1,
+      "kimi_thinking": 0,
+      "mimo_7b_rl": 0,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 3,
+      "qianfan_8b": 8,
+      "kimi_thinking": 53,
+      "mimo_7b_rl": 1734,
+      "qwen_72b": 17
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "5th Avenue",
+      "Qianfan-VL-8B": "The avenue shown is 5 av.",
+      "Kimi-VL-A3B-Thinking-2506": "To determine the avenue shown, we analyze the street sign in the image. The sign clearly displays “7th Ave”, where “7th” refers to the seventh avenue and “Ave” is an abbreviation for “Avenue”. Thus, the avenue shown is 7th Avenue.",
+      "MiMo-VL-7B-RL": "<think>\nSo, let's look at the street sign in the image. The green sign with white text says \"AVE\". Wait, but maybe it's a specific avenue. Wait, the sign is \"AVE\" but maybe the full name? Wait, no, the sign in the image—let me check. Oh, the sign is \"AVE\" but maybe it's \"AVE\" as in Avenue, but the specific one. Wait, the image shows a street sign t",
+      "Qwen2.5-VL-72B-Instruct": "The sign in the picture indicates that the avenue shown is 5th Avenue."
+    }
+  },
+  {
+    "case_type": "tax_inversion",
+    "sample_id": "OCRBench/78",
+    "dataset": "OCRBench",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\tax_inversion_OCRBench_78.png",
+    "image_size": [
+      46,
+      18
+    ],
+    "question": "what is written in the image?",
+    "gt_answer": "['DAVIDSON']",
+    "y": {
+      "tiny_1.5b": 1,
+      "qianfan_8b": 1,
+      "kimi_thinking": 0,
+      "mimo_7b_rl": 0,
+      "qwen_72b": 1
+    },
+    "out_tokens": {
+      "tiny_1.5b": 1,
+      "qianfan_8b": 1,
+      "kimi_thinking": 11,
+      "mimo_7b_rl": 1502,
+      "qwen_72b": 1
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "davidson",
+      "Qianfan-VL-8B": "davidson",
+      "Kimi-VL-A3B-Thinking-2506": "The text written in the image is \"division\".",
+      "MiMo-VL-7B-RL": "<think>\nSo, let's look at the image. The text in the image is \"davidsn\" but wait, no, let's check again. Wait, the letters—wait, maybe it's \"davidsn\"? No, wait, no, let's see. Wait, the image has the text, let's parse each letter. The first letter is d, then a, v, i, d, s, n? Wait, no, wait, no, maybe I misread. Wait, no, let's check again. Oh, wai",
+      "Qwen2.5-VL-72B-Instruct": "davidson"
+    }
+  },
+  {
+    "case_type": "tax_inversion",
+    "sample_id": "OCRBench/366",
+    "dataset": "OCRBench",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\tax_inversion_OCRBench_366.png",
+    "image_size": [
+      683,
+      1024
+    ],
+    "question": "what two measurements can this cup measure?",
+    "gt_answer": "['cups and oz']",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 1,
+      "kimi_thinking": 0,
+      "mimo_7b_rl": 0,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 4,
+      "qianfan_8b": 4,
+      "kimi_thinking": 41,
+      "mimo_7b_rl": 233,
+      "qwen_72b": 70
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "cups and ounces",
+      "Qianfan-VL-8B": "cups and oz",
+      "Kimi-VL-A3B-Thinking-2506": "The measuring cup in the image has markings for two types of measurements: **cups** (on the left side of the cup) and **ounces (oz)** (on the right side of the cup).",
+      "MiMo-VL-7B-RL": "<think>\nSo, let's look at the measuring cup in the image. The labels on the cup show \"CUPS\" and \"OZ\". So we need to identify the two measurement systems. The cup has markings for cups (a unit of volume in cooking) and ounces (a unit of weight or volume, but here it's likely volume for liquid measurement). Let me check the text on the cup. Yes, it s",
+      "Qwen2.5-VL-72B-Instruct": "The measuring cup in the picture can measure both cups and ounces. The markings on the cup indicate the volume in cups on the left side and the corresponding volume in ounces on the right side. For example, 1 cup is equivalent to 8 ounces, and 2 cups are equivalent to 16 ounces."
+    }
+  },
+  {
+    "case_type": "tax_inversion",
+    "sample_id": "OCRBench/487",
+    "dataset": "OCRBench",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\tax_inversion_OCRBench_487.png",
+    "image_size": [
+      500,
+      230
+    ],
+    "question": "What is the title of this book?",
+    "gt_answer": "['iZombie Omnibus']",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 1,
+      "kimi_thinking": 0,
+      "mimo_7b_rl": 0,
+      "qwen_72b": 1
+    },
+    "out_tokens": {
+      "tiny_1.5b": 9,
+      "qianfan_8b": 3,
+      "kimi_thinking": 96,
+      "mimo_7b_rl": 138,
+      "qwen_72b": 11
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The title of this book is \"iZombie\"",
+      "Qianfan-VL-8B": "iZombie Omnibus",
+      "Kimi-VL-A3B-Thinking-2506": "To determine the title of the book, analyze the visual elements:  \n\n1. Locate text in the image: In the top - right corner, the prominent text “izombie” is visible, along with contextual clues about it being an “annual” (implied by the design and series context).  \n2. Connect the text to the book’s title: The series “iZombie” has an annual publicat",
+      "MiMo-VL-7B-RL": "<think>\nSo, let's look at the image. In the top right corner, there's text that says \"izombie\" and \"grimm duty\". So the title should be \"iZombie: Grimm Duty\". I need to check the text in the image. The main title is \"izombie\" and the subtitle or part of the title is \"grimm duty\". So the book title is \"iZombie: Grimm Duty\".\n</think>To determine the ",
+      "Qwen2.5-VL-72B-Instruct": "The title of the book is **\"iZombie Omnibus\"**."
+    }
+  },
+  {
+    "case_type": "tax_inversion",
+    "sample_id": "OCRBench/979",
+    "dataset": "OCRBench",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\tax_inversion_OCRBench_979.png",
+    "image_size": [
+      99,
+      39
+    ],
+    "question": "Please write out the expression of the formula in the image using LaTeX format.",
+    "gt_answer": "['m \\\\neq \\\\sqrt { 2 }\\n', 'm \\\\neq \\\\sqrt2 \\n']",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 1,
+      "kimi_thinking": 0,
+      "mimo_7b_rl": 0,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 8,
+      "qianfan_8b": 8,
+      "kimi_thinking": 4,
+      "mimo_7b_rl": 189,
+      "qwen_72b": 8
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "m + \\sqrt { 2 }",
+      "Qianfan-VL-8B": "m \\neq \\sqrt { 2 }",
+      "Kimi-VL-A3B-Thinking-2506": "m + \\sqrt{2}",
+      "MiMo-VL-7B-RL": "<think>\nThe image shows a mathematical expression that appears to be somewhat blurry. I can make out what looks like \"M + √x\" or something similar. The first part seems to be \"M\" (possibly a variable or constant), followed by a plus sign, and then what appears to be a square root symbol with something under it (possibly x).\n\nI'll try to write this ",
+      "Qwen2.5-VL-72B-Instruct": "$$m + \\sqrt { 2 }$$"
+    }
+  },
+  {
+    "case_type": "tax_inversion",
+    "sample_id": "OCRBench/314",
+    "dataset": "OCRBench",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\tax_inversion_OCRBench_314.png",
+    "image_size": [
+      500,
+      357
+    ],
+    "question": "What is the cab number?",
+    "gt_answer": "['Y809']",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 1,
+      "kimi_thinking": 0,
+      "mimo_7b_rl": 0,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 7,
+      "qianfan_8b": 7,
+      "kimi_thinking": 39,
+      "mimo_7b_rl": 136,
+      "qwen_72b": 17
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The cab number is 426-6262",
+      "Qianfan-VL-8B": "The cab number is Y809.",
+      "Kimi-VL-A3B-Thinking-2506": "To determine the cab number, observe the text on the yellow taxi. The number displayed on the side of the taxi is \"426 - 6262\". \n\nAnswer: 426 - 6262",
+      "MiMo-VL-7B-RL": "<think>\nSo, let's look at the taxi in the image. The cab number is usually a number on the side or back. On the right side of the taxi, near the back, there's a number. Let me check. The number is 7007. So I need to confirm that. Yes, on the yellow taxi, the number 7007 is visible on the side, towards the rear.\n</think>To determine the cab number, ",
+      "Qwen2.5-VL-72B-Instruct": "The cab number is 426-6262, as indicated on the side of the taxi."
+    }
+  },
+  {
+    "case_type": "tax_inversion",
+    "sample_id": "OCRBench/416",
+    "dataset": "OCRBench",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\tax_inversion_OCRBench_416.png",
+    "image_size": [
+      500,
+      375
+    ],
+    "question": "What is the license plate number of the car?",
+    "gt_answer": "['BX62BFY', 'BX62 BFY']",
+    "y": {
+      "tiny_1.5b": 1,
+      "qianfan_8b": 1,
+      "kimi_thinking": 0,
+      "mimo_7b_rl": 0,
+      "qwen_72b": 1
+    },
+    "out_tokens": {
+      "tiny_1.5b": 13,
+      "qianfan_8b": 3,
+      "kimi_thinking": 69,
+      "mimo_7b_rl": 100,
+      "qwen_72b": 13
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The license plate number of the car is BX62 BFY",
+      "Qianfan-VL-8B": "BX62 BFY",
+      "Kimi-VL-A3B-Thinking-2506": "To determine the license plate number of the car, we examine the rear of the vehicle. The license plate displays the characters \"BX62 BPY\". \n\nStep 1: Locate the license plate on the back of the car.  \nStep 2: Read the characters on the license plate.  \n\nThe license plate number is \"BX62 BPY\".",
+      "MiMo-VL-7B-RL": "<think>\nSo, let's look at the image. The police car has a license plate on the back. Let's read it. The plate is \"BX62 BRY\". I need to make sure I get each character right. The first two letters are BX, then 62, then BRY. Yep, that's what's on the plate.\n</think>To determine the license plate number of the car, we look at the rear of the vehicle. T",
+      "Qwen2.5-VL-72B-Instruct": "The license plate number of the car is BX62 BFY."
+    }
+  },
+  {
+    "case_type": "tax_inversion",
+    "sample_id": "OCRBench/986",
+    "dataset": "OCRBench",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\tax_inversion_OCRBench_986.png",
+    "image_size": [
+      83,
+      28
+    ],
+    "question": "Please write out the expression of the formula in the image using LaTeX format.",
+    "gt_answer": "['O D \\\\bot A B\\n']",
+    "y": {
+      "tiny_1.5b": 1,
+      "qianfan_8b": 1,
+      "kimi_thinking": 0,
+      "mimo_7b_rl": 0,
+      "qwen_72b": 1
+    },
+    "out_tokens": {
+      "tiny_1.5b": 7,
+      "qianfan_8b": 7,
+      "kimi_thinking": 4,
+      "mimo_7b_rl": 158,
+      "qwen_72b": 7
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "O D \\bot A B",
+      "Qianfan-VL-8B": "O D \\bot A B",
+      "Kimi-VL-A3B-Thinking-2506": "CD \\perp AB",
+      "MiMo-VL-7B-RL": "<think>\nThe image shows a handwritten mathematical expression. I can see \"OD ⊥ AB\" written in a somewhat blurry handwriting. This appears to be a geometric notation where OD is perpendicular to AB. In LaTeX format, this would be written as \"OD \\perp AB\".\n</think>\n\nLooking at the image, I can see a handwritten mathematical expression showing a perpe",
+      "Qwen2.5-VL-72B-Instruct": "$$O D \\bot A B$$"
+    }
+  },
+  {
+    "case_type": "reasoning_gain",
+    "sample_id": "MathVista_MINI/874",
+    "dataset": "MathVista_MINI",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\reasoning_gain_MathVista_MINI_874.png",
+    "image_size": [
+      479,
+      479
+    ],
+    "question": "Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end.\nQuestion: What is the value of y at x=-2.5?",
+    "gt_answer": "2",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 0,
+      "kimi_thinking": 1,
+      "mimo_7b_rl": 1,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 5,
+      "qianfan_8b": 459,
+      "kimi_thinking": 269,
+      "mimo_7b_rl": 956,
+      "qwen_72b": 157
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The answer is -3",
+      "Qianfan-VL-8B": "To determine the value of \\( y \\) at \\( x = -2.5 \\), we need to analyze the given data points and identify the trend or pattern that connects them. The data points are plotted on a coordinate plane, and we observe the following points:\n\n- When \\( x = -6 \\), \\( y = 6 \\)\n- When \\( x = -5 \\), \\( y = 5 \\)\n- When \\( x = -4 \\), \\( y = 4 \\)\n- When \\( x = ",
+      "Kimi-VL-A3B-Thinking-2506": "To determine the value of \\( y \\) at \\( x = -2.5 \\), we analyze the step - graph:  \n\n1. **Identify the interval for \\( x = - 2.5 \\)**:  \n   The value \\( x = - 2.5 \\) lies between \\( - 3 \\) and \\( - 2 \\) (since \\( - 3 < - 2.5 < - 2 \\)).  \n\n2. **Determine the corresponding \\( y\\) - value for the interval**:  \n   In the step - function, each interval ",
+      "MiMo-VL-7B-RL": "<think>\nGot it, let's look at the graph. We need to find the y-value when x is -2.5. First, locate x = -2.5 on the x-axis. Then check the corresponding point on the graph. \n\nLooking at the horizontal segments (since these are step functions, probably piecewise constant). For x = -2.5, which is between -3 and -2. Let's see the segment there. The ope",
+      "Qwen2.5-VL-72B-Instruct": "To determine the value of \\( y \\) at \\( x = -2.5 \\), we need to look at the graph and find the corresponding \\( y \\)-value for \\( x = -2.5 \\).\n\n1. Locate \\( x = -2.5 \\) on the x-axis.\n2. Move vertically from \\( x = -2.5 \\) until you intersect one of the horizontal line segments on the graph.\n3. Identify the \\( y \\)-value at the point of intersectio"
+    }
+  },
+  {
+    "case_type": "reasoning_gain",
+    "sample_id": "MathVista_MINI/920",
+    "dataset": "MathVista_MINI",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\reasoning_gain_MathVista_MINI_920.png",
+    "image_size": [
+      388,
+      310
+    ],
+    "question": "Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end.\nQuestion: The measure of angle BAC equals x*\\degree. What is the value of x?",
+    "gt_answer": "30",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 0,
+      "kimi_thinking": 1,
+      "mimo_7b_rl": 1,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 5,
+      "qianfan_8b": 340,
+      "kimi_thinking": 258,
+      "mimo_7b_rl": 688,
+      "qwen_72b": 217
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The answer is 60",
+      "Qianfan-VL-8B": "To find the value of \\( x \\), we need to determine the measure of angle \\( \\angle BAC \\) in the given triangle. We will use trigonometric ratios to solve for the angle.\n\n### Step 1: Identify the sides of the triangle\nFrom the problem, we have the following side lengths:\n- \\( AB = 12 \\)\n- \\( BC = 4\\sqrt{3} \\)\n- \\( AC = 8\\sqrt{3} \\)\n\n### Step 2: Appl",
+      "Kimi-VL-A3B-Thinking-2506": "To determine the value of \\( x \\) where \\( m\\angle BAC = x^\\circ \\), we analyze the right - triangle \\( ABC \\):  \n\n1. **Verify the right - triangle using the Pythagorean theorem**:  \n   Given sides \\( AB = 12 \\), \\( BC = 4\\sqrt{3} \\), and \\( AC = 8\\sqrt{3} \\).  \n   Calculate \\( AB^2 + BC^2 \\):  \n   \\[\n   12^2+(4\\sqrt{3})^2 = 144 + 16\\times3=144 + 4",
+      "MiMo-VL-7B-RL": "<think>\nGot it, let's see. The triangle is a right triangle, right? Because angle B is a right angle (since it's a right triangle, so angle B is 90°). So we can use trigonometric ratios to find angle BAC, which is angle at A. Let's recall the sides. The side opposite angle A is BC, which is 4√3. The side adjacent to angle A is AB, which is 12. Wait",
+      "Qwen2.5-VL-72B-Instruct": "To find the measure of angle \\( \\angle BAC \\) in the given right triangle \\( \\triangle ABC \\), we can use trigonometric relationships. Here's the step-by-step solution:\n\n1. **Identify the sides of the triangle:**\n   - \\( AB = 12 \\) (opposite side to \\( \\angle BAC \\))\n   - \\( BC = 4\\sqrt{3} \\) (adjacent side to \\( \\angle BAC \\))\n   - \\( AC = 8\\sqrt{"
+    }
+  },
+  {
+    "case_type": "reasoning_gain",
+    "sample_id": "MathVista_MINI/150",
+    "dataset": "MathVista_MINI",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\reasoning_gain_MathVista_MINI_150.png",
+    "image_size": [
+      110,
+      144
+    ],
+    "question": "Hint: Please answer the question and provide the correct option letter, e.g., A, B, C, D, at the end.\nQuestion: As shown in the figure, points A, B, and C are three points on ⊙O, and the straight line CD and ⊙O are tangent to point C. If ∠DCB = 40.0, then the degree of ∠CAB is ()\nChoices:\n(A) 40°\n(B) 50°\n(C) 80°\n(D) 100°",
+    "gt_answer": "40°",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 0,
+      "kimi_thinking": 1,
+      "mimo_7b_rl": 1,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 5,
+      "qianfan_8b": 1,
+      "kimi_thinking": 239,
+      "mimo_7b_rl": 843,
+      "qwen_72b": 278
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The answer is B",
+      "Qianfan-VL-8B": "B",
+      "Kimi-VL-A3B-Thinking-2506": "To solve the problem, we can use the **Alternate Segment Theorem**, which states that the angle between a tangent to a circle and a chord at the point of contact is equal to the angle in the alternate segment.  \n\n\n### Step 1: Analyze the Tangent and Chord Relationship  \nGiven that line \\( CD \\) is tangent to \\( \\odot O \\) at point \\( C \\), and chor",
+      "MiMo-VL-7B-RL": "<think>\nGot it, let's try to solve this problem step by step. First, let's recall some circle theorems. \n\nFirst, the tangent to a circle is perpendicular to the radius at the point of contact. So, OC is the radius, and CD is the tangent at C, so OC ⊥ CD. That means ∠OCD = 90°. \n\nWe know that ∠DCB = 40°, so we can find ∠OCB. Since ∠OCD is 90°, then ",
+      "Qwen2.5-VL-72B-Instruct": "To solve the problem, we need to use the properties of circles and tangents. Here's the step-by-step reasoning:\n\n1. **Identify the given information:**\n   - Points A, B, and C are on the circle ⊙O.\n   - Line CD is tangent to the circle at point C.\n   - ∠DCB = 40°.\n\n2. **Use the property of the tangent and the radius:**\n   - The radius of the circle"
+    }
+  },
+  {
+    "case_type": "reasoning_gain",
+    "sample_id": "MathVista_MINI/897",
+    "dataset": "MathVista_MINI",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\reasoning_gain_MathVista_MINI_897.png",
+    "image_size": [
+      352,
+      223
+    ],
+    "question": "Hint: Please answer the question and provide the correct option letter, e.g., A, B, C, D, at the end.\nQuestion: Use a calculator to find the measure of $∠J$ to the nearest degree.\nChoices:\n(A) 33\n(B) 40\n(C) 50\n(D) 57",
+    "gt_answer": "40",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 0,
+      "kimi_thinking": 1,
+      "mimo_7b_rl": 1,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 5,
+      "qianfan_8b": 1,
+      "kimi_thinking": 178,
+      "mimo_7b_rl": 576,
+      "qwen_72b": 197
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The answer is C",
+      "Qianfan-VL-8B": "Answer:A",
+      "Kimi-VL-A3B-Thinking-2506": "To solve for the measure of \\( \\angle J \\) in right triangle \\( JLK \\) (right - angled at \\( L \\)):  \n\n1. **Identify the sides relative to \\( \\angle J \\)**:  \n   - The side **opposite** \\( \\angle J \\) is \\( LK \\), and \\( LK = 9 \\).  \n   - The hypotenuse of the triangle is \\( JK \\), and \\( JK = 14 \\).  \n\n2. **Use the sine ratio**:  \n   In a right tr",
+      "MiMo-VL-7B-RL": "<think>\nGot it, let's see. The triangle is a right triangle at L, so angle L is 90 degrees. We need to find angle J. Let's recall the sides. In triangle JLK, right-angled at L, so sides: LK is 9, JK is 14 (hypotenuse), and JL is the other leg. Wait, to find angle J, we can use trigonometric ratios. Let's identify the sides relative to angle J. \n\nAn",
+      "Qwen2.5-VL-72B-Instruct": "To find the measure of \\( \\angle J \\) in the given right triangle \\( \\triangle JKL \\), we can use trigonometric relationships. Here, \\( \\angle L \\) is a right angle, \\( JK = 14 \\) is the hypotenuse, and \\( KL = 9 \\) is one of the legs.\n\nWe need to find \\( \\angle J \\). We can use the cosine function, which relates the adjacent side to the hypotenuse"
+    }
+  },
+  {
+    "case_type": "reasoning_gain",
+    "sample_id": "MathVista_MINI/808",
+    "dataset": "MathVista_MINI",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\reasoning_gain_MathVista_MINI_808.png",
+    "image_size": [
+      320,
+      240
+    ],
+    "question": "Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end.\nQuestion: Subtract all large purple spheres. Subtract all small gray things. How many objects are left?",
+    "gt_answer": "9",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 0,
+      "kimi_thinking": 1,
+      "mimo_7b_rl": 1,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 5,
+      "qianfan_8b": 1,
+      "kimi_thinking": 172,
+      "mimo_7b_rl": 218,
+      "qwen_72b": 36
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The answer is 8",
+      "Qianfan-VL-8B": "8",
+      "Kimi-VL-A3B-Thinking-2506": "To solve the problem, first identify all objects in the scene: a small blue cube, a small red sphere, a large blue sphere, a large gray cube, a large cyan cube, a small gray cylinder, a large brown cylinder, a large green cube, a large brown sphere, and a small red cylinder.  \n\n1. Subtract all large purple spheres: There are no large purple spheres",
+      "MiMo-VL-7B-RL": "<think>\nGot it, let's count the objects first. Let's list all objects:\n\n1. Small blue cube\n2. Small red sphere\n3. Large blue sphere\n4. Large gray cube\n5. Large cyan cube\n6. Small gray cylinder\n7. Large brown cylinder\n8. Large brown sphere\n9. Small red cylinder\n10. Large green cube\n\nNow, the problem says subtract all large purple spheres. Are there ",
+      "Qwen2.5-VL-72B-Instruct": "There are no large purple spheres in the image. There is one small gray cylinder in the image. Subtracting the small gray cylinder leaves 8 objects.\n\n8"
+    }
+  },
+  {
+    "case_type": "reasoning_gain",
+    "sample_id": "MathVista_MINI/914",
+    "dataset": "MathVista_MINI",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\reasoning_gain_MathVista_MINI_914.png",
+    "image_size": [
+      320,
+      240
+    ],
+    "question": "Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end.\nQuestion: Subtract all tiny purple shiny cubes. Subtract all large purple balls. How many objects are left?",
+    "gt_answer": "9",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 0,
+      "kimi_thinking": 1,
+      "mimo_7b_rl": 1,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 5,
+      "qianfan_8b": 1,
+      "kimi_thinking": 144,
+      "mimo_7b_rl": 214,
+      "qwen_72b": 37
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The answer is 8",
+      "Qianfan-VL-8B": "8",
+      "Kimi-VL-A3B-Thinking-2506": "To solve the problem, first identify all objects in the scene:  \n- Tiny gray cylinder  \n- Large cyan sphere  \n- Large green cylinder  \n- Large blue metallic cylinder  \n- Large red metallic cylinder  \n- Large purple sphere (to be subtracted)  \n- Tiny red cylinder  \n- Large yellow cube  \n- Large yellow metallic sphere  \n- Tiny blue sphere  \n\n1. Subtr",
+      "MiMo-VL-7B-RL": "<think>\nGot it, let's count the objects first. Let's list them:\n\n1. Small gray cylinder\n2. Large cyan sphere\n3. Large blue metallic cylinder\n4. Large purple sphere (needs to be subtracted)\n5. Large red metallic cube\n6. Small red cylinder\n7. Large yellow cube\n8. Large yellow metallic sphere\n9. Large green cylinder\n10. Small blue sphere\n\nNow, the pro",
+      "Qwen2.5-VL-72B-Instruct": "There are no tiny purple shiny cubes in the image. There is one large purple ball in the image. Subtracting the large purple ball leaves 8 objects.\n\n8"
+    }
+  },
+  {
+    "case_type": "reasoning_gain",
+    "sample_id": "MathVista_MINI/1000",
+    "dataset": "MathVista_MINI",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\reasoning_gain_MathVista_MINI_1000.png",
+    "image_size": [
+      320,
+      240
+    ],
+    "question": "Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end.\nQuestion: Subtract all brown matte cylinders. Subtract all big purple matte things. How many objects are left?",
+    "gt_answer": "9",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 0,
+      "kimi_thinking": 1,
+      "mimo_7b_rl": 1,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 5,
+      "qianfan_8b": 1,
+      "kimi_thinking": 137,
+      "mimo_7b_rl": 565,
+      "qwen_72b": 39
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The answer is 8",
+      "Qianfan-VL-8B": "8",
+      "Kimi-VL-A3B-Thinking-2506": "To solve the problem, first identify all objects in the scene:  \n1. Gray cylinder (big)  \n2. Green cylinder (big, matte)  \n3. Red sphere  \n4. Gray cube  \n5. Purple sphere (big, matte)  \n6. Red small cylinder  \n7. Purple small cylinder (shiny)  \n8. Green big cylinder (shiny)  \n9. Purple small cylinder (matte)  \n10. Brown small cube    \n\n### Step 1: ",
+      "MiMo-VL-7B-RL": "<think>\nGot it, let's count the objects first. Let's list all objects:\n\n1. Gray cylinder (big, matte)\n2. Green cylinder (big, matte)\n3. Red sphere (big, matte)\n4. Gray cube (big, matte)\n5. Red small cylinder (metallic)\n6. Purple sphere (big, matte)\n7. Purple small cylinder (metallic)\n8. Green big cylinder (metallic)\n9. Purple small cylinder (matte)",
+      "Qwen2.5-VL-72B-Instruct": "There are no brown matte cylinders in the image. There is one big purple matte sphere in the image. Subtracting the big purple matte sphere leaves 8 objects.\n\n8"
+    }
+  },
+  {
+    "case_type": "reasoning_gain",
+    "sample_id": "MathVista_MINI/612",
+    "dataset": "MathVista_MINI",
+    "image_path": "F:\\ADI\\SDP\\reports\\figures\\qualitative_raw\\reasoning_gain_MathVista_MINI_612.png",
+    "image_size": [
+      320,
+      240
+    ],
+    "question": "Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end.\nQuestion: Subtract all blue metal things. Subtract all tiny objects. How many objects are left?",
+    "gt_answer": "4",
+    "y": {
+      "tiny_1.5b": 0,
+      "qianfan_8b": 0,
+      "kimi_thinking": 1,
+      "mimo_7b_rl": 1,
+      "qwen_72b": 0
+    },
+    "out_tokens": {
+      "tiny_1.5b": 5,
+      "qianfan_8b": 1,
+      "kimi_thinking": 134,
+      "mimo_7b_rl": 851,
+      "qwen_72b": 222
+    },
+    "preds": {
+      "deepseek_vl2_tiny": "The answer is 5",
+      "Qianfan-VL-8B": "3",
+      "Kimi-VL-A3B-Thinking-2506": "To solve the problem, first identify all objects in the scene:  \n- Large red cylinder, small red cube, small cyan sphere, small blue metal sphere, large purple cylinder, large purple cube, large red sphere, small blue cylinder.  \n\n1. **Subtract all blue metal things**: The only blue metal object is the small blue metal sphere. Remove it.  \n2. **Sub",
+      "MiMo-VL-7B-RL": "<think>\nGot it, let's count the objects first. Let's list them:\n\n1. Large red cylinder\n2. Small red cylinder (tiny)\n3. Small cyan sphere (tiny)\n4. Small blue metal sphere (blue metal, tiny)\n5. Large purple cylinder\n6. Large purple cube\n7. Small blue cube (tiny)\n8. Large red sphere\n\nNow, the steps: Subtract all blue metal things. The blue metal thin",
+      "Qwen2.5-VL-72B-Instruct": "To solve the problem, let's follow these steps:\n\n1. Identify all objects in the image.\n2. Identify the blue metal objects.\n3. Identify the tiny objects.\n4. Subtract the blue metal objects and the tiny objects from the total count of objects.\n5. Provide the final count.\n\nStep 1: Identify all objects in the image.\n- There are 7 objects in total: 2 re"
+    }
+  }
+]

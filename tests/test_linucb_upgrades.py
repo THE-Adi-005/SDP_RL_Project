@@ -45,3 +45,20 @@ def test_linucb_alpha_anneal():
     assert 0 <= act1 < n_actions
     assert 0 <= act2 < n_actions
 
+
+def test_linucb_score_arms_and_matrix_warmstart():
+    np.random.seed(7)
+    N, d, K = 60, 12, 4
+    X = np.random.randn(N, d).astype(np.float32)
+    X /= np.maximum(np.linalg.norm(X, axis=1, keepdims=True), 1e-8)
+    R = np.random.rand(N, K).astype(np.float32) * 0.4
+    R[:, 1] += 0.5  # Arm 1 dominates
+
+    agent = LinUCB(n_actions=K, alpha=0.2, feature_dim=d, alpha_anneal=True, use_gpu=False)
+    agent.warm_start_from_full_matrix(X, R, regularization=2.0, sample_weight=0.5)
+    preds, uncs, ucb = agent.score_arms(X[0], budget_fraction=0.8)
+    assert preds.shape == (K,) and uncs.shape == (K,) and ucb.shape == (K,)
+    assert np.all(uncs >= 0.0)
+    assert int(np.argmax(preds)) == 1
+
+
