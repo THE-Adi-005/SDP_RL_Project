@@ -1,0 +1,19 @@
+Budget_Mult,B_max ($),Method,Realized_Spend ($),Budget_Ratio (C_T / B_max),Hard_Violated (C_T > B_max + c_max),Soft_Overrun (%),Forced_Cheapest (%),Accuracy (%)
+0.25x,0.2443,Unguarded Annealed LinUCB,0.9698,3.97,True,296.95,0.0,78.54
+0.25x,0.2443,Hard-Guarded CascadeRoute (Thm 2),0.2443,1.0,False,0.0,32.1,65.32
+0.25x,0.2443,BwK Primal-Dual LinUCB,0.3182,1.302,True,30.23,0.0,65.28
+0.40x,0.3909,Unguarded Annealed LinUCB,0.9698,2.481,True,148.1,0.0,78.54
+0.40x,0.3909,Hard-Guarded CascadeRoute (Thm 2),0.3909,1.0,False,0.0,27.6,68.37
+0.40x,0.3909,BwK Primal-Dual LinUCB,0.4562,1.167,True,16.7,0.0,67.21
+0.60x,0.5864,Unguarded Annealed LinUCB,0.9692,1.653,True,65.29,0.0,78.5
+0.60x,0.5864,Hard-Guarded CascadeRoute (Thm 2),0.5864,1.0,False,0.0,17.7,71.69
+0.60x,0.5864,BwK Primal-Dual LinUCB,0.6408,1.093,True,9.29,0.0,69.52
+0.80x,0.7818,Unguarded Annealed LinUCB,0.9689,1.239,True,23.93,0.0,78.63
+0.80x,0.7818,Hard-Guarded CascadeRoute (Thm 2),0.7818,1.0,False,0.0,8.4,75.95
+0.80x,0.7818,BwK Primal-Dual LinUCB,0.824,1.054,True,5.39,0.0,71.74
+1.00x,0.9773,Unguarded Annealed LinUCB,0.9675,0.99,False,0.0,0.0,78.45
+1.00x,0.9773,Hard-Guarded CascadeRoute (Thm 2),0.9675,0.99,False,0.0,0.0,78.45
+1.00x,0.9773,BwK Primal-Dual LinUCB,1.0089,1.032,True,3.24,0.0,74.31
+1.25x,1.2216,Unguarded Annealed LinUCB,0.9637,0.789,False,0.0,0.0,78.52
+1.25x,1.2216,Hard-Guarded CascadeRoute (Thm 2),0.9637,0.789,False,0.0,0.0,78.52
+1.25x,1.2216,BwK Primal-Dual LinUCB,1.2396,1.015,False,1.48,0.0,77.0

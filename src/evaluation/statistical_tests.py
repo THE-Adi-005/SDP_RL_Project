@@ -157,3 +157,100 @@ def pairwise_comparison(results_dict: dict, metric: str = "correct") -> list:
         comp["wilcoxon_significant_corrected"] = corrected_w[i] < 0.05
 
     return comparisons
+
+
+def paired_bootstrap_ci(
+    scores_a: np.ndarray,
+    scores_b: np.ndarray,
+    n_boot: int = 10000,
+    ci: float = 0.95,
+    seed: int = 42,
+) -> dict:
+    """Paired non-parametric bootstrap over queries for mean difference (A - B).
+
+    Reports mean difference, empirical 95% CI, and bounded two-sided bootstrap p-value
+    (lower-bounded at 1/(n_boot+1), avoiding misleading asymptotic 1e-275 values).
+    """
+    a = np.asarray(scores_a, dtype=np.float64)
+    b = np.asarray(scores_b, dtype=np.float64)
+    assert len(a) == len(b), f"Length mismatch: {len(a)} vs {len(b)}"
+    diff = a - b
+    n = len(diff)
+    obs_diff = float(np.mean(diff))
+
+    rng = np.random.RandomState(seed)
+    # Vectorized chunked bootstrap for speed
+    chunk = 1000
+    boot_means = np.empty(n_boot, dtype=np.float64)
+    for s in range(0, n_boot, chunk):
+        m = min(chunk, n_boot - s)
+        idx = rng.randint(0, n, size=(m, n))
+        boot_means[s : s + m] = diff[idx].mean(axis=1)
+
+    alpha = 1.0 - ci
+    ci_low = float(np.percentile(boot_means, 100.0 * (alpha / 2.0)))
+    ci_high = float(np.percentile(boot_means, 100.0 * (1.0 - alpha / 2.0)))
+
+    # Centered bootstrap null p-value + sign-proportion check
+    centered = boot_means - obs_diff
+    p_two = float((np.sum(np.abs(centered) >= abs(obs_diff)) + 1.0) / (n_boot + 1.0))
+
+    return {
+        "mean_a": float(np.mean(a)),
+        "mean_b": float(np.mean(b)),
+        "mean_diff": obs_diff,
+        "ci_low": ci_low,
+        "ci_high": ci_high,
+        "p_value": max(p_two, 1.0 / (n_boot + 1.0)),
+        "significant_005": (ci_low > 0.0) or (ci_high < 0.0),
+    }
+
+
+def pareto_frontier_auc(
+    costs: np.ndarray,
+    accuracies: np.ndarray,
+    cost_min: float = None,
+    cost_max: float = None,
+    left_fill: float = None,
+) -> float:
+    """Compute normalized Area Under the Monotone Pareto Frontier (AURC / AUC-Acc)
+    over a matched [cost_min, cost_max] domain.
+
+    Builds the upper non-dominated accuracy envelope as cost increases (monotone
+    non-decreasing step/piecewise-linear frontier) and divides integrated accuracy
+    by (cost_max - cost_min) so the resulting AUC sits directly on the [0, 100]%
+    accuracy scale for easy interpretation.
+    """
+    c = np.asarray(costs, dtype=np.float64)
+    a = np.asarray(accuracies, dtype=np.float64)
+    order = np.argsort(c)
+    c_sorted = c[order]
+    a_sorted = a[order]
+
+    # Upper non-dominated envelope: monotone non-decreasing accuracy with cost
+    env_c = []
+    env_a = []
+    best_a = -np.inf
+    for ci_val, ai_val in zip(c_sorted, a_sorted):
+        if ai_val >= best_a:
+            best_a = ai_val
+            if env_c and np.isclose(env_c[-1], ci_val):
+                env_a[-1] = max(env_a[-1], best_a)
+            else:
+                env_c.append(ci_val)
+                env_a.append(best_a)
+
+    c_lo = float(c_sorted[0]) if cost_min is None else float(cost_min)
+    c_hi = float(c_sorted[-1]) if cost_max is None else float(cost_max)
+    if c_hi <= c_lo:
+        return float(np.max(a_sorted))
+
+    # Clamp / extend piecewise-linear upper hull over [c_lo, c_hi]
+    xs = np.linspace(c_lo, c_hi, 500)
+    # Right-continuous / linear interpolation (optionally 0.0 below lowest feasible cost)
+    l_val = env_a[0] if left_fill is None else float(left_fill)
+    ys = np.interp(xs, env_c, env_a, left=l_val, right=env_a[-1])
+    _trapz = getattr(np, "trapezoid", None) or getattr(np, "trapz")
+    area = float(_trapz(ys, xs))
+    return area / (c_hi - c_lo)
+

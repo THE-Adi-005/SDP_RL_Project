@@ -1,0 +1,13 @@
+Method,Category,OOD Acc (%),Cost/1k ($),Violations (0.5xB),Guarded Acc (%)
+Static Qwen2.5-VL-72B,Static Frontier,83.81,0.2223,N/A,83.81
+Static Qianfan-VL-8B,Static Compact,74.32,0.0511,N/A,74.32
+Static DeepSeek-VL2-Tiny,Static Compact,58.12,0.0143,N/A,58.12
+Frozen MLP-Router,Offline Supervised,56.97,0.0709,0/6,56.97
+Frozen ARMS-Router,Offline Capability,66.58,0.1125,0/6,66.58
+MLP + Online SGD,Online Neural,71.45,0.118,4/6,71.2
+Periodic Retrained MLP (N=500),Retrained Supervised,76.8,0.139,3/6,75.4
+Greedy Warm-Start (alpha=0),Greedy Bandit,77.2,0.141,2/6,75.8
+NeuralUCB (Warm+Online),Neural Bandit,78.4,0.165,3/6,76.1
+BwK Primal-Dual LinUCB,Lagrangian Pacing,78.31,0.1577,5/6,74.2
+CascadeRoute-VL (896-d Default),Proposed Online,81.59,0.1512,0/6,78.45
+"D-LinUCB (beta=0.996, 896-d)",Proposed Discounted,80.54,0.1238,0/6,78.3

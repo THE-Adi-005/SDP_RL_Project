@@ -1,0 +1,2 @@
+txt_p50_ms,txt_p95_ms,dino_p50_ms,dino_p95_ms,rn50_p50_ms,rn50_p95_ms,cues_p50_ms,cues_p95_ms,enc_p50_ms,enc_p95_ms,enc904_p50_ms,enc904_p95_ms,router_p50_ms,router_p95_ms,total_p50_ms,total_p95_ms
+13.87,18.54,15.2,18.86,16.5,19.81,4.37,10.29,51.45,66.89,55.18,76.95,1.01,1.45,52.66,68.21

@@ -1,0 +1,5 @@
+Method on Unseen External AMBER,Acc (%),Mean Lat (s)
+Static Qwen3-VL-2B-Instruct (HighRes B512),90.0,0.35
+Static Qwen3-VL-2B-Thinking (HighRes B512),90.0,13.389
+CascadeRoute-VL (Zero AMBER Train -> Online),90.0,0.35
+12-Config Oracle (AMBER),100.0,0.325

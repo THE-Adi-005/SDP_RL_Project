@@ -1,0 +1,6 @@
+Modality,Warm i.i.d. Acc (%),Cold i.i.d. Acc (%),OOD Online Acc (%),OOD Cost/1k ($)
+Text-Only (384-d),78.05,72.27,76.36,0.0708
+Perceptual-Only (8-d),77.87,72.33,76.68,0.0688
+Vision-Only (512-d),78.06,72.33,77.68,0.0883
+Text+Vision (896-d),78.68,72.33,82.48,0.1857
+Full Joint (904-d),78.49,72.51,80.07,0.1275

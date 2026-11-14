@@ -1,0 +1,5 @@
+Metric,Acc Mean (%),Acc Std,Cost/1k ($)
+5-Split CascadeRoute-VL,79.56,0.56,0.1579
+5-Split Greedy (alpha=0),79.6,0.58,0.1579
+5-Split MLP-Router (BCE),80.61,0.66,0.2194
+5-Split Qwen2.5-VL-72B,78.21,0.53,0.2626

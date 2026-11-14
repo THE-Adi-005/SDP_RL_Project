@@ -1,0 +1,4 @@
+Held-Out Dataset,N,Qwen2.5-VL-72B (%),Frozen MLP (%),MLP Cost/1k ($),CascadeRoute-VL D-LinUCB (%),CR Cost/1k ($)
+InfoVQA_VAL,2801,82.86,76.79,0.1328,79.97,0.1762
+MathVision_MINI,304,38.82,41.12,0.7161,42.11,0.3762
+HallusionBench,951,72.87,70.66,0.1665,72.66,0.1831

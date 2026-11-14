@@ -1,0 +1,6 @@
+Metric,CascadeRoute-VL,Frozen MLP,Periodic MLP (N=500)
+Queries to First Arm Pick,0 queries (Immediate),Infinite (Never picked without retrain),500 queries lag
+"Exploration Share in [500, 550)",62.00%,0.00%,0.00%
+"Accuracy in [550, 700)",80.00%,56.97%,56.97%
+Steady-State Specialization Share,4.91%,0.00%,4.85%
+Cumulative Adaptation Regret,0.18,14.20,4.80

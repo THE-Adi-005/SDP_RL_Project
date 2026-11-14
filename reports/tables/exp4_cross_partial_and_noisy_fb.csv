@@ -1,0 +1,26 @@
+Experiment,Regime,Level,Acc (%),Cost/1k ($)
+Partial Feedback Rate,Cold LinUCB (i.i.d. Test),5%,72.53,0.0742
+Partial Feedback Rate,CascadeRoute-VL (Warm i.i.d.),5%,78.72,0.1574
+Partial Feedback Rate,CascadeRoute-VL D-LinUCB (OOD),5%,77.22,0.116
+Partial Feedback Rate,Cold LinUCB (i.i.d. Test),10%,76.08,0.3037
+Partial Feedback Rate,CascadeRoute-VL (Warm i.i.d.),10%,78.8,0.1577
+Partial Feedback Rate,CascadeRoute-VL D-LinUCB (OOD),10%,77.37,0.1155
+Partial Feedback Rate,Cold LinUCB (i.i.d. Test),25%,72.3,0.3594
+Partial Feedback Rate,CascadeRoute-VL (Warm i.i.d.),25%,78.8,0.1561
+Partial Feedback Rate,CascadeRoute-VL D-LinUCB (OOD),25%,80.22,0.133
+Partial Feedback Rate,Cold LinUCB (i.i.d. Test),50%,72.3,0.3594
+Partial Feedback Rate,CascadeRoute-VL (Warm i.i.d.),50%,78.42,0.1559
+Partial Feedback Rate,CascadeRoute-VL D-LinUCB (OOD),50%,80.84,0.1315
+Partial Feedback Rate,Cold LinUCB (i.i.d. Test),100%,72.51,0.3521
+Partial Feedback Rate,CascadeRoute-VL (Warm i.i.d.),100%,78.54,0.1576
+Partial Feedback Rate,CascadeRoute-VL D-LinUCB (OOD),100%,79.89,0.1149
+Noisy LLM-Judge Flip,CascadeRoute-VL (Warm i.i.d.),0%,78.85,0.1647
+Noisy LLM-Judge Flip,CascadeRoute-VL D-LinUCB (OOD),0%,80.93,0.1311
+Noisy LLM-Judge Flip,CascadeRoute-VL (Warm i.i.d.),5%,78.34,0.1614
+Noisy LLM-Judge Flip,CascadeRoute-VL D-LinUCB (OOD),5%,79.43,0.1067
+Noisy LLM-Judge Flip,CascadeRoute-VL (Warm i.i.d.),10%,78.6,0.1622
+Noisy LLM-Judge Flip,CascadeRoute-VL D-LinUCB (OOD),10%,79.71,0.1102
+Noisy LLM-Judge Flip,CascadeRoute-VL (Warm i.i.d.),15%,78.24,0.1586
+Noisy LLM-Judge Flip,CascadeRoute-VL D-LinUCB (OOD),15%,79.61,0.1062
+Noisy LLM-Judge Flip,CascadeRoute-VL (Warm i.i.d.),20%,77.82,0.1595
+Noisy LLM-Judge Flip,CascadeRoute-VL D-LinUCB (OOD),20%,78.51,0.0913

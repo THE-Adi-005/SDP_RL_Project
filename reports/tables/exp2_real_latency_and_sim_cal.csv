@@ -1,0 +1,3 @@
+Backbone,Samples,Real Lat Mean (s),Real Lat p50 (s),Real Lat p95 (s),Fitted TTFT (s),Fitted Decode TPS,Sim MAE (s),Sim MAPE (%),Pearson r,Router Overhead p50/p95 (ms)
+Qwen3-VL-2B-Instruct (4-bit GPU),300,4.203,0.49,19.643,0.05,6.4,0.598,14.0,0.9894,52.7 / 68.2
+Qwen3-VL-2B-Thinking (4-bit GPU),300,20.512,13.174,66.555,0.195,7.8,0.661,3.5,0.9985,52.7 / 68.2

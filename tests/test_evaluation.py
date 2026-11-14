@@ -5,6 +5,7 @@ import pytest
 from src.evaluation.statistical_tests import (
     paired_ttest, wilcoxon_test, cohens_d, effect_size_label,
     bonferroni_correction, pairwise_comparison,
+    paired_bootstrap_ci, pareto_frontier_auc,
 )
 from src.evaluation.regret import (
     compute_cumulative_regret, compute_average_regret,
@@ -120,3 +121,18 @@ def test_oracle_rewards():
     oracle = compute_oracle_rewards(df)
     assert oracle["p1"] == 0.9
     assert oracle["p2"] == 0.8
+
+
+def test_paired_bootstrap_ci_and_pareto_auc():
+    rng = np.random.RandomState(42)
+    a = rng.binomial(1, 0.85, size=500).astype(float)
+    b = rng.binomial(1, 0.65, size=500).astype(float)
+    res = paired_bootstrap_ci(a, b, n_boot=500, seed=42)
+    assert res["ci_low"] > 0.0 and res["mean_diff"] > 0.10
+    assert res["p_value"] >= 1.0 / 501.0
+
+    # Higher frontier strictly gives higher Pareto AUC
+    c = np.array([0.05, 0.15, 0.30])
+    acc_high = np.array([75.0, 80.0, 82.0])
+    acc_low = np.array([70.0, 74.0, 76.0])
+    assert pareto_frontier_auc(c, acc_high, 0.05, 0.30) > pareto_frontier_auc(c, acc_low, 0.05, 0.30)

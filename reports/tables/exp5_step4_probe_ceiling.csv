@@ -1,0 +1,6 @@
+Method,Accuracy (%),Cost/1k ($),Oracle Gap Closed (%)
+Static Qwen2.5-VL-72B,77.29,0.2605,0.0
+Calibrated FrugalGPT Cascade,76.45,0.161,-4.7
+CascadeRoute-VL (Feature-Only Bandit),78.59,0.1598,7.3
+CascadeRoute-VL (Probe-Augmented),82.25,0.1374,27.7
+17-VLM Hindsight Oracle,95.17,0.174,100.0

@@ -1,0 +1,5 @@
+Method on Unseen Pool B (8 Arms),Test Acc (%),Cost/1k ($)
+Best Single Static in Pool B (InternVL2.5-78B),76.2,0.3012
+Cold Online LinUCB on Pool B,76.18,0.3012
+Pool A -> Pool B Prior Transfer + Online,75.1,0.1544
+Oracle Pool B (8 Arms),93.32,0.0143

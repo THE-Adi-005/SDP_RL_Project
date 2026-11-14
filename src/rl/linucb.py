@@ -33,7 +33,10 @@ class LinUCB:
         alpha: float = 1.0,
         feature_dim: Optional[int] = None,
         alpha_anneal: bool = False,
+        alpha_min: float = 0.0,
         regularization: float = 1.0,
+        discount_factor: float = 1.0,
+        sliding_window: Optional[int] = None,
         n_arms: Optional[int] = None,
         d: Optional[int] = None,
         use_gpu: bool = False,
@@ -47,9 +50,12 @@ class LinUCB:
         self.n_actions = n_actions
         self.alpha_0 = float(alpha)
         self.alpha = float(alpha)
+        self.alpha_min = float(alpha_min)
         self.feature_dim = feature_dim
         self.alpha_anneal = alpha_anneal
         self.regularization = float(regularization)
+        self.discount_factor = float(discount_factor)
+        self.sliding_window = int(sliding_window) if sliding_window is not None else None
         self.use_gpu = bool(use_gpu and _TORCH_OK and torch.cuda.is_available())
         self._device = torch.device("cuda") if self.use_gpu else None
         self._initialized = False
@@ -61,6 +67,10 @@ class LinUCB:
         self.A_inv: Optional[List[np.ndarray]] = None
         self._A_inv_stack: Optional[np.ndarray] = None  # (K, d, d)
         self._theta_stack: Optional[np.ndarray] = None  # (K, d)
+        self._arm_pulls: Optional[List[int]] = None
+        self._sw_buffers: Optional[List[List[Tuple[np.ndarray, float]]]] = None
+        self._A_base_prior: Optional[List[np.ndarray]] = None
+        self._b_base_prior: Optional[List[np.ndarray]] = None
 
         # Optional GPU tensors synchronized when self.use_gpu is True
         self._A_inv_g = None
@@ -87,6 +97,10 @@ class LinUCB:
         self.A_inv = [np.eye(dim, dtype=np.float64) / lam for _ in range(self.n_actions)]
         self._A_inv_stack = np.stack(self.A_inv, axis=0)
         self._theta_stack = np.zeros((self.n_actions, dim), dtype=np.float64)
+        self._arm_pulls = [0 for _ in range(self.n_actions)]
+        self._sw_buffers = [[] for _ in range(self.n_actions)]
+        self._A_base_prior = [np.eye(dim, dtype=np.float64) * lam for _ in range(self.n_actions)]
+        self._b_base_prior = [np.zeros(dim, dtype=np.float64) for _ in range(self.n_actions)]
         self._sync_to_gpu()
         self._initialized = True
 
@@ -175,6 +189,9 @@ class LinUCB:
                 self.A_inv[a] = A0_inv
 
         self.warm_started = True
+        self._A_g = None
+        if self.discount_factor < 1.0 and self.use_gpu:
+            self._A_g = torch.from_numpy(A0.astype(np.float32)).to(self._device).unsqueeze(0).repeat(K, 1, 1)
         self._sync_to_gpu()
 
     def score_arms(
@@ -188,7 +205,7 @@ class LinUCB:
 
         effective_alpha = self.alpha_0
         if self.alpha_anneal and budget_fraction is not None:
-            effective_alpha = self.alpha_0 * max(0.0, min(1.0, float(budget_fraction)))
+            effective_alpha = max(self.alpha_min, self.alpha_0 * max(0.0, min(1.0, float(budget_fraction))))
 
         if self.use_gpu:
             if isinstance(state, torch.Tensor):
@@ -224,13 +241,170 @@ class LinUCB:
         _, _, ucb_values = self.score_arms(state, budget_fraction=budget_fraction)
         return int(np.argmax(ucb_values))
 
+    def select_action_budgeted(
+        self,
+        state: np.ndarray,
+        budget_remaining_usd: float,
+        total_budget_usd: float,
+        arm_cost_est: np.ndarray,
+        cheapest_arm: Optional[int] = None,
+        reserve_multiplier: float = 1.0,
+        remaining_steps: Optional[int] = None,
+        cheapest_arm_cost_bound: Optional[float] = None,
+    ) -> Tuple[int, bool]:
+        """Deterministic budget-guarded action selection (Theorem 2).
+
+        Reserves the cheapest-arm horizon cost ((remaining_steps - 1) * c_min_safe when
+        horizon is known, or reserve_multiplier * c_min otherwise). Once remaining USD
+        drops below the cheapest-arm horizon reserve (or no non-cheapest arm fits inside
+        remaining headroom), forces the cheapest arm so realized total spend satisfies
+        C_T <= B_max + c_max deterministically whenever B_max >= T * c_min_safe.
+        """
+        c_est = np.asarray(arm_cost_est, dtype=np.float64)
+        c_arm = int(np.argmin(c_est)) if cheapest_arm is None else int(cheapest_arm)
+        c_min = float(c_est[c_arm])
+        c_safe = float(cheapest_arm_cost_bound) if cheapest_arm_cost_bound is not None else c_min
+        b_frac = max(0.0, min(1.0, float(budget_remaining_usd) / max(float(total_budget_usd), 1e-12)))
+
+        if remaining_steps is not None and remaining_steps > 1:
+            future_reserve = (remaining_steps - 1) * c_safe
+        else:
+            future_reserve = reserve_multiplier * c_safe
+
+        if budget_remaining_usd <= future_reserve + reserve_multiplier * c_safe:
+            return c_arm, True
+
+        _, _, ucb = self.score_arms(state, budget_fraction=b_frac)
+        headroom = budget_remaining_usd - future_reserve
+        feasible = c_est <= headroom
+        feasible[c_arm] = True  # cheapest fallback arm is always admissible
+        if not np.any(feasible):
+            return c_arm, True
+        masked = np.where(feasible, ucb, -1e12)
+        return int(np.argmax(masked)), False
+
+    def hot_onboard_arm(
+        self,
+        arm: int,
+        mean_prior_theta: Optional[np.ndarray] = None,
+        prior_strength: float = 1.0,
+        init_reg: Optional[float] = None,
+    ):
+        """Online onboarding of a newly registered VLM arm at test time without full retraining."""
+        if not self._initialized:
+            raise RuntimeError("LinUCB must be initialized before onboarding an arm.")
+        a = int(arm)
+        d = self.feature_dim
+        lam = float(init_reg if init_reg is not None else self.regularization)
+        A0 = np.eye(d, dtype=np.float64) * lam
+        A0_inv = np.eye(d, dtype=np.float64) / lam
+        b0 = (lam * prior_strength * mean_prior_theta.astype(np.float64)) if mean_prior_theta is not None else np.zeros(d, dtype=np.float64)
+        theta0 = A0_inv @ b0
+
+        self.A[a] = A0
+        self.A_inv[a] = A0_inv
+        self.b[a] = b0
+        self._A_inv_stack[a] = A0_inv
+        self._theta_stack[a] = theta0
+        self._arm_pulls[a] = 0
+        self._sw_buffers[a] = []
+        if self.use_gpu:
+            self._A_inv_g[a] = torch.from_numpy(A0_inv.astype(np.float32)).to(self._device)
+            self._b_g[a] = torch.from_numpy(b0.astype(np.float32)).to(self._device)
+            self._theta_g[a] = torch.from_numpy(theta0.astype(np.float32)).to(self._device)
+            if getattr(self, "_A_g", None) is not None:
+                self._A_g[a] = torch.from_numpy(A0.astype(np.float32)).to(self._device)
+
+    def _refresh_inverse_gpu(self, a: int):
+        A_inv_new = torch.linalg.inv(self._A_g[a] + 1e-6 * torch.eye(self.feature_dim, device=self._device))
+        self._A_inv_g[a] = 0.5 * (A_inv_new + A_inv_new.T)
+        self._theta_g[a] = torch.mv(self._A_inv_g[a], self._b_g[a])
+
     def update(self, state: np.ndarray, action: int, reward: float):
-        """Update arm's model after observing reward using Sherman-Morrison O(d²) update."""
+        """Update arm's model after observing reward using Sherman-Morrison O(d²) update,
+        Discounted LinUCB (discount_factor < 1), or Sliding-Window LinUCB (sliding_window > 0)."""
         if not self._initialized:
             self._initialize(len(state))
 
         a = int(action)
         r = float(reward)
+        self._arm_pulls[a] += 1
+
+        # Optional Sliding-Window non-stationary LinUCB
+        if self.sliding_window is not None and self.sliding_window > 0:
+            if self.use_gpu:
+                xg = state if isinstance(state, torch.Tensor) else torch.from_numpy(state.astype(np.float32)).to(self._device)
+                buf = self._sw_buffers[a]
+                buf.append((xg, r))
+                if len(buf) > self.sliding_window:
+                    buf.pop(0)
+                    if (self._arm_pulls[a] % 25 == 0) or (len(buf) == self.sliding_window and self._arm_pulls[a] == self.sliding_window + 1):
+                        Xs_g = torch.stack([item[0] for item in buf], dim=0)
+                        rs_g = torch.tensor([item[1] for item in buf], device=self._device, dtype=torch.float32)
+                        if getattr(self, "_eye_g", None) is None or self._eye_g.shape[0] != self.feature_dim:
+                            self._eye_g = torch.eye(self.feature_dim, device=self._device, dtype=torch.float32)
+                        A_mat = self._eye_g * float(self.regularization) + Xs_g.T @ Xs_g
+                        self._A_inv_g[a] = torch.linalg.inv(A_mat + 1e-6 * self._eye_g)
+                        self._b_g[a] = Xs_g.T @ rs_g
+                        self._theta_g[a] = torch.mv(self._A_inv_g[a], self._b_g[a])
+                        self.total_steps += 1
+                        return
+            else:
+                x = np.asarray(state, dtype=np.float64)
+                buf = self._sw_buffers[a]
+                buf.append((x.copy(), r))
+                if len(buf) > self.sliding_window:
+                    buf.pop(0)
+                    if (self._arm_pulls[a] % 25 == 0) or (len(buf) == self.sliding_window and self._arm_pulls[a] == self.sliding_window + 1):
+                        Xs = np.stack([item[0] for item in buf], axis=0)
+                        rs = np.array([item[1] for item in buf], dtype=np.float64)
+                        self.A[a] = np.eye(self.feature_dim, dtype=np.float64) * self.regularization + Xs.T @ Xs
+                        self.b[a] = Xs.T @ rs
+                        self.A_inv[a] = np.linalg.inv(self.A[a])
+                        self._A_inv_stack[a] = self.A_inv[a]
+                        self._theta_stack[a] = self._A_inv_stack[a] @ self.b[a]
+                        self.total_steps += 1
+                        return
+
+        # Optional Exponentially Discounted LinUCB (D-LinUCB)
+        if self.discount_factor < 1.0:
+            beta = self.discount_factor
+            lam = self.regularization
+            if self.use_gpu:
+                if getattr(self, "_A_g", None) is None:
+                    self._A_g = torch.stack([torch.from_numpy(m.astype(np.float32)).to(self._device) for m in self.A], dim=0)
+                if getattr(self, "_eye_g", None) is None or self._eye_g.shape[0] != self.feature_dim:
+                    self._eye_g = torch.eye(self.feature_dim, device=self._device, dtype=torch.float32)
+                xg = state if isinstance(state, torch.Tensor) else torch.from_numpy(state.astype(np.float32)).to(self._device)
+                self._A_g[a].mul_(beta).add_(self._eye_g, alpha=(1.0 - beta) * lam).addr_(xg, xg)
+                self._b_g[a].mul_(beta).add_(xg, alpha=r)
+                # Keep A_inv scaled and periodically refresh exact inverse every 30 updates per arm
+                if self._arm_pulls[a] % 30 == 0:
+                    self._refresh_inverse_gpu(a)
+                else:
+                    self._A_inv_g[a].div_(beta)
+                    Ax_a = torch.mv(self._A_inv_g[a], xg)
+                    denom = 1.0 + float(torch.dot(xg, Ax_a).item())
+                    if abs(denom) > 1e-12:
+                        self._A_inv_g[a].addr_(Ax_a, Ax_a, alpha=-1.0 / denom)
+                    self._theta_g[a] = torch.mv(self._A_inv_g[a], self._b_g[a])
+                self.total_steps += 1
+                return
+            x = state.astype(np.float64)
+            self.A[a] = beta * self.A[a] + (1.0 - beta) * lam * np.eye(self.feature_dim) + np.outer(x, x)
+            self.b[a] = beta * self.b[a] + r * x
+            if self._arm_pulls[a] % 20 == 0:
+                self.A_inv[a] = np.linalg.pinv(self.A[a])
+            else:
+                self.A_inv[a] /= beta
+                A_inv_x = self.A_inv[a] @ x
+                denom = 1.0 + float(x @ A_inv_x)
+                if abs(denom) > 1e-12:
+                    self.A_inv[a] -= np.outer(A_inv_x, A_inv_x) / denom
+            self._A_inv_stack[a] = self.A_inv[a]
+            self._theta_stack[a] = self._A_inv_stack[a] @ self.b[a]
+            self.total_steps += 1
+            return
 
         if self.use_gpu:
             if isinstance(state, torch.Tensor):

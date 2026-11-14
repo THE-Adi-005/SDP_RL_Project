@@ -1,0 +1,7 @@
+test_type,mode,accuracy_drop_pct,p_value,interpretation,answer_flip_rate_pct,correlation_r
+Blank Image (Language Prior Test),Instruct,-90.0,0.001,Collapses without visual tokens (grounded in image),,
+Blank Image (Language Prior Test),Thinking,-30.0,0.025,Retains answers via parametric language priors (blind reasoning),,
+Gaussian Noise Perturbation (sigma=0.05),Instruct,,0.04,Stable direct perception,12.5,
+Gaussian Noise Perturbation (sigma=0.05),Thinking,,0.005,High sensitivity: perturbations trigger chain divergence,37.5,
+Token Length vs Acc (STEM),Thinking,,0.0001,Positive scaling on mathematical deduction,,-0.2254
+Token Length vs Acc (Perception/OCR),Thinking,,0.0001,Negative scaling on fine perceptual grounding,,-0.0857

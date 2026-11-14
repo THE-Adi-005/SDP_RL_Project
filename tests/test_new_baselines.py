@@ -11,7 +11,8 @@ from src.rl.mhr_router import MHRRouter
 from src.rl.arms_router import ARMSRouter
 from src.rl.offline_router import OfflineCostAwareRouter
 from src.rl.frugalgpt_cascade import FrugalGPTCascade
-from src.cascaderoute.confidence_gate import ConfidenceGate
+from src.cascaderoute.confidence_gate import ConfidenceGate, CalibratedDeferralGate
+from src.rl.neural_bandit import NeuralUCB, NeuralTS, BwKPrimalDualLinUCB
 
 
 def test_mhr_router_basic():
@@ -135,3 +136,47 @@ def test_confidence_gate_decide_escalation():
         arm_cost_penalty=cost_pen, budget_fraction=0.05
     )
     assert did_esc_low is False and esc_arm_low == 0
+
+
+def test_calibrated_deferral_gate():
+    np.random.seed(12)
+    raw_dev = np.linspace(0.2, 0.9, 100)
+    y_dev = (raw_dev > 0.55).astype(float)
+    gate = CalibratedDeferralGate(tau_cal=0.05, conformal_quantile=0.10, min_budget_frac=0.10, cost_tradeoff=0.10)
+    gate.fit_calibrator(raw_dev, y_dev)
+    preds = np.array([0.35, 0.85, 0.40])
+    uncs = np.array([0.20, 0.05, 0.15])
+    cost_pen = np.array([0.02, 0.12, 0.05])
+    arm, esc, gain = gate.decide_escalation(
+        primary_arm=0, preds=preds, uncs=uncs, fallback_arms=(1,),
+        arm_cost_penalty=cost_pen, observed_out_tokens=25.0, budget_fraction=0.8
+    )
+    assert esc is True and arm == 1 and gain >= 0.05
+
+
+def test_neural_bandits_and_bwk():
+    np.random.seed(5)
+    N, d, K = 80, 12, 3
+    X = np.random.randn(N, d).astype(np.float32)
+    R = np.random.rand(N, K).astype(np.float32) * 0.2
+    R[:, 2] += 0.7
+
+    nucb = NeuralUCB(n_actions=K, feature_dim=d, alpha=0.1, use_gpu=False)
+    nucb.pretrain_warm_start(X, R, epochs=6)
+    nts = NeuralTS(n_actions=K, feature_dim=d, alpha=0.1, use_gpu=False)
+    nts.pretrain_warm_start(X, R, epochs=6)
+    a_u = nucb.select_action(X[0])
+    a_t = nts.select_action(X[0])
+    assert 0 <= a_u < K and 0 <= a_t < K
+    nucb.update(X[0], a_u, float(R[0, a_u]))
+    nts.update(X[0], a_t, float(R[0, a_t]))
+
+    bwk = BwKPrimalDualLinUCB(
+        n_actions=K, feature_dim=d, total_budget_usd=0.05, horizon=10,
+        arm_mean_cost_usd=np.array([0.002, 0.05, 0.10]), use_gpu=False,
+    )
+    bwk.warm_start(X, (R > 0.5).astype(np.float32))
+    for i in range(10):
+        a = bwk.select_action(X[i], enforce_hard_cap=True)
+        bwk.update(X[i], a, 1.0, float(bwk.arm_mean_cost_usd[a]))
+    assert bwk.spent_usd <= 0.05 + 0.10

@@ -1,0 +1,13 @@
+Regime,Gate,Feedback,tau_cal,Acc (%),Cost / 1k ($),Esc Rate (%),Gate Net dAcc (%),Esc Extra Spend ($),dAcc (%) per Extra $
+1. Balanced 17-Pool (g=0.08),None (No Gate),single_arm,,78.52,0.1578,0.0,0.0,0.0,0.0
+1. Balanced 17-Pool (g=0.08),Calibrated,both_arms,0.04,78.45,0.1587,0.13,0.02,0.0019,8.41
+1. Balanced 17-Pool (g=0.08),Calibrated,final_only,0.04,78.55,0.1584,0.13,0.02,0.0019,8.7
+2. Frugal 17-Pool (g=0.30),None (No Gate),single_arm,,75.46,0.0669,0.0,0.0,0.0,0.0
+2. Frugal 17-Pool (g=0.30),Calibrated,both_arms,0.04,75.41,0.0685,0.97,0.07,0.0093,7.02
+2. Frugal 17-Pool (g=0.30),Calibrated,final_only,0.04,75.36,0.0682,0.92,0.08,0.0085,9.58
+3. Compact-Primary -> Paid Escalation (g=0.08),None (No Gate),single_arm,,69.27,0.0451,0.0,0.0,0.0,0.0
+3. Compact-Primary -> Paid Escalation (g=0.08),Calibrated,both_arms,0.04,77.9,0.1482,41.91,8.69,0.629,13.82
+3. Compact-Primary -> Paid Escalation (g=0.08),Calibrated,final_only,0.04,77.85,0.1481,41.01,8.38,0.6258,13.4
+4. OOD Shift 17-Pool (g=0.08),None (No Gate),single_arm,,80.6,0.125,0.0,0.0,0.0,0.0
+4. OOD Shift 17-Pool (g=0.08),Calibrated,both_arms,0.04,80.6,0.1282,0.23,0.02,0.0069,2.48
+4. OOD Shift 17-Pool (g=0.08),Calibrated,final_only,0.04,80.88,0.1239,0.18,0.01,0.005,1.15

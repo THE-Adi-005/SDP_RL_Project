@@ -1,0 +1,7 @@
+Window (Queries),Pool Size,CascadeRoute Kimi Adoption (%),First Kimi Pick (queries after t=500),CascadeRoute Acc (%),Frozen Offline Router Adoption (%)
+"[0, 500)",16,0.0,-,79.4,0.0
+"[500, 550)",17,62.0,0,72.0,0.0
+"[550, 700)",17,25.33,-,80.0,0.0
+"[700, 1500)",17,11.12,-,78.88,0.0
+"[1500, 3500)",17,5.8,-,78.4,0.0
+"[3500, 6108)",17,4.91,-,77.8,0.0

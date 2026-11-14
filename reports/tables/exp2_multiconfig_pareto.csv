@@ -1,0 +1,4 @@
+Configuration Knob Set,Num Arms,5-Fold Peak Acc (%),5-Fold Matched-Lat (g=0.12) Acc (%),Mean Latency at g=0.12 (s),Min Latency Achieved (s),Pareto Latency-AUC (%)
+"1. Backbone/Mode Only (HighRes, B512) [2 arms]",2,52.0,52.0,6.673,6.673,45.38
+"2. + Token Budget Knob (HighRes, B32/128/512) [6 arms]",6,56.0,52.0,2.353,1.341,55.64
+3. + Resolution Knob (LowRes/HighRes x Modes x Budgets) [12 arms],12,56.0,52.0,2.353,1.327,55.66

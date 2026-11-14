@@ -1,0 +1,10 @@
+Matrix Version,Subset,Queries,72B Acc (%),72B Failures,Dense <=8B Rescued,Dense <=8B Rescue (%),Dense<=8B + 3B-MoE Rescued,Dense<=8B + 3B-MoE Rescue (%),Any Other Model Rescue (%)
+Raw Upstream Y,All 14 Benchmarks,30540,78.21,6655,4209,63.2,4557,68.5,79.1
+Raw Upstream Y,Non-MCQ (Open-Ended / OCR / Math),22659,77.32,5138,2962,57.6,3267,63.6,75.4
+Raw Upstream Y,MCQ Benchmarks Only,7881,80.75,1517,1247,82.2,1290,85.0,91.7
+MiMo Repaired (Exact),All 14 Benchmarks,30540,78.21,6655,4497,67.6,4783,71.9,81.4
+MiMo Repaired (Exact),Non-MCQ (Open-Ended / OCR / Math),22659,77.32,5138,3250,63.3,3493,68.0,78.4
+MiMo Repaired (Exact),MCQ Benchmarks Only,7881,80.75,1517,1247,82.2,1290,85.0,91.7
+All-17 Repaired (Std >=0.5),All 14 Benchmarks,30540,81.39,5682,4012,70.6,4261,75.0,85.1
+All-17 Repaired (Std >=0.5),Non-MCQ (Open-Ended / OCR / Math),22659,81.62,4165,2765,66.4,2971,71.3,82.7
+All-17 Repaired (Std >=0.5),MCQ Benchmarks Only,7881,80.75,1517,1247,82.2,1290,85.0,91.7

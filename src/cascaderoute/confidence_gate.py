@@ -10,6 +10,7 @@ Reference:
 """
 from typing import Dict, Optional, Tuple, Any
 import numpy as np
+from sklearn.isotonic import IsotonicRegression
 
 
 MULTIMODAL_CHAINS = {
@@ -202,3 +203,89 @@ class ConfidenceGate:
             escalation_count += 1
 
         return res1, initial_action_name, escalation_count
+
+
+class CalibratedDeferralGate:
+    """Isotonic + Split-Conformal Calibrated Deferral Gate (Claim 5).
+
+    Replaces heuristic hand-tuned constants with a single Dev-calibrated threshold
+    tau_cal operating on isotonic-calibrated correctness probabilities p_hat(s_t, a)
+    and lower conformal UCB margin against fallback arm a* in F:
+
+        Escalate a_0 -> a* iff:
+            b_t > b_min  AND  (p_hat(a*) - p_hat_upper(a_0)) - gamma_cost * dc >= tau_cal
+
+    where p_hat_upper(a_0) = min(1, p_hat(a_0) + q_conf * sigma_{a_0}(s_t)) and
+    p_hat(a) is calibrated by non-parametric Isotonic Regression on Dev predictions.
+    """
+
+    def __init__(
+        self,
+        tau_cal: float = 0.04,
+        conformal_quantile: float = 0.25,
+        min_budget_frac: float = 0.10,
+        cost_tradeoff: float = 0.20,
+    ):
+        self.tau_cal = float(tau_cal)
+        self.q_conf = float(conformal_quantile)
+        self.min_budget_frac = float(min_budget_frac)
+        self.cost_tradeoff = float(cost_tradeoff)
+        self.iso: Optional[IsotonicRegression] = None
+
+    def fit_calibrator(self, dev_est_acc: np.ndarray, dev_true_y: np.ndarray, alpha_risk: float = 0.20):
+        """Fit isotonic probability calibrator & conformal residual quantile strictly on Dev."""
+        raw = np.asarray(dev_est_acc, dtype=np.float64).ravel()
+        y = np.asarray(dev_true_y, dtype=np.float64).ravel()
+        self.iso = IsotonicRegression(y_min=0.0, y_max=1.0, out_of_bounds="clip")
+        self.iso.fit(raw, y)
+        p_cal = self.iso.predict(raw)
+        # Split-conformal upper uncertainty quantile over positive prediction errors (y - p_cal)
+        pos_res = np.maximum(0.0, p_cal - y)
+        n = len(pos_res)
+        q_level = min(1.0, (1.0 - alpha_risk) * (n + 1.0) / max(1.0, float(n)))
+        self.conformal_margin = float(np.quantile(pos_res, q_level)) if n > 0 else 0.10
+        return self
+
+    def calibrate_probs(self, est_acc: np.ndarray) -> np.ndarray:
+        arr = np.asarray(est_acc, dtype=np.float64)
+        if self.iso is None:
+            return np.clip(arr, 0.0, 1.0)
+        return self.iso.predict(arr)
+
+    def decide_escalation(
+        self,
+        primary_arm: int,
+        preds: np.ndarray,
+        uncs: np.ndarray,
+        fallback_arms: Tuple[int, ...],
+        arm_cost_penalty: Optional[np.ndarray] = None,
+        observed_out_tokens: Optional[float] = None,
+        budget_fraction: float = 1.0,
+    ) -> Tuple[int, bool, float]:
+        """Single-threshold calibrated deferral decision. Returns (chosen_arm, did_escalate, expected_gain)."""
+        if budget_fraction <= self.min_budget_frac or not fallback_arms:
+            return primary_arm, False, 0.0
+
+        est_acc = preds if arm_cost_penalty is None else (preds + arm_cost_penalty)
+        cal_probs = self.calibrate_probs(est_acc)
+
+        # If observed compact output length exceeds concise perception envelope (>20 tok), widen uncertainty bonus
+        len_penalty = 0.04 if (observed_out_tokens is not None and observed_out_tokens > 20.0) else 0.0
+        p0_upper = min(1.0, float(cal_probs[primary_arm]) + self.q_conf * float(uncs[primary_arm]) - len_penalty)
+
+        best_alt = primary_arm
+        best_score = -np.inf
+        for alt in fallback_arms:
+            if alt == primary_arm:
+                continue
+            dc = 0.0
+            if arm_cost_penalty is not None:
+                dc = max(0.0, float(arm_cost_penalty[alt]) - float(arm_cost_penalty[primary_arm]))
+            gain = float(cal_probs[alt]) - p0_upper - self.cost_tradeoff * dc
+            if gain > best_score:
+                best_score = gain
+                best_alt = int(alt)
+
+        if best_alt != primary_arm and best_score >= self.tau_cal:
+            return best_alt, True, float(best_score)
+        return primary_arm, False, float(max(0.0, best_score))

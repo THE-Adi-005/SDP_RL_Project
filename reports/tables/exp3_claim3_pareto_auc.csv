@@ -1,0 +1,9 @@
+Method,"Pareto Cost-AUC ($0.05-0.28/1k, %)","Pareto Latency-AUC (0.3-1.9s, %)",Peak Acc (%)
+MLP-Reward (MSE),78.89,76.75,81.2
+KNN-Reward,78.81,77.37,80.29
+MLP-BCE,78.66,75.54,81.04
+Greedy-WarmStart,78.18,76.96,80.37
+CascadeRoute-VL,78.15,76.96,80.42
+ARMS,77.27,76.38,80.14
+Offline-Linear,77.24,74.01,79.68
+Static-17-VLMs,74.54,74.1,77.29

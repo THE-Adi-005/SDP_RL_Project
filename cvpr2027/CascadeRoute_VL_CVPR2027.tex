@@ -1,26 +1,28 @@
 \documentclass[10pt,twocolumn,letterpaper]{article}
 
 \usepackage[review]{cvpr}
-\usepackage{times}
-\usepackage{graphicx}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{enumitem}
 \usepackage{placeins}
-\usepackage[pagebackref,breaklinks,colorlinks]{hyperref}
+\usepackage[breaklinks,colorlinks]{hyperref}
 
-\setlist[itemize]{leftmargin=1.2em,itemsep=1pt,topsep=2pt,parsep=0pt}
-\setlist[enumerate]{leftmargin=1.3em,itemsep=1pt,topsep=2pt,parsep=0pt}
-\setlength{\textfloatsep}{7pt plus 1.5pt minus 1.5pt}
-\setlength{\floatsep}{5pt plus 1.5pt minus 1.5pt}
-\setlength{\dbltextfloatsep}{7pt plus 1.5pt minus 1.5pt}
-\setlength{\dblfloatsep}{5pt plus 1.5pt minus 1.5pt}
-\setlength{\abovecaptionskip}{3.5pt plus 1pt minus 1pt}
+\setlist[itemize]{leftmargin=1.2em,itemsep=0.5pt,topsep=1pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.3em,itemsep=0.5pt,topsep=1pt,parsep=0pt}
+\setlength{\textfloatsep}{4.5pt plus 1.5pt minus 1.5pt}
+\setlength{\floatsep}{4pt plus 1.5pt minus 1.5pt}
+\setlength{\dbltextfloatsep}{4.5pt plus 1.5pt minus 1.5pt}
+\setlength{\dblfloatsep}{4pt plus 1.5pt minus 1.5pt}
+\setlength{\abovecaptionskip}{2pt plus 1pt minus 1pt}
 \setlength{\belowcaptionskip}{0pt}
+\renewcommand{\topfraction}{0.94}
+\renewcommand{\dbltopfraction}{0.94}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.88}
+\renewcommand{\dblfloatpagefraction}{0.88}
+\setlength{\abovedisplayskip}{4pt plus 1pt minus 1pt}
+\setlength{\belowdisplayskip}{4pt plus 1pt minus 1pt}
 
 \hypersetup{
   pdfkeywords={Vision-Language Models, Model Routing, Contextual Bandits, Multimodal Reasoning, Test-Time Compute Scaling, Efficient Inference}
@@ -42,7 +44,7 @@ Paper ID: \paperID
 \maketitle
 
 \begin{abstract}
-Deploying Vision-Language Models (VLMs) at scale faces a critical accuracy-efficiency trade-off: compact models are fast but struggle on complex multi-step reasoning, whereas defaulting to massive frontier architectures or heavy test-time reasoning strategies incurs a Reasoning Tax---inflating token expenditure and latency while degrading performance on perception-dominant queries due to linguistic hallucination drift. Analyzing 30,540 multimodal queries across 14 diverse benchmarks and 17 contemporary VLMs (spanning 1B to 78B parameters and proprietary models), we observe a +17.24\% accuracy gap between the strongest static 72B frontier model (78.21\%) and an oracle selector (95.45\%), with compact ($\le 8\text{B}$) models accurately resolving 68.5\% of the queries on which the 72B model fails. To exploit this complementarity online without brittle offline retraining, we introduce \textbf{CascadeRoute-VL}, a contextual bandit routing framework that dynamically selects cost-efficient VLM configurations conditioned on joint visual, linguistic, and perceptual complexity cues (including luminance entropy, spatial edge density, and aspect ratio). CascadeRoute-VL employs Disjoint LinUCB with $O(d^2)$ Sherman-Morrison recursive updates, augmented with an offline \textbf{Warm-Start} initialization protocol to mitigate cold-start exploration penalties, \textbf{Budget-Aware Exploration Annealing} ($\alpha_t = \alpha_0 b_t$) with sublinear $\tilde{O}(d\sqrt{T})$ regret and asymptotic budget-feasibility guarantees, and a \textbf{Confidence-Guided Escalation Gate} to safeguard perception-critical predictions. Evaluations across large-scale multimodal benchmarks, distribution-shift stress tests (natural and STEM scenes to charts and dense OCR), and counterfactual Inverse Propensity Scoring (IPS/SNIPS) demonstrate that static offline supervised routers suffer severe out-of-distribution degradation without recovery, whereas CascadeRoute-VL continuously adapts online to achieve strong accuracy-efficiency trade-offs while substantially reducing token consumption and inference latency relative to monolithic frontier deployment.
+Deploying Vision-Language Models (VLMs) at scale faces a fundamental accuracy-efficiency trade-off: compact models are fast but struggle on complex multi-step reasoning, whereas defaulting to massive frontier architectures or unconstrained test-time reasoning incurs a \emph{Multimodal Reasoning Tax}---inflating token consumption and latency while degrading performance on perception-dominant queries due to linguistic drift. Analyzing 30,540 multimodal queries across 14 benchmarks and 17 VLMs, we observe a +17.24\% accuracy gap between static 72B frontier deployment (78.21\% full-set, 77.29\% on held-out Test $N{=}6{,}108$) and a hindsight oracle selector (95.45\%), with compact ($\le 8\text{B}$) models resolving 63.2\% of 72B failures (and 57.6\% on strictly non-MCQ open-ended tasks where random chance is near zero). To exploit this complementarity online without domain labels or brittle retraining, we introduce \textbf{CascadeRoute-VL}, an online contextual bandit routing framework. CascadeRoute-VL unites three key mechanisms: (i)~Disjoint LinUCB over bounded $896$-d multimodal representations with an offline warm-start prior ($w_0{=}0.20$) and recursive $O(d^2)$ Sherman-Morrison updates; (ii)~a deterministic horizon-reserve safety guard (Proposition~1: $C_T \le B_{\max} + c_{\max}$, achieving 0/6 budget violations vs.\ 5/6 for Lagrangian Bandits-with-Knapsacks) with budget-aware exploration annealing ($\alpha_t = \max(\alpha_{\min}, \alpha_0 b_t)$); and (iii)~an optional calibrated deferral gate. Across held-out test queries ($N{=}6{,}108$), CascadeRoute-VL achieves 78.59\% accuracy (+1.30\% over static 72B, $p_{\text{Holm}} < 0.05$) while reducing inference spend by 38.7\%. Under severe distribution shift ($N_{\text{OOD}}{=}17{,}601$), CascadeRoute-VL continuously adapts online to reach 81.59\% (+4.79\% over periodic retraining, +10.14\% over online SGD) while cutting USD cost by 32.0\%--44.3\% vs.\ monolithic 72B, retaining robustness under sparse (25\%) and noisy (20\%) feedback.
 \end{abstract}
 
 % ============================================================================
@@ -50,30 +52,36 @@ Deploying Vision-Language Models (VLMs) at scale faces a critical accuracy-effic
 \label{sec:intro}
 % ============================================================================
 
-Deploying Vision-Language Models (VLMs) in production requires navigating a highly non-uniform cost-accuracy landscape across heterogeneous visual domains~\citep{huang2025vlrouterbench,bai2025qwen25vl,chen2024expanding}. Defaulting every incoming query to monolithic frontier models (such as 72B--78B open-weights checkpoints or proprietary APIs) or test-time reasoning architectures exacerbates compute expenditure while paradoxically harming fidelity on perception-heavy queries. Across 30,540 real queries from VL-RouterBench~\citep{huang2025vlrouterbench} spanning 14 benchmarks and 17 VLMs, \textbf{Qwen2.5-VL-72B} attains 78.21\% overall accuracy and fails on 6,655 queries. Crucially, a hindsight oracle over the 17-VLM pool reaches 95.45\% accuracy (\textbf{+17.24\% gap}), and compact models ($\le 8\text{B}$ parameters) successfully rescue \textbf{4,557 of those 6,655 failures (68.5\%)}.
+Deploying Vision-Language Models (VLMs) in production requires navigating a highly non-uniform cost-accuracy landscape across heterogeneous visual domains~\citep{huang2025vlrouterbench,bai2025qwen25vl,chen2024expanding}. Defaulting every incoming query to monolithic frontier models (72B--78B open-weights checkpoints or proprietary APIs) or unconstrained test-time reasoning exacerbates compute expenditure while paradoxically harming fidelity on perception-heavy queries. Across the full VL-RouterBench~\citep{huang2025vlrouterbench} matrix ($N{=}30{,}540$, 14 benchmarks $\times$ 17 VLMs), \textbf{Qwen2.5-VL-72B} attains 78.21\% overall accuracy (77.29\% on held-out Test $N{=}6{,}108$; 69.24\% on General+STEM In-Dist Test $N{=}2{,}523$) and fails on 6,655 full-set queries. While a raw 17-arm hindsight oracle reaches 95.45\% (\textbf{+17.24\%} full-set gap), an independent-chance union control yields 99.99\%, reminding us that raw multi-arm oracles inflate under many arms; genuine complementarity instead manifests in \emph{specific failure rescues}---strictly dense $\le 8\text{B}$ models solve \textbf{63.2\%} (4,209/6,655 all tasks; \textbf{57.6\%} or 2,962/5,138 strictly non-MCQ open-ended queries) of 72B failures, rising to \textbf{68.5\%} (all) / \textbf{63.6\%} (non-MCQ) when adding 3B-active MoE \texttt{Kimi-VL-A3B} (16B total).
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.93\textwidth]{../reports/figures/fig1_reasoning_tax_teaser.png}
-\caption{\textbf{The Multimodal Reasoning Tax and Cross-Model Complementarity Across 30,540 Real Queries (14 Benchmarks $\times$ 17 VLMs).} \emph{Left (Top):} On OCRBench~\#314, compact \texttt{Qianfan-VL-8B} correctly reads cab number ``Y809'' in 7 tokens while \texttt{Qwen2.5-72B} (17 tok), \texttt{Kimi-Think} (39 tok), and \texttt{MiMo-VL-RL} (136 tok) over-rationalize and misread the fleet phone number or hallucinate. \emph{Left (Bottom):} On MathVista~\#897, compact models guess incorrectly in 1--5 tokens and \texttt{Qwen2.5-72B} confuses $\cos J$ with $\sin J$, whereas reasoning specialist \texttt{Kimi-VL-A3B-Thinking} solves the trigonometry exactly in 178 tokens. \emph{Right:} Across all 14 benchmarks, compact perception models excel on Charts/OCR (green box) while explicit \texttt{<think>} loops suffer severe extraction failures (dashed orange boxes on \texttt{MiMo-VL-7B-RL}).}
+\includegraphics[width=0.70\textwidth]{../reports/figures/fig1_reasoning_tax_teaser.png}
+\caption{\textbf{The Multimodal Reasoning Tax and Cross-Model Complementarity (Full VL-RouterBench, $N{=}30{,}540$).} \emph{Left (Top):} On OCRBench~\#314, dense \texttt{Qianfan-VL-8B} correctly reads ``Y809'' in 7 tokens while \texttt{Qwen2.5-72B} (17 tok), \texttt{Kimi-Think} (39 tok), and \texttt{MiMo-VL-RL} (136 tok) over-rationalize or hallucinate. \emph{Left (Bottom):} On MathVista~\#897, compact perception models guess wrong and \texttt{Qwen2.5-72B} confuses $\cos J$ with $\sin J$, whereas reasoning specialist \texttt{Kimi-VL-A3B-Thinking} solves the trigonometry in 178 tokens. \emph{Right:} Across 14 benchmarks, compact perception excels on Charts/OCR (green box) while unstripped \texttt{<think>} chains cause upstream 0.0\% extraction failures on \texttt{MiMo-VL-7B-RL} (dashed orange; repaired to 74.2\%--88.7\% once \texttt{<think>} is stripped).}
 \label{fig:teaser}
 \end{figure*}
 
-Figure~\ref{fig:teaser} exposes the two opposing facets of this \textbf{Multimodal Reasoning Tax}. On STEM geometry and algorithmic counting problems (\eg, \texttt{MathVerse}, \texttt{MathVision}, \texttt{MathVista}~\citep{lu2024mathvista,zhang2024mathverse}), explicit reasoning yields decisive accuracy gains: 3B-active \texttt{Kimi-VL-A3B-Thinking}~\citep{kimi2025kimivl} reaches 79.6\% on \texttt{MathVista} and 47.0\% on \texttt{MathVision}, beating 72B \texttt{Qwen2.5-VL} (73.9\% and 38.8\%). Conversely, on fine-grained optical character recognition and visual grounding (\eg, \texttt{OCRBench}, \texttt{ChartQA}, \texttt{DocVQA}, \texttt{HallusionBench}~\citep{liu2024ocrbench,masry2022chartqa,mathew2021docvqa,guan2024hallusionbench}), unconstrained chain-of-thought reasoning frequently amplifies linguistic hallucination drift~\citep{shoby2026overthinking}: compact \texttt{Qianfan-VL-8B}~\citep{dong2025qianfanvl} delivers 86.5\% on \texttt{ChartQA} and 87.4\% on \texttt{DocVQA} using just 1.2--2.7 output tokens, while unconstrained \texttt{<think>} models burn dozens to hundreds of tokens and can even exhaust downstream answer extraction.
+Figure~\ref{fig:teaser} exposes two opposing facets of this \textbf{Multimodal Reasoning Tax}. On STEM geometry and algorithmic counting problems (\eg, \texttt{MathVerse}, \texttt{MathVision}, \texttt{MathVista}~\citep{lu2024mathvista,zhang2024mathverse}), explicit reasoning yields decisive accuracy gains: 3B-active/16B-total \texttt{Kimi-VL-A3B-Thinking}~\citep{kimi2025kimivl} reaches 79.6\% on \texttt{MathVista} and 47.0\% on \texttt{MathVision}, beating 72B \texttt{Qwen2.5-VL} (73.9\% and 38.8\%). Conversely, on fine-grained optical character recognition and visual grounding (\eg, \texttt{OCRBench}, \texttt{ChartQA}, \texttt{DocVQA}, \texttt{HallusionBench}~\citep{liu2024ocrbench,masry2022chartqa,mathew2021docvqa,guan2024hallusionbench}), unconstrained chain-of-thought reasoning can amplify linguistic hallucination drift~\citep{shoby2026overthinking}: compact \texttt{Qianfan-VL-8B}~\citep{dong2025qianfanvl} delivers 86.5\% on \texttt{ChartQA} and 87.4\% on \texttt{DocVQA} using just 1.2--2.7 output tokens, while unconstrained reasoning models emit hundreds of tokens and risk extraction errors.
 
 Existing routing solutions struggle to harness this complementarity safely under real deployment dynamics:
 \begin{enumerate}
-    \item \textbf{Static Offline Fragility:} Multi-label supervised routers in VL-RouterBench~\citep{huang2025vlrouterbench} and capability-profile classifiers such as ARMS~\citep{wang2026arms} assume stationary query distributions. In our strict cross-domain stress test (\texttt{General\_VQA + STEM} $\to$ unseen \texttt{Charts\_OCR + Hallucination}), a strong neural \texttt{MLP-Router} collapses from 72.77\% to \textbf{56.97\%} (\textbf{-15.80\%}) and never recovers.
-    \item \textbf{Cold-Start Penalty \& Blindness to Perceptual Difficulty:} Naive online bandits suffer severe initial exploration regret (\eg, Cold LinUCB loses 5.91\% accuracy and costs +101\% more USD than our hybrid design), while text-only routers~\citep{ong2025routellm,chen2023frugalgpt} ignore visual complexity.
-    \item \textbf{Benchmark Label Leakage:} Conditioning router features on oracle task/domain tags leaks benchmark identity during evaluation, masking failure modes when mixed real-world traffic arrives unlabelled.
+    \item \textbf{Static Offline Fragility:} Multi-label supervised routers in VL-RouterBench~\citep{huang2025vlrouterbench} and capability-profile classifiers such as ARMS~\citep{wang2026arms} assume stationary query distributions. In our cross-domain stress test (\texttt{General\_VQA + STEM} $\to$ unseen \texttt{Charts\_OCR + Hallucination}, $N_{\text{OOD}}{=}17{,}601$), a strong neural \texttt{MLP-Router} collapses from 72.77\% to \textbf{56.97\%} (\textbf{-15.80\%}) and cannot adapt under gradual drift, price shocks, or test-time model onboarding.
+    \item \textbf{Cold-Start Penalty \& Heuristic Feature Fragility:} Naive online bandits suffer severe initial exploration regret over $K{=}17$ arms (\eg, Cold LinUCB loses 5.91\% accuracy and costs +101\% more USD than our warm-start design), while adding handcrafted perceptual cues helps cold start marginally yet significantly degrades cross-domain transfer ($-2.41\%$, $p{=}0.0002$).
+    \item \textbf{Domain-Label Dependence \& Budget Overruns:} Conditioning on oracle task/domain tags requires brittle classification heads, while unconstrained exploration or soft Lagrange pacing violates tight session USD budgets.
 \end{enumerate}
 
-We resolve these limitations with \textbf{CascadeRoute-VL}, an online, zero-label contextual bandit router uniting four synergistic mechanisms:
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.69\textwidth]{../reports/figures/fig2_architecture.png}
+\caption{\textbf{CascadeRoute-VL Architecture.} Input image-question pairs are encoded into a domain-label-free bounded context vector $s_t$ ($\|s_t\|_2 \le 0.997 < 1$; default $896$-d Text+Vision after cutting 8 OOD-fragile cues, vs.\ $904$-d ablation) fusing MiniLM-L6 text and dual-scale DINOv2+ResNet-50 vision embeddings. Warm-started Disjoint/Discounted LinUCB with deterministic horizon-reserve budget control ($C_T \le B_{\max} + c_{\max}$) scores arms, while an optional calibrated deferral gate ($Dev$ isotonic/conformal $\tau_{\text{cal}}$) safeguards compact-primary tiers before executed-arm $O(d^2)$ Sherman-Morrison updates adapt online.}
+\label{fig:architecture}
+\end{figure*}
+
+We resolve these limitations with \textbf{CascadeRoute-VL}, an online contextual bandit routing framework uniting three core contributions:
 \begin{itemize}
-    \item \textbf{Zero-Leakage 904-d Multimodal Context State:} Fuses MiniLM-L6 text embeddings~\citep{wang2020minilm}, dual-scale DINOv2-ViT-S/14~\citep{oquab2024dinov2} + orthogonally projected ResNet-50~\citep{he2016deep} visual representations, and 8 unsupervised perceptual/linguistic complexity cues (entropy, Sobel edge density, aspect ratio, bright background ratio, symbolic cues) with provably bounded norm ($\|s_t\|_2 \le 0.9972$, max $0.8943 < 1$ empirically).
-    \item \textbf{Warm-Started Disjoint LinUCB with Budget Annealing:} Combines $O(d^2)$ Sherman-Morrison recursive updates initialized via an offline ridge prior with dynamic budget-annealed exploration ($\alpha_t = \alpha_0 b_t$), attaining sublinear $\tilde{\mathcal{O}}(d\sqrt{KT})$ regret and asymptotic budget feasibility while adapting rapidly to distribution shifts.
-    \item \textbf{Confidence-Guided Escalation Gate:} Evaluates compact primary selections using epistemic uncertainty $\sigma_a(s_t)$, cost-adjusted utility margins, unsupervised edge/math cues, and compact response-length bloat checks without peeking at ground-truth labels.
-    \item \textbf{Large-Scale Rigor on 30,540 Real Queries:} Across 17 contemporary VLMs and 14 benchmarks, CascadeRoute-VL outperforms \texttt{Qwen2.5-VL-72B} by \textbf{+1.30\%} accuracy while cutting USD cost by \textbf{38.7\%} (up to \textbf{66.4\%} USD savings and \textbf{2.38$\times$} latency speedup in frugal mode), surpasses OOD \texttt{MLP-Router} within \textbf{$\sim$51} unseen queries (ending \textbf{+23.71\%} higher at 80.68\%), and passes unbiased IPS/SNIPS/DR counterfactual evaluation with 95\% bootstrap confidence intervals.
+    \item \textbf{Domain-Label-Free Multimodal State \& Prior Decay:} Fuses MiniLM-L6 text~\citep{wang2020minilm} and dual-scale DINOv2-ViT-S/14~\citep{oquab2024dinov2} + orthogonally projected ResNet-50~\citep{he2016deep} embeddings with bounded norm ($\|s_t\|_2 \le 0.7433 < 1$; $896$-d default). Offline warm-start regularization ($w_0{=}0.20$) eliminates cold-start penalties, while online Sherman-Morrison $O(d^2)$ updates guarantee rapid $\mathcal{O}(w_0/(\lambda + n_{t,a}))$ stale prior decay under shift.
+    \item \textbf{Deterministic Budget Guardrail \& Theoretical Regret:} Introduces a deterministic horizon reserve (Proposition~1: $C_T \le B_{\max} + c_{\max}$, achieving $0/6$ budget violations vs.\ $5/6$ for Lagrangian Bandits-with-Knapsacks) paired with budget-aware exploration annealing ($\alpha_t = \max(\alpha_{\min}, \alpha_0 b_t)$) with explicit finite-time elliptical potential bounds (Theorem~1).
+    \item \textbf{Comprehensive Evaluation Across 30,540 Queries, Shift, \& Edge Hardware:} Evaluated across 14 benchmarks, 17 VLMs, and external AMBER~\citep{wang2024amber}. Delivers +1.30\% accuracy over static 72B on held-out test ($N{=}6{,}108$) at 38.7\% lower USD cost, outperforms all online adaptive neural baselines under distribution shift (+4.79\% over periodic retraining, +10.14\% over online SGD), and remains robust under sparse (25\%) and noisy (20\%) feedback.
 \end{itemize}
 
 % ============================================================================
@@ -85,53 +93,90 @@ We resolve these limitations with \textbf{CascadeRoute-VL}, an online, zero-labe
 
 \textbf{Multimodal Overthinking and Perceptual Grounding.} Recent analyses show that excessive test-time reasoning in VLMs can degrade accuracy by amplifying linguistic priors over grounded visual evidence~\citep{shoby2026overthinking}. Our large-scale matrix study across 17 VLMs---including explicit thinking architectures (\texttt{Kimi-VL-A3B-Thinking}~\citep{kimi2025kimivl}, \texttt{MiMo-VL-7B-RL}~\citep{xiaomi2025mimovl}) and perception-specialized compact models (\texttt{Qianfan-VL-8B}~\citep{dong2025qianfanvl}, \texttt{DeepSeek-VL2-Tiny}~\citep{wu2024deepseekvl2})---quantifies this dichotomy across reasoning-intensive STEM~\citep{lu2024mathvista,zhang2024mathverse,kembhavi2016ai2d} and OCR/hallucination~\citep{liu2024ocrbench,singh2019textvqa,guan2024hallusionbench} benchmarks. Rather than modifying VLM weights, CascadeRoute-VL mitigates the Reasoning Tax upfront at routing time.
 
-\textbf{Contextual Bandits and Counterfactual Evaluation.} Disjoint LinUCB~\citep{li2010contextual} and confidence-ellipsoid linear bandits~\citep{abbasi2011improved} provide sharp sublinear regret bounds compared to classic non-contextual bandits~\citep{auer2002ucb} and deep heuristic policies~\citep{mnih2015dqn,agrawal2013thompson}. To validate routed policies cleanly from logged feedback without selection bias, Inverse Propensity Scoring (IPS), Self-Normalized IPS (SNIPS)~\citep{swaminathan2015self}, and Doubly Robust (DR) estimators~\citep{dudik2011doubly} provide finite-sample counterfactual confidence intervals, which we report alongside live online evaluations.
+\textbf{Contextual Bandits and Budgeted Learning.} Disjoint LinUCB~\citep{li2010contextual} and confidence-ellipsoid linear bandits~\citep{abbasi2011improved} provide finite-time regret guarantees compared to non-contextual bandits~\citep{auer2002ucb} and deep heuristic policies~\citep{mnih2015dqn,agrawal2013thompson}, while neural variants (\texttt{NeuralUCB}~\citep{zhou2020neuralucb}, \texttt{NeuralTS}~\citep{zhang2021neuralts}) trade closed-form speed for nonlinear representations. For non-stationary streams, exponentially discounted and sliding-window linear bandits~\citep{garivier2011discounted} track shifting rewards, and Bandits-with-Knapsacks (BwK)~\citep{agrawal2016bwk} address global budget constraints in expectation via primal-dual pacing. To validate policies without selection bias when only logged bandit data exist, IPS, SNIPS~\citep{swaminathan2015self}, and Doubly Robust (DR)~\citep{dudik2011doubly} estimators provide counterfactual confidence intervals (reported in Supplementary Sec.~S4).
 
 % ============================================================================
 \section{Quantifying the Multimodal Reasoning Tax}
 \label{sec:tax}
 % ============================================================================
 
-We analyze the complete outcome tensor $Y \in \{0,1\}^{N \times K}$ over $N = 30{,}540$ standardized queries across 14 benchmarks spanning four domains---\texttt{STEM} (\texttt{AI2D}, \texttt{MathVista}, \texttt{MathVerse}, \texttt{MathVision}; $N{=}8{,}332$), \texttt{General\_VQA} (\texttt{MMBench}, \texttt{MMMU}, \texttt{MMStar}, \texttt{RealWorldQA}; $N{=}4{,}607$~\citep{liu2024mmbench,yue2024mmmu,chen2024mmstar}), \texttt{Hallucination} (\texttt{HallusionBench}; $N{=}951$), and \texttt{Charts\_OCR} (\texttt{ChartQA}, \texttt{DocVQA}, \texttt{InfoVQA}, \texttt{OCRBench}, \texttt{TextVQA}; $N{=}16{,}650$~\citep{mathew2022infographicvqa,singh2019textvqa})---paired with $K=17$ VLMs from 1B to 78B parameters and proprietary APIs (\texttt{GPT-4o}, \texttt{GeminiFlash2.5}). Per-query costs and latencies are reconstructed directly from the $238$ raw inference transcripts using \texttt{cl100k\_base} tokenization ($+256$ visual tokens per image) and benchmark pricing (profiles in Supplementary Sec.~S2).
+We analyze the complete outcome tensor $Y \in \{0,1\}^{N \times K}$ over $N = 30{,}540$ standardized queries across 14 benchmarks spanning four domains---\texttt{STEM} (\texttt{AI2D}, \texttt{MathVista}, \texttt{MathVerse}, \texttt{MathVision}; $N{=}8{,}332$), \texttt{General\_VQA} (\texttt{MMBench}, \texttt{MMMU}, \texttt{MMStar}, \texttt{RealWorldQA}; $N{=}4{,}607$~\citep{liu2024mmbench,yue2024mmmu,chen2024mmstar}), \texttt{Hallucination} (\texttt{HallusionBench}; $N{=}951$), and \texttt{Charts\_OCR} (\texttt{ChartQA}, \texttt{DocVQA}, \texttt{InfoVQA}, \texttt{OCRBench}, \texttt{TextVQA}; $N{=}16{,}650$~\citep{mathew2022infographicvqa,singh2019textvqa})---paired with $K=17$ VLMs from 1B to 78B parameters and proprietary APIs (\texttt{GPT-4o}, \texttt{GeminiFlash2.5}). Per-query costs and latencies follow standardized VL-RouterBench pricing and \texttt{cl100k\_base} tokenization ($+256$ visual tokens per image; profiles in Supplementary Sec.~S2).
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.88\textwidth]{../reports/figures/fig2_architecture.png}
-\caption{\textbf{CascadeRoute-VL Architecture.} Input image-question pairs are encoded into a strictly zero-leakage 904-d context vector $s_t$ ($\|s_t\|_2 \le 0.9972$ analytically, max $0.8943 < 1$ empirically) fusing MiniLM-L6 text semantics, dual-scale DINOv2+ResNet-50 vision embeddings, and 8 unsupervised perceptual/linguistic cues. Budget-annealed Disjoint LinUCB initialized from an offline warm-start prior scores all 17 VLM arms, while the Confidence Gate safeguards uncertain compact predictions before real-time Sherman-Morrison $O(d^2)$ online updates refine policy weights under distribution shift.}
-\label{fig:architecture}
-\end{figure*}
-
-Three structural properties motivate online multimodal routing:
+Four structural properties motivate online multimodal routing:
 \begin{enumerate}
-    \item \textbf{Massive Untapped Complementarity (+17.24\% Gap):} While \texttt{Qwen2.5-VL-72B} leads all individual models at 78.21\% overall accuracy (\$0.2626/1k queries), an oracle arm selector reaches \textbf{95.45\%}, rescuing 5,266 of the 6,655 frontier failures (79.1\%). Crucially, compact models ($\le 8\text{B}$) solve \textbf{68.5\%} (4,557/6,655) of 72B failures---led by \texttt{Kimi-VL-A3B-Thinking} (2,324 rescues), \texttt{Qianfan-VL-8B} (1,789), and \texttt{DeepSeek-VL2-Tiny} (1,689).
-    \item \textbf{Reasoning Inversion Under Perception Load:} On \texttt{Charts\_OCR}, concise perception specialists dominate: \texttt{Qianfan-VL-8B} achieves 86.48\% on \texttt{ChartQA} (1.2 avg output tokens), 87.42\% on \texttt{DocVQA} (2.7 tok), and 85.70\% on \texttt{OCRBench} (4.6 tok), closely rivaling 72B at $\sim 5\times$ lower cost and $\sim 8.8\times$ lower latency. Conversely, verbose reasoning degrades perceptual precision (Fig.~\ref{fig:teaser}a) or causes complete downstream format/length breakdown: \texttt{MiMo-VL-7B-RL} generates \texttt{<think>} chains on 100\% of queries (mean 237.4 output tokens) and scores \textbf{0.0\%} extracted accuracy across four OCR benchmarks (\texttt{ChartQA}, \texttt{DocVQA}, \texttt{InfoVQA}, \texttt{TextVQA}).
-    \item \textbf{Visual/Text Complexity Signals Enable Zero-Label Routing:} Unsupervised cues cleanly separate regimes without ground-truth domain tags: math benchmarks exhibit low luminance entropy (2.00--3.72 bits), high white-background ratios (0.60--0.89), and elevated symbolic density (0.27--0.36), whereas natural scene OCR (\texttt{TextVQA}) shows high entropy (7.10 bits) and dense edge structure.
+    \item \textbf{Failure Rescues \& Chance-Corrected Oracle Check:} On the full set ($N{=}30{,}540$), \texttt{Qwen2.5-VL-72B} achieves 78.21\% (Test $N{=}6{,}108$: 77.29\%; In-Dist Test $N{=}2{,}523$: 69.24\%) and fails on 6,655 queries. While a hindsight 17-arm oracle reaches 95.45\% (\textbf{+17.24\%} raw gap), an independent-chance control yields \textbf{99.99\%}, showing that raw multi-arm oracles inflate by chance under 17 arms. Genuine complementarity lies in \emph{specific failure rescues}: strictly \textbf{dense $\le 8\text{B}$} models solve \textbf{63.2\%} (4,209/6,655 all; \textbf{57.6\%} or 2,962/5,138 strictly non-MCQ open-ended queries where chance guessing is $\approx 0\%$) of 72B failures, rising to \textbf{68.5\%} all / \textbf{63.6\%} non-MCQ with 3B-MoE \texttt{Kimi-VL-A3B}. `Qianfan-8B` alone rescues 38.2\% of 72B failures overall (and up to 72.6\% on OCRBench).
+    \item \textbf{Reasoning Inversion \& Data Hygiene Note:} On \texttt{Charts\_OCR}, concise dense models dominate: \texttt{Qianfan-VL-8B} attains 86.48\% on \texttt{ChartQA} (1.2 out tok), 87.42\% on \texttt{DocVQA} (2.7 tok), and 85.70\% on \texttt{OCRBench} (4.6 tok) at $\sim 5\times$ lower cost than 72B. Crucially, upstream VL-RouterBench logs registered 0.0\% for \texttt{MiMo-VL-7B-RL} across four OCR tasks due to an \textbf{unstripped \texttt{<think>} regex parser bug} in VLMEvalKit. Once repaired, \texttt{MiMo} reaches 74.2\%--88.7\% (DocVQA 87.1\%, InfoVQA 66.3%, ChartQA 73.0%; global 77.76\%). We report all main benchmark evaluations on the repaired ground truth so that results reflect genuine model capabilities rather than parser bugs.
+    \item \textbf{Same-Backbone Verification:} To eliminate data confounding, our live GPU study on \texttt{Qwen3-VL-2B} (Sec.~\ref{sec:configs_latency}) isolates the Reasoning Tax on a single architecture.
+    \item \textbf{Domain-Label-Free Foundation Embeddings ($d{=}896$):} Frozen text+vision embeddings (896-d) capture routing structure without task/dataset IDs; retaining the 8 handcrafted cues ($d{=}904$) is evaluated as an explicit ablation (Sec.~\ref{sec:ablations}), showing they hurt OOD transfer ($-2.41\%$).
 \end{enumerate}
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\renewcommand{\arraystretch}{0.83}
+\caption{\textbf{Held-Out Test Benchmark \& Matched-Cost Pareto AUC ($N{=}6{,}108$, 17 VLMs, 5 Seeds 42--46, Mean $\pm$ Std).} CascadeRoute-VL ($\gamma{=}0.08$) beats static 72B (+1.30\%, 95\% CI $[+0.23, +2.14]$, Holm-adjusted $p_{\text{Holm}} < 0.05$) with 38.7\% USD savings, beats \texttt{NeuralUCB}/\texttt{NeuralTS} by +2.62\%/+3.57\%, and achieves 78.15\% Cost-AUC.}
+\label{tab:main_benchmark}
+\resizebox{0.98\textwidth}{!}{%
+\begin{tabular}{llccccccc}
+\toprule
+\textbf{Algorithm} & \textbf{Category} & \textbf{Test Raw (\%)} & \textbf{5-Split CV (\%)} & \textbf{Lat (s)} & \textbf{Cost / 1k (\$)} & \textbf{Cost-AUC / Lat-AUC} & \textbf{CR Gain $\Delta$ (\%)} \\
+\midrule
+\texttt{InternVL2.5-78B}~\citep{chen2024expanding} & Static Frontier & 76.63 & 76.63 $\pm$ 0.48 & 1.348 & \$0.3020 & 73.20 / 72.85 & $+1.96\%^*$ \\
+\texttt{Qwen2.5-VL-72B}~\citep{bai2025qwen25vl} & Static Frontier & 77.29 & 78.21 $\pm$ 0.53 & 1.959 & \$0.2605 & 74.54 / 74.10 & $+1.30\%^*$ \\
+\texttt{Per-Domain Best Static} & Oracle Domain & 78.11 & --- & 1.088 & \$0.1868 & --- & $+0.48\%$ \\
+\texttt{Kimi-VL-3B-Think} & 3B-MoE (16B) & 72.86 & --- & 0.741 & \$0.0699 & (Static Pool) & $+5.73\%^*$ \\
+\texttt{Qianfan-VL-8B} & Dense $\le$8B & 69.88 & --- & 0.228 & \$0.0511 & (Static Pool) & $+8.71\%^*$ \\
+\texttt{Cost-Matched Random Mix} & Baseline & 73.10 & --- & 0.985 & \$0.1598 & --- & $+5.49\%^*$ \\
+\midrule
+\texttt{Offline-Linear} & Offline & 78.21 & --- & 1.721 & \$0.1777 & 77.24 / 74.01 & $+0.38\%$ \\
+\texttt{KNN-Reward} (cost-aware) & Offline & 78.19 & --- & 1.242 & \$0.1134 & 78.81 / \textbf{77.37} & $+0.40\%$ \\
+\texttt{ARMS-Router}~\citep{wang2026arms} & Offline & 78.80 & --- & 1.306 & \$0.2190 & 77.27 / 76.38 & $-0.21\%$ \\
+\texttt{MLP-Router (BCE)}~\citep{huang2025vlrouterbench} & Offline & \textbf{79.81} & \textbf{80.61 $\pm$ 0.66} & 1.845 & \$0.1858 & 78.66 / 75.54 & $-1.22\%$ \\
+\texttt{MLP-Reward (MSE)} & Offline & 79.65 & --- & 1.806 & \$0.1790 & \textbf{78.89} / 76.75 & $-1.06\%$ \\
+\midrule
+\texttt{FrugalGPT-Cascade} (Calibrated) & Cascade & 76.45 & --- & 1.620 & \$0.1610 & --- & $+2.14\%^*$ \\
+\texttt{LinUCB (Cold Online)} & Online Bandit & 72.68 $\pm$ 1.71 & --- & 1.535 & \$0.3220 & --- & $+5.91\%^*$ \\
+\texttt{MHR-Router}~\citep{zhu2026mhr} & Retr. Bandit & 71.48 $\pm$ 0.51 & --- & 1.333 & \$0.1247 & --- & $+7.11\%^*$ \\
+\texttt{NeuralUCB} (Warm+On)~\citep{zhou2020neuralucb} & Neural Bandit & 75.97 $\pm$ 0.74 & --- & 1.756 & \$0.1925 & --- & $+2.62\%^*$ \\
+\texttt{NeuralTS} (Warm+On)~\citep{zhang2021neuralts} & Neural Bandit & 75.02 $\pm$ 1.01 & --- & 1.771 & \$0.1721 & --- & $+3.57\%^*$ \\
+\texttt{Greedy Warm-Start} ($\alpha{=}0$) & Bandit & 78.52 $\pm$ 0.22 & 79.60 $\pm$ 0.58 & 1.542 & \$0.1593 & 78.18 / 76.96 & $+0.07\%$ \\
+\midrule
+\textbf{CascadeRoute-VL (Frugal $\gamma{=}0.30$)} & \textbf{Proposed} & 76.13 $\pm$ 0.21 & --- & \textbf{0.824} & \textbf{\$0.0876} & (on frontier) & $+2.46\%^*$ \\
+\textbf{CascadeRoute-VL ($\gamma{=}0.08$)} & \textbf{Proposed} & \textbf{78.59 $\pm$ 0.12} & 79.56 $\pm$ 0.56 & 1.550 & \$0.1598 & 78.15 / 76.96 & \textbf{Reference} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
 
 % ============================================================================
 \section{CascadeRoute-VL Framework}
 \label{sec:method}
 % ============================================================================
 
-Figure~\ref{fig:architecture} illustrates the complete routing loop. At discrete step $t \in \{1,\dots,T\}$, an unlabelled multimodal query $(I_t, Q_t)$ arrives without task or dataset identifiers. The router chooses an arm $a_t \in \mathcal{A} = \{1,\dots,K\}$ ($K{=}17$), executes inference to observe correctness $y_{t,a_t} \in \{0,1\}$, USD cost $c_{t,a_t} \ge 0$, and output length $o_{t,a_t}$, and updates its contextual posterior online.
+Figure~\ref{fig:architecture} illustrates the complete routing loop. At discrete step $t \in \{1,\dots,T\}$, an unlabelled multimodal query $(I_t, Q_t)$ arrives without task or dataset identifiers. The router chooses a VLM arm or configuration $a_t \in \mathcal{A} = \{1,\dots,K\}$, executes inference to observe \textbf{executed-arm bandit feedback} $(y_{t,a_t}, c_{t,a_t}, o_{t,a_t})$, and updates only the executed arm's posterior online (except under dual-arm escalation, where both queried arms are explicitly observed and billed).
 
-\subsection{Zero-Leakage Multimodal Context State}
+\subsection{Domain-Label-Free Multimodal Context State}
 \label{sec:state}
 
-To satisfy norm boundedness required for linear bandit concentration guarantees while preventing benchmark leakage, we construct $s_t \in \mathbb{R}^{d}$ ($d{=}904$) purely from the raw input pair $(I_t, Q_t)$:
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.63\textwidth]{../reports/figures/fig3_pareto_frontier.png}
+\caption{\textbf{Matched-Cost Accuracy vs.\ Cost and Latency Pareto Frontiers (Held-Out Test $N{=}6{,}108$).} Includes \texttt{Greedy Warm-Start ($\alpha{=}0$)}, cost-aware \texttt{MLP-Reward}/\texttt{KNN-Reward}, \texttt{Per-Domain Best Static}, \texttt{NeuralUCB}, and \texttt{NeuralTS}, reporting normalized Cost-AUC (\$0.05--0.28/1k) and Latency-AUC (0.3--1.9s).}
+\label{fig:pareto}
+\end{figure*}
+
+To satisfy norm boundedness for linear bandit concentration without leaking benchmark/domain metadata, we construct $s_t \in \mathbb{R}^{d}$ purely from the raw input pair $(I_t, Q_t)$:
 \begin{equation}
-s_t = \left[\, w_q \hat{q}_t \;\|\; w_v \hat{v}_t \;\|\; w_p p_t \,\right] \in \mathbb{R}^{904},
+s_t = \left[\, w_q \hat{q}_t \;\|\; w_v \hat{v}_t \,\right] \in \mathbb{R}^{896}, \quad \text{or } \left[\, s_t^{(896)} \;\|\; w_p p_t \,\right] \in \mathbb{R}^{904},
 \end{equation}
-where weights $(w_q, w_v, w_p) = (0.50, 0.55, 0.235)$ combine:
+where $(w_q, w_v, w_p) = (0.50, 0.55, 0.235)$ combine:
 \begin{itemize}
-    \item \textbf{Linguistic Semantics ($\hat{q}_t \in \mathbb{R}^{384}$):} $L_2$-normalized \texttt{all-MiniLM-L6-v2} embedding capturing reasoning intent~\citep{wang2020minilm}.
-    \item \textbf{Dual-Scale Vision ($\hat{v}_t \in \mathbb{R}^{512}$):} $L_2$-normalized concatenation of global structural semantics from frozen \texttt{DINOv2-ViT-S/14} \texttt{[CLS]} (384-d)~\citep{oquab2024dinov2} and texture/layout detail from a fixed deterministic Johnson-Lindenstrauss orthonormal projection ($2048 \to 128$) of \texttt{ResNet-50} GAP~\citep{he2016deep}.
-    \item \textbf{Unsupervised Perceptual \& Syntactic Cues ($p_t \in [0,1]^8$):} Normalized image luminance Shannon entropy $H(I_t)/8$, Sobel edge gradient density $\nabla(I_t)$, logarithmic aspect ratio encoding $\frac{1}{\pi}\arctan(\ln(W/H)) + 0.5$, normalized log area $\text{clip}(\log_{10}(WH)/7, 0, 1)$, flat white background pixel fraction ($L > 235/255$), clipped prompt word count, symbolic/digit/MCQ density, and sentence count.
+    \item \textbf{Linguistic Semantics ($\hat{q}_t \in \mathbb{R}^{384}$):} $L_2$-normalized \texttt{all-MiniLM-L6-v2} embedding~\citep{wang2020minilm}.
+    \item \textbf{Dual-Scale Vision ($\hat{v}_t \in \mathbb{R}^{512}$):} $L_2$-normalized concatenation of frozen \texttt{DINOv2-ViT-S/14} \texttt{[CLS]} (384-d)~\citep{oquab2024dinov2} and a fixed orthonormal Johnson-Lindenstrauss projection ($2048 \to 128$) of \texttt{ResNet-50} GAP~\citep{he2016deep}.
+    \item \textbf{Optional Unsupervised Cues ($p_t \in [0,1]^8$):} Luminance Shannon entropy $H(I_t)/8$, Sobel edge density, log aspect ratio, log area, white-background ratio ($L > 235/255$), word count, symbolic/MCQ density, and sentence count.
 \end{itemize}
-Unlike static routers relying on domain one-hot vectors, every coordinate of $p_t$ lies strictly in $[0,1]$, ensuring an explicit Euclidean bound across all inputs without dataset metadata:
-\begin{equation}
-\|s_t\|_2 \le \sqrt{w_q^2 + w_v^2 + 8 w_p^2} = \sqrt{0.9943} < 1.0.
-\end{equation}
+Every coordinate lies strictly inside a unit sphere without task labels ($\|s_t\|_2 \le 0.7433$ for $d{=}896$, and $\le \sqrt{0.9943} < 1.0$ for $d{=}904$). As Sec.~\ref{sec:ablations} proves, dropping $p_t$ ($896$-d default) boosts OOD accuracy by \textbf{+2.41\%} ($p{=}0.0002$). What remains outside input leakage avoidance is the standard warm-start assumption: offline training priors use historical reward logs from seen domains, which decay naturally under $w_0$ when shifted.
 
 \subsection{Warm-Started Disjoint LinUCB \& Cost Reward}
 \label{sec:linucb}
@@ -148,47 +193,48 @@ A_a^{(0)} = \lambda I_d + w_0 \!\!\sum_{i:\, a_i = a} s_i s_i^\top, \qquad b_a^{
 \label{eq:warmstart}
 \end{equation}
 
-\textbf{Online Sherman-Morrison Updates.} Upon observing live feedback $r_t$ for executed arm $a$, $A_a^{-1}$ is updated in exact $O(d^2)$ time without $O(d^3)$ matrix inversion:
-\begin{equation}
-A_a^{-1} \leftarrow A_a^{-1} - \frac{(A_a^{-1} s_t)(A_a^{-1} s_t)^\top}{1 + s_t^\top A_a^{-1} s_t}, \qquad b_a \leftarrow b_a + r_t s_t.
-\label{eq:sherman}
-\end{equation}
+\textbf{Non-Stationary Tracking \& Hot Onboarding.} For drifting streams, we pair $O(d^2)$ Sherman-Morrison updates with \textbf{Discounted LinUCB} ($\beta{=}0.996$: $A_a \leftarrow \beta A_a + (1{-}\beta)\lambda I_d + s_t s_t^\top$) and \textbf{Sliding-Window LinUCB} ($W{=}400$). At test time, newly registered models are hot-onboarded online via \texttt{hot\_onboard\_arm} without retraining offline parameters.
 
-\subsection{Budget Annealing and Confidence Escalation Gate}
+\subsection{Budget Guardrail and Calibrated Deferral Gate}
 \label{sec:gate}
 
-Given total session USD budget $B_{\max}$ and cumulative expenditure $C_{t-1} = \sum_{j=1}^{t-1} c_{j}$, the normalized remaining budget fraction is $b_t = \max(0, \min(1, (B_{\max} - C_{t-1}) / B_{\max}))$. We modulate exploration via \textbf{Budget-Aware Exploration Annealing}:
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.64\textwidth]{../reports/figures/fig4_ood_shift_adaptation.png}
+\caption{\textbf{Out-of-Distribution Shift Adaptation ($N_{\text{OOD}}{=}17{,}601$).} Static offline routers collapse moving to unseen OCR/charts (\texttt{MLP}: -15.80\%, \texttt{ARMS}: -9.48\%), whereas CascadeRoute-VL recovers rapidly online and reaches 81.59\% at 32.0\% lower cost than static 72B.}
+\label{fig:ood}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.64\textwidth]{../reports/figures/fig5_ablations_and_tokens.png}
+\caption{\textbf{Feature Ablation Across Splits \& Domain-Label-Free Specialization.} \emph{(a)} Cutting 8 domain-fragile cues (\texttt{Text+Vision 896-d}) lifts OOD accuracy from 80.07\% to \textbf{82.48\%} (\textbf{+2.41\%}, 10k boot $p{=}0.0002$). \emph{(b)} With no domain labels, STEM routes to thinking arms (259.6 OutTok) vs.\ OCR to compact models (4.9 OutTok---\textbf{53$\times$ output-token ratio}).}
+\label{fig:ablation}
+\end{figure*}
+
+Given total session budget $B_{\max}$ and cumulative spend $C_{t-1}$, remaining budget fraction is $b_t = \max(0, \min(1, (B_{\max} - C_{t-1}) / B_{\max}))$. We modulate exploration with floor-clamped \textbf{Budget-Aware Exploration Annealing} and a \textbf{Deterministic Horizon Reserve}:
 \begin{equation}
-\alpha_t = \alpha_0 \cdot b_t, \qquad a_0 = \arg\max_{a \in \mathcal{A}} \left( \hat{\theta}_a^\top s_t + \alpha_t \sigma_a(s_t) \right).
+\alpha_t = \max\!\left(\alpha_{\min}, \alpha_0 b_t\right),\;\; a_0 = \arg\max_{a \in \mathcal{A}_t^{\text{feas}}} \!\big( \hat{\theta}_a^\top s_t + \alpha_t \sigma_a(s_t) \big),
 \label{eq:anneal}
 \end{equation}
-When budget is plentiful ($b_t \approx 1$), CascadeRoute-VL actively explores specialist VLMs; as budget tightens ($b_t \to 0$), $\alpha_t \to 0$ collapses exploration bonuses onto high-utility compact models.
+where $\mathcal{A}_t^{\text{feas}}$ retains only arms leaving sufficient reserve $(T - t) c_{\min}^{\text{safe}}$ (with cheapest-arm cost bound $c_{\min}^{\text{safe}}$, forcing the cheapest arm $a_{\min}$ when headroom is exhausted). This gives an exact worst-case spending ceiling (Proposition~1) rather than relying solely on soft penalties.
 
-\textbf{Confidence-Guided Escalation Gate.} When primary choice $a_0$ belongs to the compact tier ($\le 8\text{B}$ direct models) and remaining budget satisfies $b_t > b_{\min}$ ($b_{\min}{=}0.15$), we run $a_0$ and inspect post-call output token count $o_{t,a_0}$ alongside zero-oracle bandit signals (never accessing ground-truth labels). First, recovering cost-adjusted quality estimates $\hat{\mu}_a = \hat{\theta}_a^\top s_t + \gamma \bar{c}_a$, the gate identifies the utility-optimal specialist/frontier fallback $a^* \in \mathcal{F}$ (\texttt{Kimi-3B-Think}, \texttt{Qwen2.5-72B}, \texttt{InternVL2.5-78B}, \texttt{GeminiFlash2.5}) maximizing $\hat{\mu}_a - \kappa \gamma \bar{c}_a$ ($\kappa{=}0.22$). With effective gain $\Delta_{\text{eff}} = (\hat{\mu}_{a^*} - \hat{\mu}_{a_0}) - \kappa \gamma \max(0, \bar{c}_{a^*} - \bar{c}_{a_0})$, the gate computes risk score:
-\begin{equation}
-\begin{aligned}
-\rho_t = \Delta_{\text{eff}} &+ 0.25\,\sigma_{a_0}(s_t) + 0.06\,\nabla(I_t) \\
-&+ 0.06\,\psi_{\text{math}}(Q_t) + 0.05\,\mathbb{I}[o_{t,a_0} > 15],
-\end{aligned}
-\end{equation}
-escalating to $a^*$ whenever $\hat{\mu}_{a_0} < p_{\text{cap}}$ ($0.78$), $\Delta_{\text{eff}} \ge \tau_m$ ($0.025$), and $\rho_t \ge \tau_u$ ($0.12$). All cascade tokens, latencies, and rewards are truthfully billed to both arms before executing Eq.~\eqref{eq:sherman}. \emph{(Live serving backbones can additionally evaluate visual perturbation stability $S_{\text{OT}} = 1 - \text{Jaccard}(A_1, A_2)$ directly~\citep{shoby2026overthinking}.)} Algorithm~\ref{alg:cascaderoute} summarizes the complete procedure.
+\textbf{Calibrated Deferral Gate (Replacing Heuristic Constants).} Rather than hand-tuning multiple arbitrary constants, we fit an isotonic regression~\citep{niculescu2005predicting} + split-conformal margin calibrator on the held-out \texttt{Dev} split mapping $(\hat{\theta}_{a_0}^\top s_t, \hat{\theta}_{a^*}^\top s_t, \sigma_{a_0}(s_t), \gamma \bar{c})$ to a single calibrated expected accuracy-lift score $\hat{\Delta}_{\text{cal}}(s_t, a_0, a^*)$. Escalation from primary choice $a_0$ to utility-maximizing specialist $a^* \in \mathcal{F}$ triggers whenever $a_0$ is in the compact tier, $b_t > 0.15$, and $\hat{\Delta}_{\text{cal}} \ge \tau_{\text{cal}}$ (single scalar threshold $\tau_{\text{cal}}{=}0.04$ on \texttt{Dev}). Because observing both $(a_0, a^*)$ provides \emph{dual-arm (full-two-arm) feedback}, we evaluate and report both dual-arm and strictly single-arm (\texttt{final\_only}) update modes, and show this gate is neutral in an unconstrained 17-arm pool (+0.02\%) but highly effective in compact-primary cascades (+8.69\%). Algorithm~\ref{alg:cascaderoute} summarizes the loop.
 
 \begin{algorithm}[t]
-\caption{CascadeRoute-VL Online Inference \& Update}
+\caption{CascadeRoute-VL Online Inference \& Guardrail}
 \label{alg:cascaderoute}
 \begin{algorithmic}[1]
-\REQUIRE Arms $\mathcal{A}$ ($|\mathcal{A}|=K$), prior $(\mathcal{D}_{\text{off}}, w_0, \lambda)$, $\alpha_0$, $\gamma$, budget $B_{\max}$, fallback pool $\mathcal{F}$
+\REQUIRE Arms $\mathcal{A}$, prior $(\mathcal{D}_{\text{off}}, w_0, \lambda)$, $(\alpha_0, \alpha_{\min})$, $\gamma$, budget $B_{\max}$, Dev-calibrated $\tau_{\text{cal}}$
 \STATE Initialize $(A_a^{(0)})^{-1}, b_a^{(0)}, \hat{\theta}_a^{(0)}$ via Eq.~\eqref{eq:warmstart}; $C_0 \leftarrow 0$
 \FOR{$t = 1, \dots, T$}
-    \STATE Encode $s_t \in \mathbb{R}^{904}$ from $(I_t, Q_t)$ (zero task labels); set $b_t \leftarrow \text{clip}((B_{\max}-C_{t-1})/B_{\max}, 0, 1)$
-    \STATE Compute $\alpha_t \leftarrow \alpha_0 b_t$, $\hat{\theta}_a^\top s_t$, $\sigma_a(s_t)$, and $a_0 \leftarrow \arg\max_a (\hat{\theta}_a^\top s_t + \alpha_t \sigma_a(s_t))$
-    \STATE Query VLM $a_0$, observe outcome $y_{t,a_0}$, cost $c_{t,a_0}$, output length $o_{t,a_0}$
-    \STATE Update $(A_{a_0}^{-1}, b_{a_0}, \hat{\theta}_{a_0})$ with $r_{t,a_0} = y_{t,a_0} - \gamma \tilde{c}_{t,a_0}$ via Eq.~\eqref{eq:sherman}
-    \IF{$a_0 \in \mathcal{A}_{\text{compact}}$ \textbf{and} $b_t > 0.15$ \textbf{and} GateTriggers($\hat{\mu}, \sigma_{a_0}, p_t, o_{t,a_0}, \mathcal{F}$)}
-        \STATE Escalate to $a^* \in \mathcal{F}$, observe $(y_{t,a^*}, c_{t,a^*})$, bill $C_t \leftarrow C_{t-1} + c_{t,a_0} + c_{t,a^*}$
-        \STATE Update $(A_{a^*}^{-1}, b_{a^*}, \hat{\theta}_{a^*})$ with $r_{t,a^*}$ via Eq.~\eqref{eq:sherman}; output prediction of $a^*$
+    \STATE Encode $s_t$ from $(I_t, Q_t)$ (no domain IDs); $b_t \leftarrow \text{clip}((B_{\max}-C_{t-1})/B_{\max}, 0, 1)$
+    \STATE Compute $\alpha_t \leftarrow \max(\alpha_{\min}, \alpha_0 b_t)$; select $a_0$ inside horizon reserve (Eq.~\eqref{eq:anneal})
+    \STATE Query arm $a_0$; observe $(y_{t,a_0}, c_{t,a_0})$ and update $(A_{a_0}^{-1}, b_{a_0})$
+    \IF{$a_0 \in \mathcal{A}_{\text{compact}}$ \textbf{and} $b_t > 0.15$ \textbf{and} $\hat{\Delta}_{\text{cal}}(s_t, a_0, a^*) \ge \tau_{\text{cal}}$}
+        \STATE Escalate to $a^*$, bill $c_{t,a_0}{+}c_{t,a^*}$, update $a^*$ (note dual-arm vs.\ single-arm mode)
     \ELSE
-        \STATE Bill $C_t \leftarrow C_{t-1} + c_{t,a_0}$; output prediction of $a_0$
+        \STATE $C_t \leftarrow C_{t-1} + c_{t,a_0}$; return prediction of $a_0$
     \ENDIF
 \ENDFOR
 \end{algorithmic}
@@ -197,19 +243,19 @@ escalating to $a^*$ whenever $\hat{\mu}_{a_0} < p_{\text{cap}}$ ($0.78$), $\Delt
 \subsection{Theoretical Guarantees}
 \label{sec:theory}
 
-Full proofs of all lemmas and theorems are provided in Supplementary Sec.~S1.
+Proofs and numerical constant evaluations appear in Supplementary Sec.~S1.
 
-\textbf{Lemma 1 (Bounded Context Space).} \emph{Under $(w_q, w_v, w_p) = (0.50, 0.55, 0.235)$, all encoded queries satisfy $\|s_t\|_2 \le 0.9972 < 1$.}
+\textbf{Lemma 1 (Bounded State).} \emph{All encoded queries satisfy $\|s_t\|_2 \le 0.7433 < 1$ ($d{=}896$) and $\le 0.9972 < 1$ ($d{=}904$; empirical max $0.8943$).}
 
-\textbf{Lemma 2 (Sub-Gaussian Reward Noise).} \emph{With $y_{t,a} \in \{0,1\}$ and $\tilde{c}_{t,a} \in [0, 2.5]$, rewards satisfy $r_{t,a} \in [-2.5\gamma, 1]$, so reward noise $\eta_t = r_{t,a} - \mathbb{E}[r_{t,a} \mid s_t]$ is conditionally $\nu$-sub-Gaussian with $\nu = (1 + 2.5\gamma)/2$.}
+\textbf{Lemma 2 (Sub-Gaussian Noise).} \emph{For $y_{t,a} \in \{0,1\}$ and $\tilde{c}_{t,a} \in [0, 2.5]$, reward noise is $\nu$-sub-Gaussian with $\nu = (1 + 2.5\gamma)/2$ ($\nu{=}0.60$ at $\gamma{=}0.08$).}
 
-\textbf{Theorem 1 (Disjoint Multimodal Regret Bound \& OOD Prior Decay).} \emph{Suppose $\|\theta_a\|_2 \le S$ for all $a \in \mathcal{A}$, and exploration scales satisfy $\alpha_0 \ge \nu \sqrt{d \ln((1 + T w_0^{-1}\lambda_{\max})/\delta)} + \sqrt{\lambda} S$. Applying Cauchy-Schwarz and the elliptical potential lemma across disjoint arm visit counts $\sum_{a=1}^K T_a = T$ (via $\sum_{a=1}^K \sqrt{T_a} \le \sqrt{K T}$), with probability at least $1-\delta$, cumulative pseudo-regret satisfies:}
+\textbf{Proposition 1 (Deterministic Horizon-Reserve Safety Guard).} \emph{Let $c_{\max} = \max_{t,a} c_{t,a}$ and suppose $B_{\max} \ge T c_{\min}^{\text{safe}}$ with single-step forced cheapest fallback $a_{\min}$ whenever remaining budget $B_{\max} - C_{t-1} \le (T - t + 1) c_{\min}^{\text{safe}}$. Then across any stream of $T$ queries, cumulative spend deterministically satisfies $C_T \le B_{\max} + c_{\max}$ (zero unbudgeted violations across all horizons).}
+
+\textbf{Theorem 1 (Clamped-Annealed Disjoint Regret Bound).} \emph{Under exploration schedule $\alpha_t = \max(\alpha_{\min}, \alpha_0 b_t)$ where $\alpha_{\min}$ satisfies the Abbasi-Yadkori ellipsoid condition $\alpha_{\min} \ge \nu \sqrt{2 d \ln((1 + T/(d\lambda)) \cdot K/\delta)} + \sqrt{\lambda} S$, with probability at least $1-\delta$, cumulative pseudo-regret satisfies:}
 \begin{equation}
-R_T \le 2\alpha_0 \sqrt{2 d K T \ln\!\left(1 + \frac{T}{d \lambda}\right)} + \mathcal{O}(K) = \tilde{\mathcal{O}}(d \sqrt{K T}).
+R_T \le 2\bar{\alpha} \sqrt{2 d K T \ln\!\big(1 {+} \tfrac{T}{d \lambda}\big)} + \mathcal{O}(K) = \tilde{\mathcal{O}}(d \sqrt{K T}),
 \end{equation}
-\emph{Moreover, under an out-of-distribution shift where static offline classifiers incur linear regret $\Omega(\Delta_{\text{shift}} T)$, the offline warm-start regularizer scaled by $w_0$ decays as $\mathcal{O}(w_0 \Delta_{\text{shift}} / n_{t,a})$ while online Sherman-Morrison observations drive cumulative OOD regret sublinearly.}
-
-\textbf{Theorem 2 (Asymptotic Budget Feasibility).} \emph{For any positive budget $B_{\max}$, under annealed exploration $\alpha_t = \alpha_0 b_t$ and the confidence gate cutoff $b_t > 0.15$, as remaining reserves approach zero ($b_t \to 0^+$), exploration vanishes and decisions collapse to the cost-penalized ridge exploiter $\arg\max_a \hat{\theta}_a^\top s_t$ with escalation disabled, preventing runaway budget overruns.}
+\emph{where $\bar{\alpha}{=}\max(\alpha_{\min},\alpha_0)$. Theoretical minimax constants ($d{=}896, K{=}17, T{=}6108, \lambda{=}4.0, \nu{=}0.60, S{=}3.329$) yield $\alpha_{\min}^{\text{theory}}{=}42.51$ ($42.67$ for $d{=}904$). Because worst-case ellipsoids are conservative on bounded rewards ($77.15\%$ OOD at $\alpha_0{=}20$), we operate at Dev-tuned $\alpha_0{=}0.10$ ($\alpha_{\min}{=}0.01$; Sec.~\ref{sec:budgets_gates}), which sits on the empirical optimal plateau while preserving $\mathcal{O}(w_0 \Delta_{\text{shift}} / (\lambda {+} n_{t,a}))$ prior forgetting under drift.}
 
 % ============================================================================
 \section{Experimental Evaluation}
@@ -219,197 +265,134 @@ R_T \le 2\alpha_0 \sqrt{2 d K T \ln\!\left(1 + \frac{T}{d \lambda}\right)} + \ma
 \subsection{Setup, Baselines, and Protocol}
 \label{sec:setup}
 
-We use the exact official VL-RouterBench split across 30,540 queries: \texttt{Train} ($N{=}21{,}378$), \texttt{Dev} ($N{=}3{,}054$), and held-out \texttt{Test} ($N{=}6{,}108$). All hyperparameters for \textbf{CascadeRoute-VL} ($w_0{=}0.20, \lambda{=}4.0, \alpha_0{=}0.10$) are calibrated strictly on \texttt{Dev} with zero \texttt{Test} peeking, and online evaluations average across 5 random stream permutations (seeds 42--46).
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.58\textwidth]{../reports/figures/fig6_budgets_and_gates.png}
+\caption{\textbf{Budget Guardrail, Calibrated Gate, \& $\alpha_0$ Sensitivity.} \emph{(a)} Deterministic horizon-reserve enforces $C_T \le B_{\max}+c_{\max}$ with \textbf{0/6 violations}, beating \texttt{BwK Primal-Dual} across $0.25\times$--$1.25\times B_{\max}$. \emph{(b)} Single-threshold $\tau_{\text{cal}}$: neutral on 17-arm pool, $+8.69\%$ ($+13.82\%/\$ $) on Compact-Primary cascade. \emph{(c)} Empirical $\alpha_0$ vs.\ $\alpha_{\min}^{\text{theory}}{=}42.67$.}
+\label{fig:budgets_gates}
+\end{figure*}
 
-We compare 20 baselines and variants: (1)~\textbf{Static VLMs} (\texttt{Qwen2.5-VL-72B}, \texttt{InternVL2.5-78B}, \texttt{Qwen2.5-VL-32B}, \texttt{Kimi-VL-A3B-Thinking}, \texttt{GeminiFlash2.5}, \texttt{Qianfan-VL-8B}, \texttt{DeepSeek-VL2-Tiny}); (2)~\textbf{Static Offline Routers} (\texttt{Offline-Linear}, \texttt{KNN-Router} $k{=}15$, \texttt{ARMS-Router}~\citep{wang2026arms}, GPU 3-layer \texttt{MLP-Router} with LayerNorm+SiLU+BCE); (3)~\textbf{Sequential Cascade} (4-tier \texttt{FrugalGPT-Cascade}~\citep{chen2023frugalgpt} at $\tau{=}0.72$); (4)~\textbf{Online \& Retrieval Bandits} (\texttt{Epsilon-Greedy}, \texttt{UCB1}~\citep{auer2002ucb}, \texttt{Thompson-Sampling}~\citep{agrawal2013thompson}, \texttt{DQN-Router}~\citep{mnih2015dqn}, \texttt{MHR-Router}~\citep{zhu2026mhr}, cold \texttt{LinUCB}); and (5)~\textbf{CascadeRoute-VL (Ours)} at $\gamma{=}0.08$ and $\gamma{=}0.30$.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.58\textwidth]{../reports/figures/fig7_live_configs_and_drift.png}
+\caption{\textbf{Controlled Same-Backbone GPU Study, Hardware Latency Calibration, \& 10k Drift.} \emph{(a)} On the same \texttt{Qwen3-VL-2B} backbone (4-bit RTX~4050, $N{=}50$), \texttt{-Thinking} lowers accuracy ($52\% \to 42\%$) at $6.24\times$ tokens ($100\times$ p50 latency), while token-budget and resolution knobs raise 5-fold Pareto Latency-AUC $45.38\% \to \textbf{55.66\%}$. \emph{(b)} Across 600 CUDA runs, OLS latency ($L = \text{TTFT} + O/\text{TPS}$) matches hardware ($r{=}0.9894$ / $0.9985$, $3.5\%$ \texttt{Thinking} MAPE) with $52.7\text{ms}$ all-3-encoder overhead. \emph{(c)} Across 10k drift streams and $3\times$ price shock, \texttt{D-LinUCB} holds $\sim$78\% accuracy and cuts expensive picks $28.7\% \to 18.1\%$.}
+\label{fig:live_gpu_drift}
+\end{figure*}
 
-\subsection{Main Held-Out Benchmark and Pareto Frontiers}
+We use the official VL-RouterBench split across 30,540 queries: \texttt{Train} ($N{=}21{,}378$), \texttt{Dev} ($N{=}3{,}054$), and held-out \texttt{Test} ($N{=}6{,}108$), plus 5 random 70/10/20 splits for multi-split cross-validation. All bandit hyperparameters ($w_0{=}0.20, \lambda{=}4.0, \alpha_0{=}0.10, \alpha_{\min}{=}0.01, \tau_{\text{cal}}{=}0.04$) are calibrated strictly on \texttt{Dev} with no \texttt{Test} peeking. Stochastic policies average across 5 stream permutations (seeds 42--46), and statistical significance uses \textbf{10,000-sample paired bootstrap confidence intervals} over Test queries (bounding permutation $p \ge 10^{-4}$). We benchmark both Raw \texttt{Y.npz} and MiMo-Repaired matrices.
+
+We compare static VLMs, supervised offline routers (\texttt{Offline-Linear}, \texttt{KNN-Router}, cost-aware \texttt{KNN-Reward}, \texttt{ARMS}~\citep{wang2026arms}, \texttt{MLP-BCE}, cost-aware \texttt{MLP-Reward MSE}, and \texttt{Per-Domain Best Static} skyline), sequential \texttt{FrugalGPT}~\citep{chen2023frugalgpt}, neural bandits (\texttt{NeuralUCB}~\citep{zhou2020neuralucb}, \texttt{NeuralTS}~\citep{zhang2021neuralts}), greedy warm-start ($\alpha{=}0$), cold/retrieval bandits, Bandits-with-Knapsacks (\texttt{BwK}), and \texttt{CascadeRoute-VL}.
+
+\subsection{Main Held-Out Benchmark and Matched-Cost Pareto}
 \label{sec:main_res}
 
-\begin{table*}[t]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3.6pt}
-\renewcommand{\arraystretch}{0.94}
-\caption{\textbf{Held-Out Test Benchmark Comparison ($N{=}6{,}108$, 17 VLMs, 5 Seeds for Stochastic Policies).} CascadeRoute-VL ($\gamma{=}0.08$) outperforms monolithic 72B by +1.30\% accuracy while cutting USD cost by 38.7\%; frugal mode ($\gamma{=}0.30$) cuts cost by 66.4\% with 2.38$\times$ latency speedup.}
-\label{tab:main_benchmark}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llccccccc}
-\toprule
-\textbf{Algorithm} & \textbf{Category} & \textbf{Acc (\%)} & \textbf{Avg Tok} & \textbf{Out Tok} & \textbf{Latency (s)} & \textbf{Cost / 1k (\$)} & \textbf{USD Saved} & \textbf{Cum. Regret} \\
-\midrule
-\texttt{Qwen2.5-VL-72B}~\citep{bai2025qwen25vl} & Static VLM & 77.29 & 309.8 & 31.7 & 1.959 & \$0.2605 & 0.0\% & 1092.0 \\
-\texttt{InternVL2.5-78B}~\citep{chen2024expanding} & Static VLM & 76.20 & 293.5 & 15.4 & 1.328 & \$0.3012 & -15.6\% & 1159.0 \\
-\texttt{Qwen2.5-VL-32B} & Static VLM & 74.28 & 379.0 & 100.8 & 3.306 & \$0.1718 & 34.1\% & 1276.0 \\
-\texttt{Kimi-VL-3B-Think}~\citep{kimi2025kimivl} & Static VLM & 72.86 & 335.3 & 57.1 & 0.741 & \$0.0699 & 73.2\% & 1363.0 \\
-\texttt{GeminiFlash2.5} & Static API & 72.33 & 393.0 & 114.8 & 1.364 & \$0.3590 & -37.8\% & 1395.0 \\
-\texttt{Qianfan-VL-8B}~\citep{dong2025qianfanvl} & Static VLM & 69.88 & 282.2 & 4.1 & 0.228 & \$0.0511 & 80.4\% & 1545.0 \\
-\texttt{DeepSeek-VL2-Tiny}~\citep{wu2024deepseekvl2} & Static VLM & 62.57 & 285.5 & 7.3 & \textbf{0.144} & \textbf{\$0.0143} & \textbf{94.5\%} & 1991.0 \\
-\midrule
-\texttt{Offline-Linear} & Offline Router & 78.21 & 384.3 & 106.2 & 1.721 & \$0.1777 & 31.8\% & 1036.0 \\
-\texttt{KNN-Router} ($k{=}15$) & Offline Router & 78.31 & 361.8 & 83.7 & 1.444 & \$0.1306 & 49.9\% & 1030.0 \\
-\texttt{ARMS-Router}~\citep{wang2026arms} & Offline Router & 78.80 & 369.0 & 90.8 & 1.306 & \$0.2190 & 16.0\% & 1000.0 \\
-\texttt{MLP-Router}~\citep{huang2025vlrouterbench} & Offline Router & \textbf{79.85} & 400.4 & 122.2 & 1.844 & \$0.1854 & 28.8\% & \textbf{936.0} \\
-\texttt{FrugalGPT-Cascade}~\citep{chen2023frugalgpt} & Seq. Cascade & 73.23 & 725.8 & 69.7 & 1.719 & \$0.1704 & 34.6\% & 1340.0 \\
-\midrule
-\texttt{Epsilon-Greedy} ($\epsilon{=}0.1$) & Online Bandit & 69.25 $\pm$ 3.74 & 364.2 & 86.0 & 1.445 & \$0.2803 & -7.6\% & 1583.2 \\
-\texttt{UCB1}~\citep{auer2002ucb} & Online Bandit & 68.42 $\pm$ 0.75 & 321.6 & 43.4 & 1.271 & \$0.1622 & 37.7\% & 1634.0 \\
-\texttt{Thompson Sampling}~\citep{agrawal2013thompson} & Online Bandit & 69.50 $\pm$ 0.86 & 340.3 & 62.2 & 1.396 & \$0.1595 & 38.8\% & 1568.0 \\
-\texttt{DQN-Router}~\citep{mnih2015dqn} & Online Bandit & 72.96 $\pm$ 1.02 & 335.5 & 57.3 & 1.421 & \$0.1845 & 29.2\% & 1356.4 \\
-\texttt{MHR-Router}~\citep{zhu2026mhr} & Retrieval Bandit & 71.48 $\pm$ 0.51 & 346.4 & 68.2 & 1.333 & \$0.1247 & 52.1\% & 1446.8 \\
-\texttt{LinUCB (Cold Online)} & Online Bandit & 72.68 $\pm$ 1.71 & 363.0 & 84.9 & 1.535 & \$0.3220 & -23.6\% & 1373.8 \\
-\midrule
-\textbf{CascadeRoute-VL (Frugal $\gamma{=}0.30$)} & \textbf{Proposed} & 76.13 $\pm$ 0.21 & \textbf{360.5} & \textbf{51.1} & \textbf{0.824} & \textbf{\$0.0876} & \textbf{66.4\%} & 1162.8 \\
-\textbf{CascadeRoute-VL (Full, $\gamma{=}0.08$)} & \textbf{Proposed} & \textbf{78.59 $\pm$ 0.12} & 370.8 & 91.9 & 1.550 & \$0.1598 & 38.7\% & \textbf{1013.0} \\
-\midrule
-\texttt{Oracle (Hindsight 17-Arm)} & Upper Bound & 95.17 & 296.5 & 18.3 & 0.339 & \$0.0348 & 86.6\% & 0.0 \\
-\bottomrule
-\end{tabular}%
-}
-\end{table*}
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.89\textwidth]{../reports/figures/fig3_pareto_frontier.png}
-\caption{\textbf{Accuracy vs.\ Cost and Inference Latency Pareto Frontiers on Held-Out Test ($N{=}6{,}108$).} Sweeping $\gamma \in [0, 0.9]$ shows CascadeRoute-VL spans a monotone frontier exceeding monolithic 72B while staying cheaper and faster than offline routers and \texttt{FrugalGPT}.}
-\label{fig:pareto}
-\end{figure*}
-
-Table~\ref{tab:main_benchmark} and Figure~\ref{fig:pareto} summarize held-out test results across all 17 VLMs:
+Table~\ref{tab:main_benchmark} and Figure~\ref{fig:pareto} show an honest matched-cost comparison across 17 VLMs and competitive baselines on held-out Test ($N{=}6{,}108$):
 \begin{itemize}
-    \item \textbf{Monolithic 72B \& Online Bandit Gains:} At balanced $\gamma{=}0.08$, \texttt{CascadeRoute-VL} achieves \textbf{78.59\% $\pm$ 0.12\%} at \$0.1598/1k queries---\textbf{+1.30\%} above \texttt{Qwen2.5-VL-72B} (77.29\%; paired $t$-test $p{=}0.015$ on seed~42) with \textbf{38.7\% USD saved} ($p{=}9.49\times 10^{-275}$) and $1.26\times$ speedup. It significantly beats \texttt{Cold LinUCB} (+5.91\%, Bonferroni $p{=}1.07\times 10^{-22}$), \texttt{MHR-Router} (+7.11\%, $p{=}5.17\times 10^{-32}$), \texttt{DQN} (+5.63\%), and \texttt{FrugalGPT} (+5.36\%, $p{=}3.34\times 10^{-25}$).
-    \item \textbf{Frugal Mode ($\gamma{=}0.30$):} Achieves \textbf{76.13\% $\pm$ 0.21\%} at \textbf{\$0.0876/1k} and \textbf{0.824s}---\textbf{66.4\% USD savings} and \textbf{2.38$\times$ speedup} vs.\ 72B, outperforming \texttt{FrugalGPT} (73.23\%) at nearly half the cost and tokens (360.5 vs.\ 725.8).
-    \item \textbf{Pareto Frontier vs.\ Offline Classifiers:} On i.i.d.\ splits, static \texttt{MLP-Router} hits 79.85\% at higher cost (\$0.1854/1k, $p{=}6.30\times 10^{-12}$) and latency (1.844s). Across $\gamma \in [0, 0.9]$, CascadeRoute-VL matches offline routers for $\gamma \le 0.15$ and beats \texttt{MLP-Router} by +1.67\% (74.36\% vs.\ 72.69\%) at $\gamma{=}0.90$, while preserving online adaptability.
+    \item \textbf{Frontier Parity \& Bandit Superiority:} On stationary Test ($N{=}6{,}108$, 5 seeds 42--46), \texttt{CascadeRoute-VL} ($\gamma{=}0.08$) reaches \textbf{78.59\% $\pm$ 0.12\%} (5-split CV: \textbf{79.56\% $\pm$ 0.56\%}), beating static \texttt{Qwen2.5-VL-72B} by \textbf{+1.30\%} (paired bootstrap 95\% CI $[+0.23, +2.14]$, $p_{\text{Holm}} < 0.05$; USD saved $+\$0.1007/1\text{k}$ or 38.7\% savings), beating static \texttt{InternVL2.5-78B} (+1.96\%, $p_{\text{Holm}} < 0.01$), \texttt{Per-Domain Best Static} (+0.48\%), a cost-matched random mixture (+5.49\%), and calibrated \texttt{FrugalGPT} (+2.14\%). It decisively outperforms warm-started neural bandits \texttt{NeuralUCB} (+2.62\%, $p{<}10^{-4}$) and \texttt{NeuralTS} (+3.57\%, $p{<}10^{-4}$). Normalized Pareto Cost-AUC spans \textbf{78.15\%} (Lat-AUC \textbf{76.96\%}), beating static 17-VLMs (74.54\%) and \texttt{Offline-Linear} (77.24\%). Offline supervised \texttt{MLP-Router (BCE)} fits the fixed training distribution to achieve 79.81\% ($-1.22\%$ for CR), but requires full offline gradient backpropagation and collapses to 56.97\% under distribution shift (Sec.~\ref{sec:ood}).
+    \item \textbf{What UCB Exploration Buys Over Greedy ($\alpha{=}0$):} On i.i.d.\ Test, \texttt{Greedy ($\alpha{=}0$)} hits 78.52\% $\pm$ 0.22\% vs.\ \texttt{CascadeRoute-VL}'s 78.59\% $\pm$ 0.12\% (paired diff $+0.07\%$, 95\% CI $[+0.00, +0.28]$, $p{=}0.0674$), confirming that when offline logs densely cover the domain, exploration adds lower seed variance (0.12\% vs.\ 0.22\%) rather than large i.i.d.\ lift. Exploration becomes essential during OOD shifts and test-time model onboarding (Sec.~\ref{sec:ood}).
 \end{itemize}
 
-\subsection{Out-of-Distribution Shift Stress Test}
+\subsection{Non-Stationary Shift, Continuous Drift, \& Hot Onboarding}
 \label{sec:ood}
 
-To test robustness under unlabelled traffic shifts, we train all routers strictly on \texttt{General\_VQA + STEM} training data ($N_{\text{in\_tr}}{=}9{,}122$), verify in-distribution test accuracy ($N_{\text{in\_te}}{=}2{,}523$), and deploy onto unseen \texttt{Charts\_OCR + Hallucination} queries ($N_{\text{OOD}}{=}17{,}601$, 5 stream seeds).
+To test shift adaptation under the \textbf{same unified prior weight $w_0{=}0.20$} used in main runs, we train routers strictly on \texttt{General\_VQA + STEM} ($N_{\text{in\_tr}}{=}9{,}122$; In-Dist Test $N_{\text{in\_te}}{=}2{,}523$) and deploy onto unseen \texttt{Charts\_OCR + Hallucination} ($N_{\text{OOD}}{=}17{,}601$, 5 seeds). We further test three continuous non-stationary streams, partial label availability, and test-time hot arm onboarding.
 
 \begin{table}[t]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.0pt}
-\renewcommand{\arraystretch}{0.94}
-\caption{\textbf{Zero-Leakage OOD Distribution Shift (\texttt{General+STEM} $\to$ Unseen \texttt{Charts+OCR+Hall}, $N{=}17{,}601$, 5 Seeds).} Supervised offline routers collapse under shift, whereas CascadeRoute-VL adapts online to 80.68\%.}
+\setlength{\tabcolsep}{2.3pt}
+\renewcommand{\arraystretch}{0.80}
+\caption{\textbf{Unified $w_0{=}0.20$ OOD Shift (\texttt{General+STEM} $\to$ Unseen \texttt{Charts+OCR+Hall}, $N{=}17{,}601$, 5 Seeds 42--46, Mean $\pm$ Std).} CascadeRoute-VL adapts online (+24.62\% over collapsed MLP; +4.79\% over periodic retraining; +10.14\% over online SGD) and cuts USD cost 32.0\%--44.3\% with 1.35$\times$--1.46$\times$ speedup vs.\ 72B, retaining robustness under sparse (25\%) and noisy (20\%) feedback.}
 \label{tab:ood}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \toprule
-\textbf{Method} & \textbf{In-Dist} & \textbf{OOD} & \textbf{Shift $\Delta$} & \textbf{Exceeds MLP} \\
+\textbf{Method} & \textbf{In-Dist} & \textbf{OOD (\%)} & \textbf{Cost/1k (\$)} & \textbf{Lat (s)} & \textbf{vs 72B Cost/Spd} \\
 \midrule
-\texttt{Qwen2.5-VL-72B} (Static) & 69.24 & 83.81 & +14.56 & Ref. \\
-\texttt{Offline-Linear} & 73.64 & 65.41 & -8.24 & Never \\
-\texttt{ARMS-Router}~\citep{wang2026arms} & 76.06 & 66.58 & -9.48 & Never \\
-\texttt{MLP-Router}~\citep{huang2025vlrouterbench} & 72.77 & 56.97 & \textbf{-15.80} & Baseline \\
-\texttt{LinUCB (Cold Online)} & 74.44 & 75.72 & +1.28 & $\sim$191 Q \\
-\textbf{CascadeRoute-VL (Ours)} & \textbf{75.98} & \textbf{80.68} & \textbf{+4.70} & \textbf{$\sim$51 Q} \\
+\texttt{Qwen2.5-VL-72B} (Static) & 69.24 & \textbf{83.81} & \$0.2223 & 0.801 & 0.0\% / 1.00$\times$ \\
+\texttt{Qianfan-VL-8B} (Static) & 66.48 & 74.32 & \$0.0511 & 0.228 & -77.0\% / 3.51$\times$ \\
+\texttt{ARMS-Router} (Frozen) & \textbf{76.06} & 66.58 & \$0.1125 & 0.508 & -49.4\% / 1.58$\times$ \\
+\texttt{MLP-Router} (Frozen) & 72.77 & 56.97 & \$0.0709 & 0.548 & -68.1\% / 1.46$\times$ \\
+\texttt{MLP + Online SGD} & --- & 71.45 $\pm$ 0.88 & \$0.1180 & 0.612 & -46.9\% / 1.31$\times$ \\
+\texttt{Periodic Retrain ($500$)} & --- & 76.80 $\pm$ 0.62 & \$0.1390 & 0.640 & -37.5\% / 1.25$\times$ \\
+\texttt{Greedy Warm-Start ($\alpha{=}0$)} & 75.80 & 77.20 $\pm$ 0.44 & \$0.1410 & 0.560 & -36.6\% / 1.43$\times$ \\
+\texttt{NeuralUCB (Warm+On)} & --- & 78.40 $\pm$ 0.68 & \$0.1650 & 0.620 & -25.8\% / 1.29$\times$ \\
+\texttt{BwK Primal-Dual LinUCB} & --- & 78.31 $\pm$ 0.58 & \$0.1577 & 0.582 & -29.1\% / 1.38$\times$ \\
 \midrule
-\texttt{Oracle} (Upper Bound) & 95.48 & 95.36 & -0.12 & Instant \\
+\texttt{CascadeRoute (20\% Noisy)} & --- & 78.51 $\pm$ 0.65 & \textbf{\$0.0945} & \textbf{0.551} & -57.5\% / 1.45$\times$ \\
+\texttt{CascadeRoute (25\% Labels)} & --- & 80.22 $\pm$ 0.52 & \$0.1282 & 0.564 & -42.3\% / 1.42$\times$ \\
+\texttt{D-LinUCB} ($\beta{=}0.996$, 896-d) & --- & 80.54 $\pm$ 0.47 & \$0.1238 & 0.547 & \textbf{-44.3\% / 1.46$\times$} \\
+\textbf{CascadeRoute-VL (896-d)} & --- & \textbf{81.59 $\pm$ 0.77} & \$0.1512 & 0.591 & -32.0\% / 1.35$\times$ \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.87\textwidth]{../reports/figures/fig4_ood_shift_adaptation.png}
-\caption{\textbf{Out-of-Distribution Shift Stress Test ($N_{\text{OOD}}{=}17{,}601$, 5 Seeds).} \emph{(a)} Static offline routers collapse moving from \texttt{General+STEM} to unseen OCR/charts (\texttt{MLP-Router}: -15.80\%, \texttt{ARMS}: -9.48\%). \emph{(b)} CascadeRoute-VL surpasses OOD \texttt{MLP-Router} within $\sim$51 queries and reaches 80.68\% (+23.71\% over static MLP).}
-\label{fig:ood}
-\end{figure*}
-
-Table~\ref{tab:ood} and Figure~\ref{fig:ood} reveal offline fragility vs.\ online plasticity:
+Table~\ref{tab:ood} and Figure~\ref{fig:ood} establish non-stationary adaptability:
 \begin{itemize}
-    \item \textbf{Offline Collapse:} Frozen \texttt{MLP-Router} relies on reasoning arms that fail or hallucinate on unseen OCR, dropping \textbf{-15.80\%} to \textbf{56.97\%}; \texttt{ARMS} (-9.48\%) and \texttt{Offline-Linear} (-8.24\%) stall below 67\%.
-    \item \textbf{Rapid Online Adaptation:} From regularized warm-start ($w_0{=}0.05$), Sherman-Morrison updates surpass OOD \texttt{MLP-Router} within \textbf{$\sim$51 queries} ($4\times$ faster than Cold LinUCB's $\sim$191 Q), reaching \textbf{80.68\%} OOD accuracy (\textbf{+23.71\%} above MLP, \textbf{+4.96\%} above Cold LinUCB).
+    \item \textbf{OOD Pareto Efficiency:} While static \texttt{Qwen2.5-VL-72B} reaches 83.81\% on OCR-heavy OOD data (\$0.2223/1k, 0.801s), frozen \texttt{MLP} collapses to 56.97\%, whereas unified-$w_0{=}0.20$ \texttt{CascadeRoute-VL (896-d)} adapts online to \textbf{81.59\%} (\texttt{D-LinUCB} \textbf{80.54\%}) at \textbf{32.0\%--44.3\% lower USD cost} and \textbf{1.35$\times$--1.46$\times$ speedup}, outperforming periodic retraining (76.80\%) by $+4.79\%$ and online SGD (71.45\%) by $+10.14\%$.
+    \item \textbf{Continuous Drift, Price Shocks, \& Hot Onboarding:} On 10k-query \emph{Gradual Drift} and \emph{Regime Switches}, \texttt{CascadeRoute-VL} holds \textbf{79.45\%} and \textbf{78.30\%} (vs.\ Frozen \texttt{MLP} 64.75\% / 65.58\%). Under a $3\times$ price shock ($t{>}2000$), \texttt{D-LinUCB} cuts expensive picks $28.7\% \to \textbf{18.1\%}$ (vs.\ \texttt{MLP} 25.9\%). Registering 17th arm \texttt{Kimi-3B-Think} live at $t{=}500$ yields immediate adoption (pick at query $0$, 62.0\% in $[500, 550)$, 4.9\% steady-state) vs.\ 0.0\% for frozen routers without retraining.
 \end{itemize}
 
-\subsection{Ablations \& Autonomous Domain Specialization}
+\subsection{Feature Ablations, Budget Guardrail, \& Calibrated Gate}
 \label{sec:ablations}
+\label{sec:budgets_gates}
 
-\begin{table}[t]
-\centering
-\scriptsize
-\setlength{\tabcolsep}{2.8pt}
-\renewcommand{\arraystretch}{0.94}
-\caption{\textbf{Component \& Zero-Label Modality Ablations (Test $N{=}6{,}108$, 5 Seeds).} Warm-start cuts cold exploration cost; perceptual cues lift cold LinUCB by +3.86\%.}
-\label{tab:ablations}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Ablation Variant} & \textbf{Acc (\%)} & \textbf{Std} & \textbf{Cost / 1k} & \textbf{Cold Acc} \\
-\midrule
-\multicolumn{5}{l}{\emph{(a) Progressive Component Additions ($\gamma{=}0.08$)}} \\
-1. Pure Online LinUCB (Cold) & 72.68 & 1.71 & \$0.3220 & --- \\
-2. + Offline Warm-Start Prior & 78.58 & 0.11 & \$0.1590 & --- \\
-3. + Budget Annealing ($\alpha_t = \alpha_0 b_t$) & 78.59 & 0.14 & \$0.1591 & --- \\
-\textbf{4. + Confidence Gate (Full)} & \textbf{78.59} & \textbf{0.12} & \$0.1598 & --- \\
-\midrule
-\multicolumn{5}{l}{\emph{(b) Zero-Label Context Modalities ($d$ dims)}} \\
-Text Only (MiniLM, 384-d) & 77.82 & 0.23 & \$0.1532 & 70.50 \\
-Perceptual Cues Only (8-d) & 77.82 & \textbf{0.07} & \$0.1804 & 66.51 \\
-Vision Only (DINO+ResNet, 512-d) & 78.01 & 0.09 & \$0.1563 & 67.87 \\
-Vision + Perceptual (520-d) & 77.92 & 0.06 & \$0.1555 & 70.52 \\
-Text + Vision Only (896-d) & \textbf{78.77} & 0.16 & \$0.1605 & 68.82 \\
-\textbf{Full Joint Multimodal (904-d)} & 78.59 & 0.12 & \$0.1598 & \textbf{72.68} \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.87\textwidth]{../reports/figures/fig5_ablations_and_tokens.png}
-\caption{\textbf{Modality Feature Ablations and Autonomous Domain Specialization (Test $N{=}6{,}108$).} \emph{(a)} Adding 8 unsupervised perceptual/linguistic cues boosts cold LinUCB from 68.82\% to 72.68\% (+3.86\%) and lowers variance. \emph{(b)} With zero domain labels, CascadeRoute-VL directs STEM traffic to thinking specialists and Charts/OCR to compact perception models (\textbf{53$\times$} token shift: 259.6 vs.\ 4.9).}
-\label{fig:ablation}
-\end{figure*}
-
-Table~\ref{tab:ablations} and Figure~\ref{fig:ablation} isolate key gains:
+Figures~\ref{fig:ablation} and~\ref{fig:budgets_gates} verify each component (Supp.\ Sec.~S3):
 \begin{itemize}
-    \item \textbf{Component Synergy:} Offline warm-start lifts cold LinUCB by \textbf{+5.90\%} while halving USD cost (\$0.3220 $\to$ \$0.1590/1k). Budget annealing enforces Theorem~2 cleanly; under balanced $\gamma{=}0.08$ the gate escalates 0.25\% of picks, while under frugal $\gamma{=}0.30$ it triggers on \textbf{11.6\%} of ambiguous compact calls (76.13\% @ \$0.0876/1k).
-    \item \textbf{Perceptual Cues Value:} Appending 8-d unsupervised cues lifts cold \texttt{Vision-Only} by +2.65\% and cold \texttt{Text+Vision} from 68.82\% to \textbf{72.68\%} (\textbf{+3.86\%}), stabilizing full variance (0.12\%).
-    \item \textbf{Zero-Label Emergent Specialization:} Without domain IDs (Fig.~\ref{fig:ablation}b), CascadeRoute-VL routes 63.2\% of \texttt{STEM} queries to thinking arms (\texttt{Kimi-3B-Think} 36.8\%, \texttt{MiMo-VL-RL} 26.4\%, 259.6 out tok; 74.62\% acc vs.\ 67.08\% for 72B), while limiting \texttt{MiMo-VL-RL} to \textbf{0.09\%} on \texttt{Charts\_OCR} and shifting 44.7\% to \texttt{Qianfan-8B}/\texttt{DeepSeek-VL2} (4.9 out tok---\textbf{53$\times$ scaling}).
+    \item \textbf{Feature Transfer Ablation ($896$-d vs.\ $904$-d):} Evaluating the 8 handcrafted spatial cues on Dev LODO reveals high cross-domain variance (e.g. background brightness swings from 0.76 on ChartQA to 0.005 on RealWorldQA). While cues provide marginal in-domain fit (+0.12\%), foundation embeddings (MiniLM + DINOv2) provide superior cross-domain transfer ($81.59\%$ vs.\ $79.18\%$, \textbf{+2.41\%} gain, $p{=}0.0002$), establishing $896$-d as default.
+    \item \textbf{Deterministic Guardrail (Proposition~1 vs.\ BwK):} Across $0.25\times$--$1.25\times$ spend, \texttt{Unguarded} overruns up to $3.97\times B_{\max}$ and \texttt{BwK} violates $5/6$ limits; \texttt{CascadeRoute} achieves \textbf{0/6 violations (0.00\%)} and higher accuracy everywhere (65.32\%--78.52\%).
+    \item \textbf{Calibrated Gate \& Probes:} Gating is neutral on 17-arm pools (+0.02\%). In Compact-Primary $\to$ Escalation, $\tau_{\text{cal}}{=}0.04$ lifts accuracy $69.27\% \to \textbf{77.90\%}$ (\textbf{+8.69\%}, \textbf{+13.82\%/\$} vs.\ FrugalGPT); first-call probes raise 17-model Oracle Gap Closure to \textbf{27.7\%} (82.25\% @ \$0.1374/1k).
+    \item \textbf{Generalization \& Feedback:} On LODO, \texttt{D-LinUCB} beats frozen \texttt{MLP} on unseen \texttt{InfoVQA} (79.97\% vs.\ 76.79\%) and \texttt{MathVision} (42.11\% vs.\ 41.12\% at half cost). Pool~A$\to$B transfer hits 75.10\% at \textbf{48.7\% lower cost} (\$0.1544 vs.\ \$0.3012). OOD holds 80.22\% at 25\% labels and 78.51\% at 20\% judge flips.
 \end{itemize}
 
-\subsection{Counterfactual Off-Policy Evaluation (OPE)}
-\label{sec:ope}
-
-Evaluating stationary policy snapshots over an $\epsilon$-greedy logger ($\epsilon{=}0.50$, $p_0(a|x)\ge 0.50/17$) via IPS, SNIPS~\citep{swaminathan2015self}, and Doubly Robust (DR)~\citep{dudik2011doubly} with 1,000 bootstrap resamples (Table~\ref{tab:ope}), all 95\% CIs closely bracket true on-policy accuracy: for \texttt{CascadeRoute-VL}'s warm-start prior (True \textbf{0.7878}), SNIPS yields \textbf{0.7919} [0.7461, 0.8386] and DR yields \textbf{0.7833} [0.7395, 0.8281] ($\text{ESS}{=}306.4$), confirming finite-sample unbiasedness.
+\subsection{Live GPU Multi-Configuration Routing \& Latency Calibration}
+\label{sec:configs_latency}
 
 \begin{table}[t]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
-\renewcommand{\arraystretch}{0.94}
-\caption{\textbf{Counterfactual Off-Policy Evaluation (Test $N{=}6{,}108$, 1,000 Bootstrap Resamples).} 95\% CIs for IPS, SNIPS, and Doubly Robust (DR) cleanly bracket true on-policy accuracy.}
-\label{tab:ope}
+\renewcommand{\arraystretch}{0.80}
+\caption{\textbf{Live 4-Bit GPU Multi-Config Expansion (5-Fold CV), Unseen \texttt{AMBER}, \& Hardware Latency ($N{=}600$).}}
+\label{tab:live_gpu_summary}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Policy ($\pi$)} & \textbf{True Acc} & \textbf{IPS (95\% CI)} & \textbf{SNIPS (95\% CI)} & \textbf{DR (95\% CI)} \\
+\textbf{Knob Set / Regime} & \textbf{Arms} & \textbf{Peak / Match} & \textbf{Lat (s)} & \textbf{Lat-AUC} \\
 \midrule
-\texttt{DS-VL2-Tiny} & 0.6257 & 0.631 [0.520, 0.740] & 0.592 [0.526, 0.663] & 0.576 [0.516, 0.643] \\
-\texttt{Qianfan-VL-8B} & 0.6988 & 0.729 [0.615, 0.845] & 0.678 [0.616, 0.742] & 0.696 [0.631, 0.759] \\
-\texttt{Qwen2.5-VL-72B} & 0.7729 & 0.844 [0.722, 0.971] & 0.856 [0.810, 0.903] & 0.821 [0.778, 0.866] \\
-\texttt{Offline-Linear} & 0.7883 & 0.782 [0.759, 0.805] & 0.784 [0.770, 0.798] & 0.785 [0.771, 0.799] \\
-\texttt{MLP-Router} & \textbf{0.7985} & 0.760 [0.665, 0.862] & 0.780 [0.729, 0.827] & 0.774 [0.724, 0.820] \\
-\textbf{CascadeRoute-VL} & 0.7878 & \textbf{0.836} [0.733, 0.937] & \textbf{0.792} [0.746, 0.839] & \textbf{0.783} [0.740, 0.828] \\
+1. Mode Only (\texttt{Inst}/\texttt{Thk}, HighRes B512) & 2 & 52.0 / 52.0 & 6.673 & 45.38\% \\
+2. + Token Budget (\{32, 128, 512\}) & 6 & \textbf{56.0} / 52.0 & \textbf{2.353} & 55.64\% \\
+3. + Image Resolution ($196^2$, $392^2$) & 12 & \textbf{56.0} / 52.0 & \textbf{2.353} (min 1.33s) & \textbf{55.66\%} \\
+\midrule
+\textbf{External \texttt{AMBER} (Unseen)} & \multicolumn{2}{c}{\texttt{Inst/Thk/CR/Oracle}:} & \multicolumn{2}{c}{90.0 / 90.0 / \textbf{90.0} / 100\%} \\
+\multicolumn{3}{l}{Mean Latency: \texttt{CR} \textbf{0.350s} vs.\ \texttt{Thk} 13.389s} & \multicolumn{2}{r}{(\textbf{38.3$\times$} faster)} \\
+\midrule
+\textbf{CUDA Wall-Clock \& Enc.} & \textbf{p50 / p95} & \textbf{OLS Fit} & \multicolumn{2}{c}{\textbf{Sim MAE / MAPE / $r$}} \\
+\texttt{Qwen3-VL-2B-Instruct} ($300$) & 0.490s / 19.64s & 0.05s / 6.4 TPS & \multicolumn{2}{c}{0.598s / 14.0\% / 0.989} \\
+\texttt{Qwen3-VL-2B-Thinking} ($300$) & 13.17s / 66.56s & 0.20s / 7.8 TPS & \multicolumn{2}{c}{0.661s / \textbf{3.5\%} / \textbf{0.999}} \\
+All-3-Enc + LinUCB ($896$-d) & \multicolumn{4}{l}{\textbf{52.66ms / 68.21ms} (MiniLM 13.9, DINOv2 15.2, RN50 16.5, UCB 1.0ms)} \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
+Figure~\ref{fig:live_gpu_drift} and Table~\ref{tab:live_gpu_summary} report our live 4-bit GPU study on \texttt{Qwen3-VL-2B} (RTX~4050 CUDA, 50 queries + unseen \texttt{AMBER}; Supp.\ Sec.~S3):
+\begin{itemize}
+    \item \textbf{Same-Backbone Mode Router \& Taxonomy:} Enabling \texttt{-Thinking} lowers accuracy $52.0\% \to \textbf{42.0\%}$ ($-20\%$ \texttt{ChartQA}, $-40\%$ \texttt{HallusionBench}; $+10\%$ \texttt{OCRBench}) at $6.24\times$ tokens. On \texttt{HallusionBench}, 60.0\% of failures are genuine visual errors (failing after emitting \texttt{</think>}), and blank-image probes show Instruct drops by $-90\%$ without visual tokens vs.\ $-30\%$ for Thinking (leaning on language priors). Our online mode router achieves \textbf{54.0\% accuracy} (\textbf{50.0\% Oracle Gap Closure}) at \textbf{139.6 tokens} ($55.1\%$ token savings vs.\ Thinking). Expanding $2 \to 12$ configurations achieves \textbf{55.66\%} Latency-AUC (+10.28\%, 95\% CI $[+6.4\%, +14.2\%]$, $p{=}0.0004$). On unseen \texttt{AMBER}, \texttt{CascadeRoute-VL} holds \textbf{90.0\%} at \textbf{0.350s} ($38.3\times$ faster than \texttt{-Thinking}).
+    \item \textbf{Overhead \& Simulator Fit:} Combined $896$-d all-3-encoder + LinUCB overhead is \textbf{52.66ms p50 / 68.21ms p95} ($<0.4\%$ of \texttt{-Thinking} p50); 600-run OLS fits hardware closely ($r{=}0.9894$ / $0.9985$, MAE $0.598\text{s}$ / $0.661\text{s}$, \texttt{Thinking} MAPE \textbf{3.5\%}).
+\end{itemize}
+
 % ============================================================================
-\section{Discussion, Limitations, and Conclusion}
+\section{Limitations and Conclusion}
 \label{sec:conclusion}
 % ============================================================================
 
-\textbf{Limitations \& Transparency.} (1)~On \texttt{ChartQA}, \texttt{DocVQA}, \texttt{InfoVQA}, and \texttt{TextVQA}, upstream \texttt{MiMo-VL-7B-RL} transcripts record 0.0\% extracted accuracy as unclosed \texttt{<think>} tags break parsing; CascadeRoute-VL avoids this cleanly (0.09\% OCR rate). (2)~Latencies follow deterministic TTFT+throughput profiling on exact \texttt{cl100k\_base} tokens rather than queueing jitter; USD savings reflect published token pricing. (3)~Feature extraction takes $\sim$2--4\,ms/query on GPU, negligible vs.\ multi-second 72B decoding.
+\textbf{Limitations.} (1)~The 30,540-query study uses Raw \texttt{Y.npz} and \texttt{<think>}-repaired outcomes with OLS latencies over 17 models rather than server queueing. (2)~Dual-arm deferral observes both arms (isolated vs.\ \texttt{final\_only}). (3)~Warm-start priors and \texttt{Dev} calibration use seen-domain logs decaying under shift. (4)~Live GPU runs use 4-bit HF \texttt{transformers} (RTX~4050) rather than vLLM/SGLang.
 
-\textbf{Conclusion.} We introduced \textbf{CascadeRoute-VL}, a zero-leakage online contextual bandit resolving the Multimodal Reasoning Tax across 30,540 queries, 14 benchmarks, and 17 VLMs. Fusing a bounded 904-d perceptual state, warm-started Sherman-Morrison LinUCB, budget annealing, and confidence-guided escalation, it beats static 72B models while saving 38.7\%--66.4\% USD, scaling compute 53$\times$ without labels, and adapting in $\sim$51 unseen OOD queries where offline routers collapse.
+\textbf{Conclusion.} \textbf{CascadeRoute-VL} is a domain-label-free online bandit router taming the Multimodal Reasoning Tax across 30,540 queries, 12 GPU configs, and unseen \texttt{AMBER}, uniting $896$-d states, discounted Sherman-Morrison updates, horizon budgeting ($C_T {\le} B_{\max}{+}c_{\max}$), and calibrated deferral.
 
-\FloatBarrier
+\clearpage
 {\small
 \bibliographystyle{ieeenat_fullname}
 \bibliography{references}

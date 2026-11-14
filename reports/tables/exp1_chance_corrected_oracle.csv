@@ -1,0 +1,7 @@
+Split / Subset,N,qwen72_acc,best_single_acc,real_oracle,raw_gap_vs_best,chance_oracle_global,chance_oracle_stratified,excess_gap_over_strat_chance
+Full VL-RouterBench (Raw Y),30540,78.21,78.21,95.45,17.24,100.0,99.99,-4.54
+Held-Out Test Split (Raw Y),6108,77.29,77.29,95.17,17.88,100.0,100.0,-4.83
+Non-MCQ Benchmarks Only (Raw Y),22659,77.32,77.32,94.43,17.1,100.0,99.99,-5.57
+"In-Dist Test (General+STEM, Raw Y)",2523,69.24,73.13,95.48,22.35,100.0,99.99,-4.51
+Full VL-RouterBench (MiMo Repaired Exact),30540,78.21,78.21,95.95,17.74,100.0,99.99,-4.04
+Full VL-RouterBench (All-17 Std >=0.5),30540,81.39,81.39,97.23,15.83,100.0,99.99,-2.77

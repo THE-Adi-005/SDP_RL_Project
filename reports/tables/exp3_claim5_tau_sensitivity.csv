@@ -1,0 +1,15 @@
+Regime,Gate,Feedback,tau_cal,Acc (%),Cost / 1k ($),Esc Rate (%),Gate Net dAcc (%),Esc Extra Spend ($),dAcc (%) per Extra $
+Frugal 17-Pool,Calibrated,both_arms,-0.08,76.33,0.1311,44.63,0.88,0.3897,2.27
+Compact-Primary Pool,Calibrated,both_arms,-0.08,76.26,0.1948,66.0,6.99,0.9139,7.65
+Frugal 17-Pool,Calibrated,both_arms,-0.04,76.39,0.0964,17.71,0.82,0.1798,4.55
+Compact-Primary Pool,Calibrated,both_arms,-0.04,76.8,0.1931,64.01,7.53,0.9028,8.34
+Frugal 17-Pool,Calibrated,both_arms,0.0,75.77,0.0751,4.42,0.31,0.0501,6.2
+Compact-Primary Pool,Calibrated,both_arms,0.0,78.06,0.1823,58.24,8.82,0.8368,10.55
+Frugal 17-Pool,Calibrated,both_arms,0.02,75.56,0.071,2.18,0.26,0.0259,10.11
+Compact-Primary Pool,Calibrated,both_arms,0.02,78.16,0.1676,50.43,8.92,0.7475,11.94
+Frugal 17-Pool,Calibrated,both_arms,0.04,75.41,0.0685,0.97,0.07,0.0093,7.02
+Compact-Primary Pool,Calibrated,both_arms,0.04,77.9,0.1482,41.91,8.69,0.629,13.82
+Frugal 17-Pool,Calibrated,both_arms,0.08,75.38,0.0669,0.07,0.0,0.0006,0.0
+Compact-Primary Pool,Calibrated,both_arms,0.08,76.46,0.1167,28.27,7.22,0.437,16.52
+Frugal 17-Pool,Calibrated,both_arms,0.14,75.46,0.0669,0.0,0.0,0.0,0.0
+Compact-Primary Pool,Calibrated,both_arms,0.14,75.54,0.0973,19.07,6.29,0.3186,19.74

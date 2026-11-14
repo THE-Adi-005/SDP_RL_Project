@@ -1,0 +1,5 @@
+Policy,Accuracy (%),Mean OutTok,Mean Latency (s),Oracle Gap Closed (%)
+Static Qwen3-VL-2B-Instruct,52.0,49.84,6.672942476000171,0.0
+Static Qwen3-VL-2B-Thinking,42.0,311.1,40.31894663799845,-71.4
+CascadeRoute-VL Mode Router,54.0,139.58,18.236666868000757,50.0
+Same-Backbone Mode Oracle,56.00000000000001,62.26,8.368301118000527,100.0
