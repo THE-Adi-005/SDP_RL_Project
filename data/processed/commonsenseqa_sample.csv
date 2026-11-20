@@ -1,0 +1,901 @@
+problem_id,question,expected_answer,category,difficulty
+csqa_542,"The man took paperwork to other people to consult over it, where was he heading?
+A. desk
+B. meeting
+C. office
+D. table
+E. work",B,commonsense,unknown
+csqa_259,"If a person is working a lot, what are they likely trying to earn?
+A. much money
+B. own house
+C. creativity
+D. new car
+E. caregiver",A,commonsense,unknown
+csqa_43,"Where can you put a picture frame when it's not hung vertically?
+A. art show
+B. wall
+C. newspaper
+D. car
+E. table",E,commonsense,unknown
+csqa_1011,"He had no issue committing perjury, he had a what that he would get away with it?
+A. confidence
+B. go to jail
+C. telling lies
+D. lying
+E. manual",A,commonsense,unknown
+csqa_754,"The boat passenger was explaining his fear of blowfish, but the captain figured he meant piranhas since they were on a river in the what?
+A. cuba
+B. styx
+C. atlantic ocean
+D. france
+E. jungle",E,commonsense,unknown
+csqa_310,"What city will likely have many parking structures?
+A. chicago
+B. big city
+C. large city building
+D. environment
+E. college campus",A,commonsense,unknown
+csqa_755,"Where could you find only a few office?
+A. skyscraper
+B. new york
+C. school building
+D. city
+E. work",C,commonsense,unknown
+csqa_467,"Where can you find a restaurant's phone number?
+A. yellow pages
+B. town
+C. business sector
+D. town
+E. at hotel",A,commonsense,unknown
+csqa_210,"The inspector was agreeing with the factory protocols, what was the status of the factory?
+A. compliance
+B. eligible
+C. contract
+D. harmony
+E. friendship",A,commonsense,unknown
+csqa_155,"What part of plants is pretty?
+A. dirt
+B. no neurons in
+C. millions of cells
+D. flowers on
+E. roots",D,commonsense,unknown
+csqa_1109,"Where do apples form on an apple tree?
+A. south africa
+B. sunshine
+C. new york
+D. bloom
+E. trunk",D,commonsense,unknown
+csqa_711,"They were making sauerkraut, the instructor explained the liquid should be above the cabbage in the what?
+A. jar
+B. drinking glass
+C. pot
+D. container
+E. can",A,commonsense,unknown
+csqa_409,"John farms anemone in what type of facility?
+A. michigan
+B. swimming pool
+C. atlantic ocean
+D. nursery
+E. gulf of mexico",D,commonsense,unknown
+csqa_494,"What do people want to acquire from opening business?
+A. home
+B. wealth
+C. bankruptcy
+D. lose money
+E. get rich",B,commonsense,unknown
+csqa_700,"When you need to rest it's often because you have been doing what?
+A. action
+B. sleep
+C. sleeping
+D. in motion
+E. using energy",E,commonsense,unknown
+csqa_523,"John didn't mind getting in line.  It was what game after that he hated.  The time, the sore feet. He did not like doing what?
+A. have to wait for
+B. standing in line
+C. eat cake
+D. less confusion
+E. being ordered",B,commonsense,unknown
+csqa_809,"The dog curled up for a nap, it was tuckered out because it had just been what?
+A. walked
+B. petted
+C. affection
+D. go outside
+E. scratch",A,commonsense,unknown
+csqa_552,"Where is a statute found on a platform?
+A. below
+B. arena
+C. concert hall
+D. museum
+E. building",D,commonsense,unknown
+csqa_753,"What will likely happen after stabbing to death a person?
+A. gruesome
+B. being arrested
+C. pool of blood
+D. mess
+E. grisly",B,commonsense,unknown
+csqa_423,"The man didn't do great in college, all his best memories were late night with his brothers at the what?
+A. big city
+B. fraternity house
+C. school
+D. building
+E. big town",B,commonsense,unknown
+csqa_380,"James was meeting a friend.  They had planed a slow day. They didn't want to do much.  They just wanted what?
+A. relaxation
+B. panic
+C. alarm
+D. joy
+E. cheer",A,commonsense,unknown
+csqa_962,"They had to know where to go, they got on the national highway after consulting the what?
+A. canada
+B. atlas
+C. united states
+D. major cities
+E. book",B,commonsense,unknown
+csqa_1151,"Traveling from new place to new place is likely to be what?
+A. going somewhere
+B. exhilarating
+C. diarrhea
+D. relocation
+E. exhausting",B,commonsense,unknown
+csqa_352,"What happens when to ice when it is in the sun?
+A. carved
+B. melted
+C. ice cream
+D. antarctica
+E. sculptured",B,commonsense,unknown
+csqa_298,"When a person admits his mistakes, what are they doing?
+A. accident
+B. learn to swim
+C. thank god
+D. feel relieved
+E. act responsibly",E,commonsense,unknown
+csqa_1032,"Spraining an ankle while playing baseball will cause what?
+A. strikes
+B. eating
+C. injury
+D. sore muscles
+E. pain",E,commonsense,unknown
+csqa_424,"In a horror movie victims usually trip when the run in order to do what in regards to the killer?
+A. frightened
+B. run up stairs
+C. get away from
+D. go quickly
+E. go faster",C,commonsense,unknown
+csqa_861,"She asked her little boy why, he replied that he didn't know and it was just what?
+A. case
+B. reason
+C. how
+D. because
+E. answer",D,commonsense,unknown
+csqa_331,"Where does one store fabric in their own home?
+A. sewing room
+B. clothing store
+C. tailor shop
+D. clothes store
+E. cotton mill",A,commonsense,unknown
+csqa_1212,"As he looked out the window, he knew the landing was happening soon, and it made him nervous, but where would he be soon?
+A. apartment building
+B. disembark
+C. stairwell
+D. deplane
+E. airport",E,commonsense,unknown
+csqa_534,"Most people make stupid assumptions that are based on their prejudices.  What might they do instead to achieve better outcomes?
+A. set table
+B. think
+C. read books
+D. play games
+E. lie",B,commonsense,unknown
+csqa_107,"James's nice asked him about her grandfather. She was interested in learning about what?
+A. family tree
+B. family reunion
+C. babysitting
+D. brother's house
+E. heirlooms",A,commonsense,unknown
+csqa_371,"She was in an affair, what did that end upon discovery by her husband?
+A. relationship
+B. marriage
+C. fidelity
+D. love
+E. divorce",B,commonsense,unknown
+csqa_605,"What blocks sunshine?
+A. summer
+B. park
+C. desktop
+D. sea
+E. moon",E,commonsense,unknown
+csqa_903,"The family wanted to adopt for enviro-ethical reasons, what did they abhor?
+A. orphan
+B. biological child
+C. give away
+D. foster child
+E. abandon",B,commonsense,unknown
+csqa_78,"John felt that his actions were fate.   Harry said that he could have always made a different what?
+A. free will
+B. choice
+C. will
+D. alcohol
+E. freedom",B,commonsense,unknown
+csqa_855,"Why would a woman kill a stranger she met in a dark alley?
+A. being raped
+B. get rid of
+C. they didn't know the passcode
+D. get revenge
+E. were evil",A,commonsense,unknown
+csqa_617,"For many males hair is a concern as they get older, it begins to what, causing a receding hairline?
+A. thin out
+B. grow in ear
+C. fall out
+D. bulge
+E. composted",C,commonsense,unknown
+csqa_76,"Where does a wild bird usually live?
+A. cage
+B. sky
+C. countryside
+D. desert
+E. windowsill",C,commonsense,unknown
+csqa_772,"What will you put on a pen to prevent it from drying out?
+A. write sentences on paper
+B. ink in
+C. ink cartridges
+D. caps
+E. cling film",D,commonsense,unknown
+csqa_44,"James knew that he shouldn't have been buying beer for minors.  He didn't even get paid for it.  Why was this bad?
+A. lose money
+B. fun
+C. have no money
+D. broken law
+E. relaxation",D,commonsense,unknown
+csqa_643,"Danny is having fun just dancing and singing with his friends. He wasn't concerned with things that weren't fun. For him having fun is the same as what?
+A. injuries
+B. smiling
+C. being happy
+D. glee
+E. jump",C,commonsense,unknown
+csqa_1165,"What type of demands to the unions need to be making to go off strike?
+A. reasonable
+B. more money
+C. not go to work
+D. return to work
+E. union",A,commonsense,unknown
+csqa_113,"james told his son to settle down and be careful.  There were many frogs mating in the area, and James didn't want his son to do what to them?
+A. wander
+B. migrate
+C. scare
+D. disturb
+E. agitate",D,commonsense,unknown
+csqa_435,"Zane doesn't like answering questions.  He's not good at it because he suffers from what?
+A. panic
+B. discussion
+C. attention
+D. confusion
+E. satisfaction",D,commonsense,unknown
+csqa_265,"What may I place the telephone on?
+A. bar
+B. friend's house
+C. desktop
+D. party
+E. office",C,commonsense,unknown
+csqa_573,"To get clean clothes you to what to them?
+A. get dirty
+B. writing
+C. use water
+D. launder
+E. soap",D,commonsense,unknown
+csqa_1081,"When a group of people are talking at work they might be doing what?
+A. having a concert.
+B. cough
+C. sharing of ideas
+D. speak
+E. sneeze",C,commonsense,unknown
+csqa_1085,"Where is one likely to find poker chips?
+A. supermarket
+B. pantry
+C. motherboard
+D. bar
+E. bar",D,commonsense,unknown
+csqa_1070,"What kind of food makes someone sick?
+A. boat
+B. necessary to live
+C. edible
+D. unhealthy
+E. kitchen",D,commonsense,unknown
+csqa_478,"What will a person do at work?
+A. cross street
+B. draw attention to themselves
+C. make money
+D. falling down
+E. come home",C,commonsense,unknown
+csqa_240,"If I have a pet bird, what does it likely live in?
+A. forest
+B. bathroom
+C. windowsill
+D. countryside
+E. cage",E,commonsense,unknown
+csqa_192,"If you take the risk buying a used car, you still hope it can what?
+A. go fast
+B. start running
+C. going too fast
+D. look good
+E. last several years",E,commonsense,unknown
+csqa_420,"Many people wanted to leave their country estates for row houses, what did they need to move to?
+A. living less expensively
+B. england
+C. prison
+D. city
+E. town",D,commonsense,unknown
+csqa_789,"The rats were hiding in the house, where were they?
+A. sewers
+B. laboratory
+C. basement
+D. clinic
+E. cellar",E,commonsense,unknown
+csqa_887,"If you're a child answering questions and an adult is asking them that adult is doing what?
+A. discussion
+B. explaning
+C. teaching
+D. confusion
+E. correct",C,commonsense,unknown
+csqa_297,"Where would you buy food?
+A. freezer
+B. store
+C. home
+D. hatred
+E. kitchen",B,commonsense,unknown
+csqa_865,"The department to where vendors deliver goods for sale is called what?
+A. delivered
+B. take away
+C. receiving
+D. pick up
+E. keep",C,commonsense,unknown
+csqa_591,"Where could a personal ficus live?
+A. cabin in the woods
+B. california
+C. front yard
+D. conservatory
+E. tropical forest",C,commonsense,unknown
+csqa_81,"A crane uses many a steel cable when working a what?
+A. abaft
+B. ship
+C. winch
+D. construction site
+E. building",D,commonsense,unknown
+csqa_1105,"The child felt like it was all pretend, he didn't understand what?
+A. people believe
+B. daydreams
+C. transcendentalism
+D. laughter
+E. religion",E,commonsense,unknown
+csqa_745,"Where do you keep your pizza slice before you eat it?
+A. table
+B. plate
+C. restaurant
+D. oven
+E. popular",B,commonsense,unknown
+csqa_49,"Who is likely to be excited about a crab?
+A. fish market
+B. pet shop
+C. fishmongers
+D. intertidal zone
+E. obesity",C,commonsense,unknown
+csqa_350,"Where can you buy a clock, clothing and wrenches?
+A. counter
+B. train station
+C. school room
+D. desk
+E. department store",E,commonsense,unknown
+csqa_678,"What can disease destroy?
+A. rug
+B. third world country
+C. human body
+D. hospital
+E. building",C,commonsense,unknown
+csqa_410,"Brawn opened the curtains so that the sun could do what?
+A. dry clothes
+B. warm house
+C. warm room
+D. shine brightly
+E. get dark",C,commonsense,unknown
+csqa_904,"What happens when airplane engines cut off and are unable to be restarted in flight?
+A. stall
+B. start melting
+C. taxi
+D. crash
+E. speed up",D,commonsense,unknown
+csqa_1207,"David watched some nesting birds using his binoculars while on vacation.  Where might David be?.
+A. sky
+B. vaccation
+C. forest
+D. countryside
+E. roof",C,commonsense,unknown
+csqa_932,"She wanted a kitten and puppy so why did she only get the puppy?
+A. one choice for pet
+B. cute
+C. kennel
+D. soft
+E. waxy",A,commonsense,unknown
+csqa_914,"Before lifting weights he liked to warm up on the squash court, he really enjoyed the facilities of the what?
+A. swimming pool
+B. rich person's house
+C. country club
+D. fitness center
+E. park",D,commonsense,unknown
+csqa_362,"Batman bought beer.  There were no bottles available.  He had to settle for what?.
+A. shelf
+B. soccer game
+C. keg
+D. can
+E. refrigerator",D,commonsense,unknown
+csqa_344,"What do you use to carry your briefcase?
+A. office building
+B. school
+C. courtroom
+D. airport
+E. hand",E,commonsense,unknown
+csqa_70,"If you have to read a book that is very dry and long you may become what?
+A. have time
+B. boring
+C. learn new
+D. enjoyable
+E. bored",E,commonsense,unknown
+csqa_910,"The goal was to hit the target, but a projectile ball can't hit anything if it isn't in what?
+A. motion
+B. ocean
+C. flintlock
+D. arcade
+E. tennis court",A,commonsense,unknown
+csqa_23,"Where could you find a toilet that only friends can use?
+A. rest area
+B. school
+C. stadium
+D. apartment
+E. hospital",D,commonsense,unknown
+csqa_101,"How would you get from one side of a canal to another?
+A. michigan
+B. amsterdam
+C. venice
+D. bridge
+E. barges to travel on",D,commonsense,unknown
+csqa_706,"To get out of there the person had to keep on walking, they had to keep on what?
+A. moving forward
+B. locomotion
+C. blisters
+D. rollerskate
+E. exercise",A,commonsense,unknown
+csqa_58,"If there is a place that is hot and arid, what could it be?
+A. bland
+B. lifeless
+C. sandy
+D. neutral
+E. freezing",B,commonsense,unknown
+csqa_644,"Where would you find an office worker gossiping with their colleagues?
+A. water cooler
+B. space shuttle
+C. baby shower
+D. bus stop
+E. family",A,commonsense,unknown
+csqa_930,"What very cold area in the east can a crab be found?
+A. fish market
+B. shallow waters
+C. atlantic ocean
+D. fresh water
+E. shore line",C,commonsense,unknown
+csqa_1173,"No matter what date you put on it, we all know the universe to be what?
+A. very old
+B. infiniverse
+C. getting younger
+D. infinite
+E. real",A,commonsense,unknown
+csqa_361,"How can a human cross a river and not mess up their hair?
+A. wisconsin
+B. waterfall
+C. hatred
+D. bridge
+E. valley",D,commonsense,unknown
+csqa_1026,"John rode on the plain until it reached the ocean and couldn't go any farther. What might he have bee on?
+A. mountain
+B. fancy
+C. sandplain
+D. cliff
+E. gorge",D,commonsense,unknown
+csqa_218,"When is the worst time for having food?
+A. digesting
+B. not hungry
+C. gas
+D. weight gain
+E. feeling of fullness",B,commonsense,unknown
+csqa_296,"Where would you put a glass after drinking from it?
+A. ocean
+B. water cooler
+C. cabinet
+D. dishwasher
+E. dining room",D,commonsense,unknown
+csqa_965,"What might you need to do cleaning?
+A. sing a song
+B. neatness
+C. allergies
+D. healthy living
+E. using water",E,commonsense,unknown
+csqa_481,"The man started to learn jogging, what was he hoping to do?
+A. exhaustion
+B. getting in shape
+C. fitness
+D. injure himself
+E. fatigue",B,commonsense,unknown
+csqa_231,"A person with an allergy might be doing what if they awake suddenly?
+A. have fun
+B. enjoy with friends
+C. stretch
+D. yawn
+E. sneezing",E,commonsense,unknown
+csqa_764,"What is likely to be found in a book that is not a foreword?
+A. last word
+B. conclusion
+C. ikea instructions
+D. afterword
+E. epilogue",E,commonsense,unknown
+csqa_948,"The man was giving assistance to a pan handler in the streets, how did he give assistance?
+A. feeling good
+B. killing
+C. law suits
+D. out of pocket
+E. feel loved",D,commonsense,unknown
+csqa_902,"Many towns and cities have trash cans where on sidewalks?
+A. hospital
+B. park
+C. corner
+D. motel
+E. office",C,commonsense,unknown
+csqa_51,"If I was getting drunk, and people couldn't understand me, what might I be having?
+A. a seizure
+B. slurred speech
+C. death
+D. forgetfulness
+E. pass out",B,commonsense,unknown
+csqa_581,"I saw the receptionist carelessly toss my resume into the drawer, where did I want it to end up?
+A. file cabinet
+B. nightstand
+C. kitchen cabinet
+D. office desk
+E. the floor",D,commonsense,unknown
+csqa_881,"At the end of the day as he began to eat he paused and thanked her, it wasn't often she would what?
+A. cook dinner
+B. did chores
+C. make food
+D. stretch out
+E. get food",A,commonsense,unknown
+csqa_553,"If it's not used for hair a round brush is an example of what?
+A. hair brush
+B. ladies bathroom
+C. art supplies
+D. shower
+E. hair salon",C,commonsense,unknown
+csqa_485,"Though she had a disability, what did her encouraging and positive coach see in her?
+A. qualification
+B. strength
+C. pity
+D. competence
+E. potential",E,commonsense,unknown
+csqa_1167,"John was not happy with his marriage. He and his wife drifted apart.     All and all, recent turns could be described as what?
+A. inappropriate
+B. sadness
+C. unsatisfied
+D. unfortunate
+E. disenchanted",D,commonsense,unknown
+csqa_109,"What would encourage someone to continue playing tennis?
+A. becoming tired
+B. tennis elbow
+C. exercise
+D. hunger
+E. victory",E,commonsense,unknown
+csqa_618,"What happens someone who is bad play poker?
+A. think
+B. ante up
+C. drink
+D. win money
+E. losing money",E,commonsense,unknown
+csqa_123,"Colorful anemone look somewhat like what object you find on window sills?
+A. intertidal zone
+B. coral sea
+C. under water
+D. flower bed
+E. florida keys",D,commonsense,unknown
+csqa_54,"Talking to the same person about the same thing over and over again is something someone can what?
+A. social life
+B. friendship
+C. eye contact
+D. get tired of
+E. learn lessons from",D,commonsense,unknown
+csqa_918,"A town between two mountains is located in a what?
+A. valley
+B. hospital
+C. state
+D. train station
+E. michigan",A,commonsense,unknown
+csqa_710,"Joe and Jill didn't want their children to be sedentary.  They might limit the time they children spend doing what?
+A. play sports
+B. throw things
+C. reading
+D. watch tv
+E. play with toys",D,commonsense,unknown
+csqa_128,"If a person is trying to keep something in their hand what should they do?
+A. complete collection
+B. own house
+C. procrastinate
+D. explode
+E. have to hold",E,commonsense,unknown
+csqa_56,"The freeway had no traffic and few buildings, where is it?
+A. california
+B. countryside
+C. big town
+D. florida
+E. america",B,commonsense,unknown
+csqa_86,"Where would you put pans if you want to bring them with you?
+A. cooking
+B. cook food
+C. kitchen
+D. backpack
+E. drawer",D,commonsense,unknown
+csqa_715,"Where is likely to not just have a kosher restaurant?
+A. jerusalem
+B. jewish neighborhoods
+C. dining in
+D. new york city
+E. dining",D,commonsense,unknown
+csqa_927,"What is part of a republic like the USA?
+A. state
+B. democratic
+C. kingdom
+D. democracy
+E. dictatorship",A,commonsense,unknown
+csqa_275,"What has a surface with many sides?
+A. tetrahedron
+B. object
+C. geometry problem
+D. lake
+E. triangle",A,commonsense,unknown
+csqa_1183,"There was a long cottage somewhere.  People thought it was haunted.  It was overgrown, there was nothing near it.  It's was far into the what?
+A. mountains
+B. countryside
+C. train
+D. painting
+E. village",B,commonsense,unknown
+csqa_447,"Sage loved communicating  He liked doing what with his peers?
+A. exchanging ideas
+B. confusion
+C. peer pressure
+D. response
+E. learning",A,commonsense,unknown
+csqa_170,"John didn't care about style.  He felt that form was less important than what?
+A. shapeless
+B. quality
+C. function
+D. change shape
+E. chaos",C,commonsense,unknown
+csqa_1113,"The place where my linen closet is really needs repainting a light color as it only has one overhead light.
+A. house
+B. home
+C. pool house
+D. hallway
+E. bedroom",D,commonsense,unknown
+csqa_911,"Where is a good place to set a cup of coffee while relaxing?
+A. coffee shop
+B. kitchen
+C. hand
+D. table
+E. office",D,commonsense,unknown
+csqa_1134,"What is the feeling of one having fun?
+A. smiling
+B. pleasure
+C. hurt
+D. injuries
+E. laughter",B,commonsense,unknown
+csqa_321,"Sarah dropped the marble because she wanted to do what?
+A. game
+B. pouch
+C. home
+D. store
+E. jar",A,commonsense,unknown
+csqa_560,"There were times where kids wanted to know a definition, so there was a nice big dictionary in the what?
+A. pocket
+B. classroom
+C. table
+D. library
+E. shelf",B,commonsense,unknown
+csqa_432,"When we are running what are we doing?
+A. stretches
+B. running from police
+C. learn to walk
+D. go quickly
+E. get out of bed",D,commonsense,unknown
+csqa_428,"What is it called when a person with mental illness is able to lead a relatively normal life?
+A. managed
+B. effectively treated
+C. recur
+D. cause delusion
+E. illusion",A,commonsense,unknown
+csqa_636,"Sam wasn't lying, but he left out important details. He was being what?
+A. dishonesty
+B. deceitful
+C. imagination
+D. deceptive
+E. poker face",B,commonsense,unknown
+csqa_1052,"If you want to kill someone you can do what to them with a gun?
+A. sip through
+B. damnation
+C. shoot
+D. commit crime
+E. eat breakfast",C,commonsense,unknown
+csqa_893,"What is someone operating a vehicle likely to be accused of after becoming inebriated?
+A. punish
+B. arrest
+C. automobile accidents
+D. drunk driving
+E. talking nonsense",D,commonsense,unknown
+csqa_649,"Where does a child likely sit at a desk?
+A. furniture store
+B. schoolroom
+C. patio
+D. office building
+E. library",B,commonsense,unknown
+csqa_1132,"What do you do when you're going to market?
+A. buy food
+B. see other people
+C. buying vegetables
+D. buy a fat pig
+E. traveling",A,commonsense,unknown
+csqa_303,"John and Joe like planning games but Joe  was hit by a ball and fell down. What might have happened to Joe.
+A. anger
+B. good natured ribbing.
+C. enjoying
+D. injury
+E. enjoyment",D,commonsense,unknown
+csqa_413,"Where might it be hard to get furniture to?
+A. apartment
+B. loft
+C. store
+D. rug
+E. stairs",B,commonsense,unknown
+csqa_738,"James bought a new set of tire chains and put them somewhere he could find them.  Where would he put them?
+A. gear shift
+B. garage
+C. kitchen
+D. jewelry store
+E. hardware store",B,commonsense,unknown
+csqa_461,"What is it called when two people in love have children?
+A. take oath
+B. procreate
+C. matrimony
+D. please parents
+E. live life",B,commonsense,unknown
+csqa_433,"It's dangerous to let pet birds free so it's better to keep them what?
+A. slavery
+B. caught
+C. caged in
+D. topfree
+E. prisoner",C,commonsense,unknown
+csqa_876,"I took my seat, the curtains drew back and I enjoyed the what?
+A. airplane
+B. movie
+C. auditorium
+D. theatre
+E. show",E,commonsense,unknown
+csqa_780,"What type of store would have lots of sports equipment?
+A. mall
+B. office supply store
+C. school
+D. sporting goods store
+E. sporting event",D,commonsense,unknown
+csqa_377,"John was my neighbor, it was easy to talk to him. He was never what?
+A. away
+B. distant
+C. remote person
+D. bore
+E. foe",B,commonsense,unknown
+csqa_286,"Where are you likely to set papers while working on them?
+A. table
+B. meeting
+C. drawer
+D. toilet
+E. garage",A,commonsense,unknown
+csqa_970,"What is the animal trying to accomplish?
+A. sand trap
+B. live long
+C. leave home
+D. feel pain
+E. eating",B,commonsense,unknown
+csqa_986,"The water in clouds turn in to what when it gets cold?
+A. typhoon
+B. snowflake
+C. laddle
+D. teardrops
+E. sink",B,commonsense,unknown
+csqa_233,"If you jump in any of the oceans you will get?
+A. tanned
+B. wet
+C. wide
+D. very deep
+E. fish",B,commonsense,unknown
+csqa_762,"Why is it hard for a young child to read a long book?
+A. knowledge
+B. cover
+C. no pictures
+D. past
+E. many words",E,commonsense,unknown
+csqa_812,"The ancient seafaring Norse tribesman brought pelts of weasel aboard his what?
+A. rabbit warren
+B. used car lot
+C. chicken coop
+D. cruise
+E. viking ship",E,commonsense,unknown
+csqa_1042,"What is a tactic used to interfere with learning about science?
+A. repetition
+B. sense of wonder
+C. accidents
+D. intimidation
+E. increased knowledge",D,commonsense,unknown
+csqa_724,"If you aren't well rested and it's a rainy day what might you do?
+A. sleep
+B. write
+C. make bread
+D. stay in bed
+E. enjoy film",D,commonsense,unknown
+csqa_901,"John wanted scatter his wife's remains in a lake in the wilderness.  He had to delay before of where he lived.  Where did he live?
+A. mountains
+B. dead body
+C. pay debts
+D. state park
+E. new york",E,commonsense,unknown
+csqa_845,"Many homes in this country are built around a courtyard. Where is it?
+A. candidate
+B. spain
+C. lawn
+D. asshole
+E. office complex",B,commonsense,unknown
+csqa_993,"Where did you meet your best friend since Kindergarten?
+A. friend's house
+B. school
+C. fraternity house
+D. internet cafe
+E. airplane",B,commonsense,unknown
+csqa_1135,"If I keep getting crumbs under my table, what should I put under it?
+A. conference
+B. neighbor's house
+C. rug
+D. net
+E. card room",C,commonsense,unknown
+csqa_716,"The bald eagle flew from Mount St Helen's to the Puget Sound and all over what?
+A. washington state
+B. utah
+C. pacific northwest
+D. northern california
+E. the desert",A,commonsense,unknown
+csqa_266,"What language type is someone from Iran likely to use?
+A. books
+B. dard
+C. sky
+D. closed room
+E. television",B,commonsense,unknown
+csqa_199,"The gimmicky low brow TV show was about animals when they what?
+A. sick
+B. mammals
+C. males
+D. bite
+E. attack",E,commonsense,unknown
+csqa_174,"I'm having some food at my party, what will I need to serve it?
+A. zoo
+B. pan
+C. bowl
+D. kitchen
+E. spoon",E,commonsense,unknown
+csqa_358,"Where would you find a toy soldier that is being played with?
+A. toy box
+B. movies
+C. child's hand
+D. toybos
+E. child park",C,commonsense,unknown
+csqa_147,"Some people prefer releasing energy through work while others prefer to release it through what?
+A. motion
+B. stretch
+C. exercise
+D. movement
+E. muscles",C,commonsense,unknown
